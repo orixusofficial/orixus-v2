@@ -1,0 +1,305 @@
+/* ========================================
+   Orixus — Sidebar (Refined)
+   ======================================== */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background-color: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: width var(--transition-slow), transform var(--transition-slow);
+  overflow: hidden;
+  will-change: width, transform;
+}
+
+/* ----------------------------------------
+   Collapsed state
+   ---------------------------------------- */
+.sidebar--collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+/* ----------------------------------------
+   Brand row
+   ---------------------------------------- */
+.sidebar__brand {
+  padding: 0 var(--space-md) 0 var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+  transition: padding var(--transition-slow);
+}
+
+.sidebar--collapsed .sidebar__brand {
+  padding: 0;
+  justify-content: center;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding-top: var(--space-lg);
+  padding-bottom: var(--space-md);
+}
+
+/* ---- Logo ---- */
+.sidebar__logo {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar__logo-full {
+  display: inline-flex;
+  align-items: center;
+  opacity: 1;
+  max-width: 160px;
+  transition: opacity 200ms ease, max-width var(--transition-slow);
+}
+
+.sidebar__logo-collapsed {
+  display: inline-flex;
+  align-items: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  opacity: 0;
+  transition: opacity 200ms ease, transform var(--transition-slow);
+}
+
+.sidebar--collapsed .sidebar__logo-full {
+  opacity: 0;
+  max-width: 0;
+}
+
+.sidebar--collapsed .sidebar__logo-collapsed {
+  position: relative;
+  left: 0;
+  transform: translateX(0) translateY(0);
+  opacity: 1;
+}
+
+.sidebar__logo-accent {
+  color: var(--color-accent);
+}
+
+/* ---- Hamburger/Collapse button — Bolder & Higher Contrast ---- */
+.sidebar__hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px; /* Slightly increased gap for visibility */
+  width: 36px; /* Slightly larger hit area */
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  padding: 0;
+  background-color: rgba(255, 255, 255, 0.03); /* Subtle background for visibility */
+  border: 1px solid transparent;
+}
+
+.sidebar--collapsed .sidebar__hamburger {
+  margin-top: 4px;
+}
+
+.sidebar__hamburger:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--color-border);
+}
+
+.sidebar__hamburger-bar {
+  display: block;
+  width: 20px; /* Bolder width */
+  height: 2px;  /* Bolder height */
+  background-color: var(--color-text-primary); /* Higher contrast */
+  border-radius: 4px;
+  transition: all var(--transition-base);
+}
+
+/* Symmetrical Arrow Animation — Perfectly Centered */
+.sidebar:not(.sidebar--collapsed) .sidebar__hamburger-bar:nth-child(1) {
+  transform: translateY(2px) rotate(-45deg) scaleX(0.7);
+  transform-origin: center left;
+  width: 18px;
+}
+.sidebar:not(.sidebar--collapsed) .sidebar__hamburger-bar:nth-child(2) {
+  width: 20px;
+}
+.sidebar:not(.sidebar--collapsed) .sidebar__hamburger-bar:nth-child(3) {
+  transform: translateY(-2px) rotate(45deg) scaleX(0.7);
+  transform-origin: center left;
+  width: 18px;
+}
+
+.sidebar--collapsed .sidebar__hamburger-bar {
+  transform: none;
+  width: 18px;
+}
+
+/* ----------------------------------------
+   Navigation
+   ---------------------------------------- */
+.sidebar__nav {
+  flex: 1;
+  padding: var(--space-xl) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.sidebar--collapsed .sidebar__nav {
+  padding: var(--space-xl) 0;
+  align-items: center;
+}
+
+/* Section labels */
+.sidebar__section-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding: var(--space-lg) var(--space-md) var(--space-xs);
+  transition: opacity var(--transition-base);
+}
+
+.sidebar--collapsed .sidebar__section-label {
+  opacity: 0;
+  height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Divider */
+.sidebar__divider {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: var(--space-md) var(--space-md);
+  opacity: 0.4;
+}
+
+.sidebar--collapsed .sidebar__divider {
+  width: 24px;
+  margin: var(--space-md) 0;
+}
+
+/* ---- Nav link ---- */
+.sidebar__link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 12px var(--space-md);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-base);
+  cursor: pointer;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.sidebar--collapsed .sidebar__link {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.sidebar__link:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-hover);
+}
+
+/* Active state */
+.sidebar__link--active {
+  color: var(--color-text-primary);
+  background-color: var(--color-accent-subtle);
+  box-shadow: inset 4px 0 0 -1px var(--color-accent);
+}
+
+.sidebar--collapsed .sidebar__link--active {
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+/* Auth specific styling (Login/Logout) */
+.sidebar__link--auth {
+  margin-top: 2px;
+  opacity: 0.7;
+}
+
+.sidebar__link--auth:hover {
+  opacity: 1;
+}
+
+/* ----------------------------------------
+   Icon alignment & style — Unified
+   ---------------------------------------- */
+.sidebar__icon {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  opacity: 0.6;
+  transition: all var(--transition-base);
+}
+
+.sidebar__link--active .sidebar__icon,
+.sidebar__link:hover .sidebar__icon {
+  opacity: 1;
+  color: var(--color-accent);
+}
+
+/* ---- Link text ---- */
+.sidebar__link-text {
+  transition: opacity var(--transition-base);
+  letter-spacing: 0.02em;
+}
+
+.sidebar--collapsed .sidebar__link-text {
+  display: none;
+}
+
+/* ----------------------------------------
+   Responsive
+   ---------------------------------------- */
+@media (max-width: 768px) {
+  .sidebar {
+    width: var(--sidebar-width) !important;
+    transform: translateX(-100%);
+  }
+
+  .sidebar--open {
+    transform: translateX(0);
+    box-shadow: 30px 0 60px rgba(0,0,0,0.8);
+  }
+
+  .sidebar__hamburger {
+    display: none;
+  }
+}

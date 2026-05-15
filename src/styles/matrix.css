@@ -1,0 +1,371 @@
+/* ========================================
+   Orixus — Discipline Matrix (Elite Refinement)
+   ======================================== */
+
+.matrix {
+  margin-top: var(--space-md);
+  width: 100%;
+  animation: matrixEntrance 1s var(--ease-premium) forwards;
+}
+
+@keyframes matrixEntrance {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header row: title + range selector */
+.matrix__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-xl);
+}
+
+.matrix__header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.matrix__title {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: 800;
+  color: var(--color-text-primary);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+/* Add Habit Button — Relocated & Refined */
+.matrix__add-btn {
+  padding: 6px 12px;
+  background-color: transparent;
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent-subtle);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.matrix__add-btn:hover {
+  background-color: var(--color-accent-subtle);
+  border-color: var(--color-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(197, 160, 89, 0.2);
+}
+
+/* Time range selector — Premium Glass */
+.matrix__range {
+  display: flex;
+  gap: 4px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.matrix__range-btn {
+  padding: 8px 16px;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  border-radius: 4px;
+  transition: all var(--transition-base);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.matrix__range-btn:hover {
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface-hover);
+}
+
+.matrix__range-btn--active {
+  color: #000;
+  background-color: var(--color-accent);
+  box-shadow: 0 4px 12px rgba(197, 160, 89, 0.4);
+}
+
+/* ----------------------------------------
+   Grid container — Tactical Depth
+   ---------------------------------------- */
+.matrix__grid-wrapper {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-xl);
+  box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+  position: relative;
+  overflow-x: auto;
+  transition: all var(--transition-slow);
+}
+
+/* Summary bar — Identity Metrics */
+.matrix__summary {
+  display: flex;
+  gap: var(--space-3xl);
+  padding-bottom: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.matrix__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.matrix__stat-value {
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  color: var(--color-text-primary); /* Cleaner white for values */
+  line-height: 1;
+  transition: all var(--transition-base);
+}
+
+.matrix__stat-label {
+  font-size: 10px;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-weight: 800;
+  margin-top: 4px;
+}
+
+.matrix__stat-desc {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  opacity: 0.7;
+}
+
+/* ----------------------------------------
+   The Matrix Grid
+   ---------------------------------------- */
+.matrix__table {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.matrix__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xl);
+}
+
+/* Habit label group */
+.matrix__label-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 160px;
+  min-width: 160px;
+  position: relative;
+}
+
+.matrix__label {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--color-text-secondary);
+  text-align: right;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.8;
+  transition: all var(--transition-base);
+}
+
+.matrix__row:hover .matrix__label {
+  opacity: 1;
+  color: var(--color-text-primary);
+}
+
+.matrix__remove-btn {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  color: #ff4444;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0;
+  transition: all var(--transition-base);
+  margin-left: -24px;
+}
+
+.matrix__row:hover .matrix__remove-btn {
+  opacity: 0.3;
+}
+
+.matrix__remove-btn:hover {
+  opacity: 1 !important;
+  color: #ff6666;
+  transform: scale(1.2);
+}
+
+/* Cells container */
+.matrix__cells {
+  display: flex;
+  gap: 7px;
+  flex: 1;
+}
+
+/* Individual cell — Tactile & Immersive */
+.matrix__cell {
+  --cell-size: 26px;
+  width: var(--cell-size);
+  height: var(--cell-size);
+  min-width: var(--cell-size);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  position: relative;
+}
+
+.matrix__cell-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all var(--transition-base), transform 0.1s var(--ease-premium);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Micro-interaction: Scale on click/press */
+.matrix__cell:active .matrix__cell-inner {
+  transform: scale(0.85);
+}
+
+/* Hover feedback: Elegant border glow */
+.matrix__cell:hover .matrix__cell-inner {
+  background-color: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+/* ---- States — Visual Hierarchy ---- */
+
+/* Completed State — Premium Gold Glow */
+.matrix__cell--done .matrix__cell-inner {
+  background-color: var(--color-accent);
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, transparent 100%);
+  border-color: var(--color-accent-strong);
+  box-shadow: 0 0 15px rgba(197, 160, 89, 0.3);
+  animation: goldPulse 2s infinite ease-in-out;
+}
+
+@keyframes goldPulse {
+  0% { box-shadow: 0 0 10px rgba(197, 160, 89, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(197, 160, 89, 0.5); }
+  100% { box-shadow: 0 0 10px rgba(197, 160, 89, 0.3); }
+}
+
+.matrix__cell--done:hover .matrix__cell-inner {
+  filter: brightness(1.1);
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Missed state — Tactical Warning */
+.matrix__cell--missed .matrix__cell-inner {
+  background-color: rgba(255, 68, 68, 0.02);
+  border: 1px solid rgba(255, 68, 68, 0.12);
+}
+
+.matrix__cell--missed:hover .matrix__cell-inner {
+  background-color: rgba(255, 68, 68, 0.05);
+  border-color: rgba(255, 68, 68, 0.3);
+}
+
+/* Inactive state — Minimal noise */
+.matrix__cell--inactive {
+  cursor: default;
+  pointer-events: none;
+}
+.matrix__cell--inactive .matrix__cell-inner {
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  opacity: 0.15;
+}
+
+/* Today highlight — Sharp & Focused */
+.matrix__cell--today {
+  z-index: 10;
+}
+.matrix__cell--today::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 1px solid var(--color-accent);
+  border-radius: 8px;
+  opacity: 0.6;
+  pointer-events: none;
+  animation: todayPulse 2s infinite ease-in-out;
+}
+
+@keyframes todayPulse {
+  0% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.02); }
+  100% { opacity: 0.3; transform: scale(1); }
+}
+
+/* ---- Tooltip — Tactical Overlay ---- */
+.matrix__cell-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  background-color: #000;
+  color: var(--color-text-primary);
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: all var(--transition-base);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  border: 1px solid var(--color-accent-subtle);
+  z-index: 100;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.matrix__cell:hover .matrix__cell-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-15px);
+}
+
+/* ----------------------------------------
+   Responsive Fixes
+   ---------------------------------------- */
+@media (max-width: 900px) {
+  .matrix__cell { --cell-size: 22px; }
+  .matrix__day-label { width: 22px; min-width: 22px; }
+  .matrix__label-group { width: 120px; min-width: 120px; }
+  .matrix__day-labels-spacer { width: 120px; min-width: 120px; }
+  .matrix__row { gap: var(--space-lg); }
+  .matrix__summary { gap: var(--space-xl); }
+}

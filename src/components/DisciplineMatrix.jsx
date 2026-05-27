@@ -8,16 +8,19 @@ const STATIC_RANGES = [
 ];
 
 /**
- * Generate an array of Date objects starting from TODAY and continuing FORWARD.
+ * Generate an array of Date objects placing TODAY in the middle of the timeline.
  */
 function getDays(count) {
   const days = [];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
+  // Center today in the tracking window to allow past review and future foresight
+  const pastCount = Math.floor((count - 1) / 2);
+  
   for (let i = 0; i < count; i++) {
     const d = new Date(today);
-    d.setDate(today.getDate() + i);
+    d.setDate(today.getDate() - pastCount + i);
     days.push(d);
   }
   return days;
@@ -57,6 +60,17 @@ function isToday(date) {
 }
 
 /**
+ * Check if a date is in the future.
+ */
+function isFuture(date) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d > today;
+}
+
+/**
  * Check if date A is before date B (ignoring time)
  */
 function isBefore(dateA, dateB) {
@@ -78,7 +92,7 @@ function computeStats(habits, days, completionData) {
 
   habits.forEach((habit) => {
     days.forEach((day) => {
-      const active = !isBefore(day, habit.createdAt);
+      const active = !isBefore(day, habit.createdAt) && !isFuture(day);
       if (active) {
         totalActivePossible++;
         if (completionData[`${habit.id}:${dateKey(day)}`]) {
@@ -94,97 +108,125 @@ function computeStats(habits, days, completionData) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const todayStr = dateKey(today);
-  const todayDone = habits.every(h => {
-    const active = !isBefore(today, h.createdAt);
-    return !active || completionData[`${h.id}:${todayStr}`];
-  });
+  const isDayFullyCompleted = (date) => {
+    const dateStr = dateKey(date);
+    const activeHabits = habits.filter(h => !isBefore(date, h.createdAt));
+    if (activeHabits.length === 0) return false;
+    return activeHabits.every(h => completionData[`${h.id}:${dateStr}`]);
+  };
+
+  const todayCompleted = isDayFullyCompleted(today);
   
-  if (todayDone) {
-    streak++;
+  let checkDate = new Date(today);
+  if (todayCompleted) {
+    streak = 1;
+    checkDate.setDate(today.getDate() - 1);
+  } else {
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    if (isDayFullyCompleted(yesterday)) {
+      streak = 1;
+      checkDate.setDate(today.getDate() - 2);
+    } else {
+      streak = 0;
+    }
   }
 
-  let currentCheck = new Date(today);
-  currentCheck.setDate(today.getDate() - 1);
-
-  for (let i = 0; i < 365; i++) {
-    const checkStr = dateKey(currentCheck);
-    const allDone = habits.length > 0 && habits.every(h => {
-      const active = !isBefore(currentCheck, h.createdAt);
-      return !active || completionData[`${h.id}:${checkStr}`];
-    });
-
-    if (allDone) {
-      streak++;
-      currentCheck.setDate(currentCheck.getDate() - 1);
-    } else {
-      if (streak > 0 || i > 0) break; 
-      currentCheck.setDate(currentCheck.getDate() - 1);
+  if (streak > 0) {
+    for (let i = 0; i < 365; i++) {
+      if (isDayFullyCompleted(checkDate)) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
     }
   }
 
   return { totalDone, rate, streak };
 }
 
-/* ---- Custom Duration Modal ---- */
+/* ---- Redesigned Premium Custom Duration Modal (Two-Stage Glassmorphism) ---- */
 function CustomDurationModal({ isOpen, onClose, onConfirm, initialValue }) {
   const [value, setValue] = useState(initialValue);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [step, setStep] = useState(1);
 
   if (!isOpen) return null;
 
-  const handleApply = () => {
+  const handleNext = () => {
     if (value > 0) {
-      setShowConfirm(true);
+      setStep(2);
     }
   };
 
   const handleFinalConfirm = () => {
     onConfirm(Number(value));
-    setShowConfirm(false);
+    setStep(1);
     onClose();
   };
 
   const handleClose = () => {
-    setShowConfirm(false);
+    setStep(1);
     onClose();
+  };
+
+  const selectPreset = (presetDays) => {
+    setValue(presetDays);
   };
 
   return (
     <div className="matrix-modal-overlay" onClick={handleClose}>
       <div className="matrix-modal" onClick={e => e.stopPropagation()}>
-        <div className="matrix-modal__content">
-          {!showConfirm ? (
-            <>
-              <h3 className="matrix-modal__title">Build Your System</h3>
-              <p className="matrix-modal__motto">“A system only works if you commit to it.”</p>
-              <div className="matrix-modal__input-group">
-                <input 
-                  type="number" 
-                  className="matrix-modal__input" 
-                  value={value} 
-                  onChange={e => setValue(e.target.value)}
-                  placeholder="Days"
-                  autoFocus
-                />
-                <span className="matrix-modal__input-suffix">Days</span>
-              </div>
-              <div className="matrix-modal__actions">
-                <button className="matrix-modal__btn matrix-modal__btn--secondary" onClick={handleClose}>Cancel</button>
-                <button className="matrix-modal__btn matrix-modal__btn--primary" onClick={handleApply}>Apply</button>
-              </div>
-            </>
-          ) : (
-            <>
-              <h3 className="matrix-modal__title">Are you sure?</h3>
-              <p className="matrix-modal__desc">You are about to switch the Discipline Matrix to a <strong>{value}-day</strong> tracking window.</p>
-              <div className="matrix-modal__actions">
-                <button className="matrix-modal__btn matrix-modal__btn--secondary" onClick={() => setShowConfirm(false)}>Back</button>
-                <button className="matrix-modal__btn matrix-modal__btn--primary" onClick={handleFinalConfirm}>Confirm</button>
-              </div>
-            </>
-          )}
-        </div>
+        {step === 1 ? (
+          <>
+            <h3 className="matrix-modal__title">Set Your Discipline Timeline</h3>
+            <p className="matrix-modal__subtitle">How long are you willing to stay committed?</p>
+            
+            <div className="matrix-modal__presets">
+              <button className="matrix-modal__preset-btn" onClick={() => selectPreset(30)}>30 Days</button>
+              <button className="matrix-modal__preset-btn" onClick={() => selectPreset(60)}>60 Days</button>
+              <button className="matrix-modal__preset-btn" onClick={() => selectPreset(90)}>90 Days</button>
+              <button className="matrix-modal__preset-btn" onClick={() => selectPreset(365)}>365 Days</button>
+            </div>
+
+            <div className="matrix-modal__input-group">
+              <input 
+                type="number" 
+                className="matrix-modal__input" 
+                value={value} 
+                onChange={e => setValue(e.target.value)}
+                placeholder="Custom Timeline Days"
+                min="1"
+                autoFocus
+              />
+            </div>
+            
+            <div className="matrix-modal__actions">
+              <button className="matrix-modal__btn matrix-modal__btn--secondary" onClick={handleClose}>
+                Cancel
+              </button>
+              <button className="matrix-modal__btn matrix-modal__btn--primary" onClick={handleNext}>
+                Continue
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <h3 className="matrix-modal__title">Are You Really Ready?</h3>
+            <p className="matrix-modal__desc">
+              This decision changes your discipline path. Weak goals create weak results.
+            </p>
+            
+            <div className="matrix-modal__actions">
+              <button className="matrix-modal__btn matrix-modal__btn--secondary" onClick={() => setStep(1)}>
+                Go Back
+              </button>
+              <button className="matrix-modal__btn matrix-modal__btn--primary" onClick={handleFinalConfirm}>
+                I’m Ready
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -212,9 +254,17 @@ function DayLabels({ days }) {
 }
 
 /* ---- Main Component ---- */
-export default function DisciplineMatrix({ habits, onRemoveHabit, onOpenAddHabit }) {
-  const [range, setRange] = useState('30d');
-  const [customDays, setCustomDays] = useState(365);
+export default function DisciplineMatrix({ 
+  habits, 
+  onRemoveHabit, 
+  onOpenAddHabit,
+  completionData,
+  setCompletionData,
+  customDays,
+  setCustomDays,
+  range,
+  setRange
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const activeDaysCount = useMemo(() => {
@@ -223,8 +273,6 @@ export default function DisciplineMatrix({ habits, onRemoveHabit, onOpenAddHabit
   }, [range, customDays]);
 
   const days = useMemo(() => getDays(activeDaysCount), [activeDaysCount]);
-
-  const [completionData, setCompletionData] = useState({});
 
   const toggleCell = useCallback((habitId, date) => {
     const key = `${habitId}:${dateKey(date)}`;
@@ -237,7 +285,7 @@ export default function DisciplineMatrix({ habits, onRemoveHabit, onOpenAddHabit
       }
       return next;
     });
-  }, []);
+  }, [setCompletionData]);
 
   const stats = useMemo(
     () => computeStats(habits, days, completionData),
@@ -280,94 +328,103 @@ export default function DisciplineMatrix({ habits, onRemoveHabit, onOpenAddHabit
         </div>
       </div>
 
-      <div className="matrix__grid-wrapper">
-        <div className="matrix__summary">
-          <div className="matrix__stat">
-            <span className="matrix__stat-value">{stats.totalDone}</span>
-            <span className="matrix__stat-label">Discipline Score</span>
-            <span className="matrix__stat-desc">Built through consistency</span>
-          </div>
-          <div className="matrix__stat">
-            <span className="matrix__stat-value">{stats.streak}</span>
-            <span className="matrix__stat-label">Current Streak</span>
-            <span className="matrix__stat-desc">Momentum maintained</span>
-          </div>
-          <div className="matrix__stat">
-            <span className="matrix__stat-value">{stats.rate}%</span>
-            <span className="matrix__stat-label">Execution Rate</span>
-            <span className="matrix__stat-desc">Daily commitments completed</span>
-          </div>
+      {/* Modern SaaS 3-Card Metrics Grid */}
+      <div className="matrix__stats-grid">
+        <div className="matrix__stat-card">
+          <span className="matrix__stat-card-value">{stats.totalDone}</span>
+          <span className="matrix__stat-card-label">Discipline Score</span>
+          <span className="matrix__stat-card-desc">Built through consistency</span>
         </div>
+        <div className="matrix__stat-card">
+          <span className="matrix__stat-card-value">{stats.streak}</span>
+          <span className="matrix__stat-card-label">Current Streak</span>
+          <span className="matrix__stat-card-desc">Momentum maintained</span>
+        </div>
+        <div className="matrix__stat-card">
+          <span className="matrix__stat-card-value">{stats.rate}%</span>
+          <span className="matrix__stat-card-label">Execution Rate</span>
+          <span className="matrix__stat-card-desc">Daily commitments completed</span>
+        </div>
+      </div>
 
-        <DayLabels days={days} />
+      {/* Main Grid Wrapper */}
+      <div className="matrix__grid-wrapper">
+        <div className="matrix__scroll-container">
+          <DayLabels days={days} />
 
-        <div className="matrix__table">
-          {habits.map((habit) => (
-            <div className="matrix__row" key={habit.id}>
-              <div className="matrix__label-group">
-                <button 
-                  className="matrix__remove-btn" 
-                  onClick={() => onRemoveHabit(habit)}
-                  aria-label="Remove habit"
-                >
-                  ×
-                </button>
-                <div className="matrix__label" title={habit.label}>
-                  {habit.label}
+          <div className="matrix__table">
+            {habits.map((habit) => (
+              <div className="matrix__row" key={habit.id}>
+                <div className="matrix__label-group">
+                  <button 
+                    className="matrix__remove-btn" 
+                    onClick={() => onRemoveHabit(habit)}
+                    aria-label="Remove habit"
+                  >
+                    ×
+                  </button>
+                  <div className="matrix__label" title={habit.label}>
+                    {habit.label}
+                  </div>
+                </div>
+                <div className="matrix__cells">
+                  {days.map((day, i) => {
+                    const key = `${habit.id}:${dateKey(day)}`;
+                    const done = !!completionData[key];
+                    const today = isToday(day);
+                    const inactive = isBefore(day, habit.createdAt);
+                    const future = isFuture(day);
+
+                    let cellClass = 'matrix__cell';
+                    if (done) cellClass += ' matrix__cell--done';
+                    else if (inactive) cellClass += ' matrix__cell--inactive';
+                    else if (future) cellClass += ' matrix__cell--future';
+                    else cellClass += ' matrix__cell--missed';
+                    
+                    if (today) cellClass += ' matrix__cell--today';
+
+                    return (
+                      <div
+                        key={i}
+                        className={cellClass}
+                        onClick={() => !inactive && !future && toggleCell(habit.id, day)}
+                        role="button"
+                        tabIndex={inactive || future ? -1 : 0}
+                        onKeyDown={(e) => {
+                          if (!inactive && !future && (e.key === 'Enter' || e.key === ' ')) {
+                            e.preventDefault();
+                            toggleCell(habit.id, day);
+                          }
+                        }}
+                      >
+                        <div className="matrix__cell-inner" />
+                        <div className="matrix__cell-tooltip">
+                          {inactive ? 'Not yet established' : future ? `${habit.label} · Future Day` : `${habit.label} · ${formatTooltipDate(day)}${today ? ' · Today' : ''}`}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-              <div className="matrix__cells">
-                {days.map((day, i) => {
-                  const key = `${habit.id}:${dateKey(day)}`;
-                  const done = !!completionData[key];
-                  const today = isToday(day);
-                  const inactive = isBefore(day, habit.createdAt);
-
-                  let cellClass = 'matrix__cell';
-                  if (done) cellClass += ' matrix__cell--done';
-                  else if (inactive) cellClass += ' matrix__cell--inactive';
-                  else if (!today && isBefore(day, new Date())) cellClass += ' matrix__cell--missed';
-                  
-                  if (today) cellClass += ' matrix__cell--today';
-
-                  return (
-                    <div
-                      key={i}
-                      className={cellClass}
-                      onClick={() => !inactive && toggleCell(habit.id, day)}
-                      role="button"
-                      tabIndex={inactive ? -1 : 0}
-                      onKeyDown={(e) => {
-                        if (!inactive && (e.key === 'Enter' || e.key === ' ')) {
-                          e.preventDefault();
-                          toggleCell(habit.id, day);
-                        }
-                      }}
-                    >
-                      <div className="matrix__cell-inner" />
-                      <div className="matrix__cell-tooltip">
-                        {inactive ? 'Not yet established' : habit.label} · {formatTooltipDate(day)}{today ? ' · Today' : ''}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        <div className="matrix__legend">
-          <div className="matrix__legend-item">
-            <div className="matrix__legend-cell matrix__legend-cell--inactive" />
-            <span className="matrix__legend-label">Pre-Habit</span>
-          </div>
-          <div className="matrix__legend-item">
-            <div className="matrix__legend-cell matrix__legend-cell--empty" />
-            <span className="matrix__legend-label">Missed</span>
-          </div>
-          <div className="matrix__legend-item">
-            <div className="matrix__legend-cell matrix__legend-cell--filled" />
-            <span className="matrix__legend-label">Done</span>
+        {/* Integrated Legend */}
+        <div className="matrix__footer">
+          <div className="matrix__legend">
+            <div className="matrix__legend-item">
+              <div className="matrix__legend-cell matrix__legend-cell--inactive" />
+              <span className="matrix__legend-label">Pre-Habit</span>
+            </div>
+            <div className="matrix__legend-item">
+              <div className="matrix__legend-cell matrix__legend-cell--empty" />
+              <span className="matrix__legend-label">Missed</span>
+            </div>
+            <div className="matrix__legend-item">
+              <div className="matrix__legend-cell matrix__legend-cell--filled" />
+              <span className="matrix__legend-label">Done</span>
+            </div>
           </div>
         </div>
       </div>

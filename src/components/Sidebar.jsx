@@ -56,6 +56,8 @@ const NAV_ITEMS = [
 const SECONDARY_ITEMS = [
   { id: 'profile',  label: 'Profile',  icon: ICONS.profile },
   { id: 'settings', label: 'Settings', icon: ICONS.settings },
+  { id: 'login',    label: 'Login',    icon: ICONS.login },
+  { id: 'logout',   label: 'Logout',   icon: ICONS.logout },
 ];
 
 export default function Sidebar({ activeItem = 'dashboard', onNavigate, isOpen, collapsed, onCollapse }) {
@@ -115,17 +117,6 @@ export default function Sidebar({ activeItem = 'dashboard', onNavigate, isOpen, 
           </button>
         ))}
 
-        {/* Login/Logout Buttons */}
-        <div className="sidebar__auth-actions">
-          <button className="sidebar__link sidebar__link--auth" title={collapsed ? 'Login' : undefined}>
-            <span className="sidebar__icon">{ICONS.login}</span>
-            <span className="sidebar__link-text">Login</span>
-          </button>
-          <button className="sidebar__link sidebar__link--auth" title={collapsed ? 'Logout' : undefined}>
-            <span className="sidebar__icon">{ICONS.logout}</span>
-            <span className="sidebar__link-text">Logout</span>
-          </button>
-        </div>
       </nav>
     </aside>
   );

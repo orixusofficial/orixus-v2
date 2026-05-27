@@ -1,30 +1,31 @@
 /* ========================================
-   Orixus — Discipline Matrix (Elite Refinement)
+   Orixus — Discipline Matrix (Master Redesign)
    ======================================== */
 
 .matrix {
   margin-top: var(--space-md);
   width: 100%;
-  animation: matrixEntrance 1s var(--ease-premium) forwards;
+  animation: matrixEntrance var(--transition-slow) var(--ease-premium) forwards;
 }
 
 @keyframes matrixEntrance {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Header row: title + range selector */
+/* Header: Title + Timeline Controls */
 .matrix__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--space-xl);
+  margin-bottom: var(--space-lg);
+  padding: 0 4px;
 }
 
 .matrix__header-left {
   display: flex;
   align-items: center;
-  gap: var(--space-lg);
+  gap: var(--space-md);
 }
 
 .matrix__title {
@@ -32,14 +33,14 @@
   font-size: var(--text-lg);
   font-weight: 800;
   color: var(--color-text-primary);
-  letter-spacing: 0.15em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
-/* Add Habit Button — Relocated & Refined */
+/* Add Habit Button */
 .matrix__add-btn {
-  padding: 6px 12px;
+  padding: 5px 12px;
   background-color: transparent;
   color: var(--color-accent);
   border: 1px solid var(--color-accent-subtle);
@@ -48,185 +49,250 @@
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: all var(--transition-base) var(--ease-premium);
 }
 
 .matrix__add-btn:hover {
   background-color: var(--color-accent-subtle);
   border-color: var(--color-accent);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(197, 160, 89, 0.2);
+  box-shadow: 0 0 12px rgba(197, 160, 89, 0.15);
 }
 
-/* Time range selector — Premium Glass */
+/* Selector Panel */
 .matrix__range {
   display: flex;
-  gap: 4px;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
+  gap: 2px;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
   border-radius: var(--radius-sm);
-  padding: 4px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  padding: 3px;
 }
 
 .matrix__range-btn {
-  padding: 8px 16px;
+  padding: 6px 12px;
   font-family: var(--font-heading);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--color-text-muted);
-  border-radius: 4px;
-  transition: all var(--transition-base);
-  letter-spacing: 0.1em;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-base) var(--ease-premium);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
+  background: transparent;
 }
 
 .matrix__range-btn:hover {
   color: var(--color-text-secondary);
-  background-color: var(--color-surface-hover);
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
 .matrix__range-btn--active {
   color: #000;
   background-color: var(--color-accent);
-  box-shadow: 0 4px 12px rgba(197, 160, 89, 0.4);
+  box-shadow: 0 4px 12px rgba(197, 160, 89, 0.3);
 }
 
-/* ----------------------------------------
-   Grid container — Tactical Depth
-   ---------------------------------------- */
-.matrix__grid-wrapper {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-xl);
-  box-shadow: 0 40px 80px rgba(0,0,0,0.6);
-  position: relative;
-  overflow-x: auto;
-  transition: all var(--transition-slow);
-}
-
-/* Summary bar — Identity Metrics */
-.matrix__summary {
-  display: flex;
-  gap: var(--space-3xl);
-  padding-bottom: var(--space-xl);
+/* ========================================
+   Stats Section — Premium 3-Card Grid
+   ======================================== */
+.matrix__stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
   margin-bottom: var(--space-xl);
-  border-bottom: 1px solid var(--color-border);
 }
 
-.matrix__stat {
+@media (max-width: 768px) {
+  .matrix__stats-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-base);
+  }
+}
+
+.matrix__stat-card {
+  background: rgba(15, 17, 21, 0.5);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-base) var(--ease-premium);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
-.matrix__stat-value {
+.matrix__stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(197, 160, 89, 0.25), transparent);
+  opacity: 0;
+  transition: opacity var(--transition-base) var(--ease-premium);
+}
+
+.matrix__stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(197, 160, 89, 0.15);
+  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.4), 0 0 12px rgba(197, 160, 89, 0.04);
+}
+
+.matrix__stat-card:hover::before {
+  opacity: 1;
+}
+
+.matrix__stat-card-value {
   font-family: var(--font-heading);
-  font-size: var(--text-3xl);
+  font-size: var(--text-2xl);
   font-weight: 800;
-  color: var(--color-text-primary); /* Cleaner white for values */
-  line-height: 1;
-  transition: all var(--transition-base);
+  color: var(--color-text-primary);
+  line-height: 1.1;
 }
 
-.matrix__stat-label {
-  font-size: 10px;
+.matrix__stat-card-label {
+  font-size: 9px;
   color: var(--color-accent);
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.15em;
   font-weight: 800;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
-.matrix__stat-desc {
+.matrix__stat-card-desc {
   font-size: 10px;
   color: var(--color-text-muted);
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
-/* ----------------------------------------
-   The Matrix Grid
-   ---------------------------------------- */
+/* ========================================
+   Discipline Matrix Containment
+   ======================================== */
+.matrix__grid-wrapper {
+  background: rgba(15, 17, 21, 0.45);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scroll Container for Matrix */
+.matrix__scroll-container {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(197, 160, 89, 0.2) transparent;
+  padding-bottom: var(--space-md);
+  margin-top: var(--space-xs);
+}
+
+.matrix__scroll-container::-webkit-scrollbar {
+  height: 4px;
+}
+
+.matrix__scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.matrix__scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(197, 160, 89, 0.15);
+  border-radius: 4px;
+}
+
+.matrix__scroll-container::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+
 .matrix__table {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+  min-width: max-content;
 }
 
+/* Row elements */
 .matrix__row {
   display: flex;
   align-items: center;
-  gap: var(--space-xl);
+  gap: 16px;
+  height: 32px;
 }
 
-/* Habit label group */
 .matrix__label-group {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  width: 160px;
-  min-width: 160px;
+  gap: var(--space-xs);
+  width: 140px;
+  min-width: 140px;
+  justify-content: flex-end;
   position: relative;
 }
 
 .matrix__label {
-  flex: 1;
   font-size: 11px;
   font-weight: 800;
   color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.75;
+  transition: all var(--transition-base) var(--ease-premium);
   text-align: right;
   white-space: nowrap;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  opacity: 0.8;
-  transition: all var(--transition-base);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .matrix__row:hover .matrix__label {
   opacity: 1;
   color: var(--color-text-primary);
+  letter-spacing: 0.1em;
 }
 
 .matrix__remove-btn {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: transparent;
+  background: rgba(255, 68, 68, 0.05);
+  border: 1px solid rgba(255, 68, 68, 0.15);
+  border-radius: var(--radius-sm);
   color: #ff4444;
-  border: none;
-  font-size: 16px;
+  font-size: 10px;
+  font-weight: 800;
   cursor: pointer;
   opacity: 0;
-  transition: all var(--transition-base);
-  margin-left: -24px;
+  transform: translateX(-4px);
+  transition: all var(--transition-base) var(--ease-premium);
 }
 
 .matrix__row:hover .matrix__remove-btn {
-  opacity: 0.3;
+  opacity: 0.6;
+  transform: translateX(0);
 }
 
 .matrix__remove-btn:hover {
   opacity: 1 !important;
-  color: #ff6666;
-  transform: scale(1.2);
+  background: #ff4444;
+  color: #000;
 }
 
-/* Cells container */
 .matrix__cells {
   display: flex;
-  gap: 7px;
-  flex: 1;
+  gap: 8px;
 }
 
-/* Individual cell — Tactile & Immersive */
+/* Individual Cell Design */
 .matrix__cell {
   --cell-size: 26px;
   width: var(--cell-size);
@@ -234,120 +300,152 @@
   min-width: var(--cell-size);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all var(--transition-base);
   position: relative;
+  transition: all var(--transition-base) var(--ease-premium);
 }
 
 .matrix__cell-inner {
   width: 100%;
   height: 100%;
   border-radius: inherit;
-  background-color: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: all var(--transition-base), transform 0.1s var(--ease-premium);
-  position: relative;
-  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: all var(--transition-base) var(--ease-premium);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.02);
 }
 
-/* Micro-interaction: Scale on click/press */
-.matrix__cell:active .matrix__cell-inner {
-  transform: scale(0.85);
-}
-
-/* Hover feedback: Elegant border glow */
 .matrix__cell:hover .matrix__cell-inner {
-  background-color: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.04), 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* ---- States — Visual Hierarchy ---- */
+.matrix__cell:active .matrix__cell-inner {
+  transform: scale(0.9);
+}
 
-/* Completed State — Premium Gold Glow */
+/* DONE state */
 .matrix__cell--done .matrix__cell-inner {
-  background-color: var(--color-accent);
-  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, transparent 100%);
+  background: var(--color-accent);
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, transparent 100%);
   border-color: var(--color-accent-strong);
-  box-shadow: 0 0 15px rgba(197, 160, 89, 0.3);
-  animation: goldPulse 2s infinite ease-in-out;
-}
-
-@keyframes goldPulse {
-  0% { box-shadow: 0 0 10px rgba(197, 160, 89, 0.3); }
-  50% { box-shadow: 0 0 20px rgba(197, 160, 89, 0.5); }
-  100% { box-shadow: 0 0 10px rgba(197, 160, 89, 0.3); }
+  box-shadow: 0 0 12px rgba(197, 160, 89, 0.2);
 }
 
 .matrix__cell--done:hover .matrix__cell-inner {
-  filter: brightness(1.1);
-  transform: translateY(-2px) scale(1.05);
+  transform: translateY(-1.5px) scale(1.04);
+  box-shadow: 0 0 18px rgba(197, 160, 89, 0.35);
+  filter: brightness(1.05);
 }
 
-/* Missed state — Tactical Warning */
+/* MISSED state */
 .matrix__cell--missed .matrix__cell-inner {
-  background-color: rgba(255, 68, 68, 0.02);
-  border: 1px solid rgba(255, 68, 68, 0.12);
+  background-color: rgba(255, 68, 68, 0.05);
+  border-color: rgba(255, 68, 68, 0.25);
 }
 
 .matrix__cell--missed:hover .matrix__cell-inner {
-  background-color: rgba(255, 68, 68, 0.05);
-  border-color: rgba(255, 68, 68, 0.3);
+  background-color: rgba(255, 68, 68, 0.1);
+  border-color: rgba(255, 68, 68, 0.45);
+  box-shadow: 0 0 8px rgba(255, 68, 68, 0.15);
 }
 
-/* Inactive state — Minimal noise */
+/* INACTIVE state */
 .matrix__cell--inactive {
   cursor: default;
   pointer-events: none;
 }
+
 .matrix__cell--inactive .matrix__cell-inner {
   background-color: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  opacity: 0.15;
+  border: 1px dashed rgba(255, 255, 255, 0.05);
+  opacity: 0.4;
 }
 
-/* Today highlight — Sharp & Focused */
-.matrix__cell--today {
-  z-index: 10;
+/* FUTURE state */
+.matrix__cell--future {
+  cursor: not-allowed;
 }
+
+.matrix__cell--future .matrix__cell-inner {
+  background-color: rgba(255, 255, 255, 0.005);
+  border: 1px solid rgba(255, 255, 255, 0.02);
+  opacity: 0.3;
+}
+
+/* TODAY cell highlight */
 .matrix__cell--today::after {
   content: '';
   position: absolute;
-  top: -4px;
-  left: -4px;
-  right: -4px;
-  bottom: -4px;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
   border: 1px solid var(--color-accent);
-  border-radius: 8px;
-  opacity: 0.6;
+  border-radius: calc(var(--radius-sm) + 2px);
   pointer-events: none;
-  animation: todayPulse 2s infinite ease-in-out;
+  animation: todayFocusPulse 2.5s infinite var(--ease-premium);
 }
 
-@keyframes todayPulse {
-  0% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.02); }
-  100% { opacity: 0.3; transform: scale(1); }
+@keyframes todayFocusPulse {
+  0% { opacity: 0.25; transform: scale(1); }
+  50% { opacity: 0.65; transform: scale(1.03); }
+  100% { opacity: 0.25; transform: scale(1); }
 }
 
-/* ---- Tooltip — Tactical Overlay ---- */
+/* ========================================
+   Horizontal Labels for Column Dates
+   ======================================== */
+.matrix__day-labels {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 20px;
+  margin-bottom: 6px;
+  min-width: max-content;
+}
+
+.matrix__day-labels-spacer {
+  width: 140px;
+  min-width: 140px;
+}
+
+.matrix__day-labels-cells {
+  display: flex;
+  gap: 8px;
+}
+
+.matrix__day-label {
+  width: 26px;
+  min-width: 26px;
+  text-align: center;
+  font-size: 9px;
+  color: var(--color-text-muted);
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* ========================================
+   Interactive Tooltips
+   ======================================== */
 .matrix__cell-tooltip {
   position: absolute;
   bottom: 100%;
   left: 50%;
-  transform: translateX(-50%) translateY(-10px);
+  transform: translateX(-50%) translateY(-6px);
   background-color: #000;
   color: var(--color-text-primary);
-  padding: 8px 12px;
-  border-radius: 4px;
-  font-size: 10px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 9px;
   font-weight: 700;
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
-  transition: all var(--transition-base);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-  border: 1px solid var(--color-accent-subtle);
+  transition: all var(--transition-base) var(--ease-premium);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(197, 160, 89, 0.2);
   z-index: 100;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -355,17 +453,90 @@
 
 .matrix__cell:hover .matrix__cell-tooltip {
   opacity: 1;
-  transform: translateX(-50%) translateY(-15px);
+  transform: translateX(-50%) translateY(-10px);
 }
 
-/* ----------------------------------------
-   Responsive Fixes
-   ---------------------------------------- */
+/* ========================================
+   Integrated Tactical Legend
+   ======================================== */
+.matrix__footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.matrix__legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.matrix__legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.matrix__legend-label {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 800;
+}
+
+.matrix__legend-cell {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+}
+
+.matrix__legend-cell--inactive {
+  background-color: transparent;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.matrix__legend-cell--empty {
+  background-color: rgba(255, 68, 68, 0.05);
+  border: 1px solid rgba(255, 68, 68, 0.25);
+}
+
+.matrix__legend-cell--filled {
+  background-color: var(--color-accent);
+  box-shadow: 0 0 8px rgba(197, 160, 89, 0.3);
+}
+
+/* ========================================
+   Responsive Styling
+   ======================================== */
 @media (max-width: 900px) {
-  .matrix__cell { --cell-size: 22px; }
-  .matrix__day-label { width: 22px; min-width: 22px; }
-  .matrix__label-group { width: 120px; min-width: 120px; }
-  .matrix__day-labels-spacer { width: 120px; min-width: 120px; }
-  .matrix__row { gap: var(--space-lg); }
-  .matrix__summary { gap: var(--space-xl); }
+  .matrix__cell {
+    --cell-size: 22px;
+  }
+  .matrix__day-label {
+    width: 22px;
+    min-width: 22px;
+  }
+  .matrix__label-group {
+    width: 110px;
+    min-width: 110px;
+  }
+  .matrix__day-labels-spacer {
+    width: 110px;
+    min-width: 110px;
+  }
+  .matrix__row {
+    gap: 12px;
+  }
+  .matrix__day-labels {
+    gap: 12px;
+  }
+  .matrix__day-labels-cells {
+    gap: 6px;
+  }
+  .matrix__cells {
+    gap: 6px;
+  }
 }

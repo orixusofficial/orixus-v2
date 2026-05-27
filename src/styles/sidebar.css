@@ -209,39 +209,61 @@
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  padding: 12px var(--space-md);
+  padding: 10px var(--space-md) 10px 14px;
   border-radius: var(--radius-sm);
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text-secondary);
-  transition: all var(--transition-base);
+  transition: color var(--transition-base) var(--ease-premium), background-color var(--transition-base) var(--ease-premium), border-color var(--transition-base) var(--ease-premium), box-shadow var(--transition-base) var(--ease-premium);
   cursor: pointer;
   white-space: nowrap;
   width: 100%;
+  border: 1px solid transparent;
 }
 
 .sidebar--collapsed .sidebar__link {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   padding: 0;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: var(--radius-sm);
+}
+
+.sidebar__link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 25%;
+  bottom: 25%;
+  width: 3px;
+  background-color: var(--color-accent);
+  border-radius: 0 4px 4px 0;
+  opacity: 0;
+  transform: scaleY(0.3);
+  transition: transform var(--transition-base) var(--ease-premium), opacity var(--transition-base) var(--ease-premium);
 }
 
 .sidebar__link:hover {
   color: var(--color-text-primary);
-  background-color: var(--color-surface-hover);
+  background-color: rgba(255, 255, 255, 0.02);
 }
 
-/* Active state */
+/* Active state — Elite SaaS Glow */
 .sidebar__link--active {
   color: var(--color-text-primary);
-  background-color: var(--color-accent-subtle);
-  box-shadow: inset 4px 0 0 -1px var(--color-accent);
+  background: rgba(197, 160, 89, 0.03);
+  border-color: rgba(197, 160, 89, 0.15);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.sidebar__link--active::before {
+  opacity: 1;
+  transform: scaleY(1);
 }
 
 .sidebar--collapsed .sidebar__link--active {
-  box-shadow: 0 0 0 2px var(--color-accent);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 12px rgba(197, 160, 89, 0.15);
 }
 
 /* Auth specific styling (Login/Logout) */
@@ -258,27 +280,28 @@
    Icon alignment & style — Unified
    ---------------------------------------- */
 .sidebar__icon {
-  width: 18px;
-  height: 18px;
-  min-width: 18px;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: inherit;
-  opacity: 0.6;
-  transition: all var(--transition-base);
+  opacity: 0.5;
+  transition: opacity var(--transition-base) var(--ease-premium), color var(--transition-base) var(--ease-premium);
 }
 
 .sidebar__link--active .sidebar__icon,
 .sidebar__link:hover .sidebar__icon {
   opacity: 1;
   color: var(--color-accent);
+  filter: drop-shadow(0 0 4px rgba(197, 160, 89, 0.4));
 }
 
 /* ---- Link text ---- */
 .sidebar__link-text {
-  transition: opacity var(--transition-base);
-  letter-spacing: 0.02em;
+  transition: opacity var(--transition-base) var(--ease-premium);
+  letter-spacing: 0.03em;
 }
 
 .sidebar--collapsed .sidebar__link-text {

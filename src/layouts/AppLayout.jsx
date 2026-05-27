@@ -3,10 +3,9 @@ import Sidebar from '../components/Sidebar';
 import TopNav from '../components/TopNav';
 import '../styles/layout.css';
 
-export default function AppLayout({ children }) {
+export default function AppLayout({ children, activeItem, onNavigate }) {
   const [sidebarOpen, setSidebarOpen]         = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeItem, setActiveItem]           = useState('dashboard');
 
   const toggleCollapse = () => setSidebarCollapsed((prev) => !prev);
   const closeSidebar   = () => setSidebarOpen(false);
@@ -38,7 +37,7 @@ export default function AppLayout({ children }) {
   };
 
   const handleNavigate = (id) => {
-    setActiveItem(id);
+    onNavigate?.(id);
     if (window.innerWidth <= 768) {
       closeSidebar();
     }

@@ -10,18 +10,18 @@
 
   /* Text — Soft Ivory and Tactical Grays */
   --color-text-primary: #E1E3E6;   /* soft luxurious ivory */
-  --color-text-secondary: #9297A0; /* muted steel gray */
-  --color-text-muted: #525862;     /* low contrast tactical gray */
+  --color-text-secondary: #A0A5AD; /* muted steel gray — boosted for readability */
+  --color-text-muted: #6E7380;     /* tactical gray — boosted for accessibility */
 
   /* Accent — Premium Soft Warm Champagne Gold */
   --color-accent: #B38E46;         /* rich, scarce warm gold */
   --color-accent-hover: #C29F57;   /* soft amber hover gold */
-  --color-accent-subtle: rgba(179, 142, 70, 0.05); /* highly scarce gold overlay */
+  --color-accent-subtle: rgba(179, 142, 70, 0.08); /* scarce gold overlay — boosted for visibility */
   --color-accent-strong: #CEAA62;  /* champagne gold highlight */
 
   /* Borders — Minimal, soft, physical borders */
-  --color-border: rgba(255, 255, 255, 0.04);
-  --color-border-subtle: rgba(255, 255, 255, 0.02);
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-subtle: rgba(255, 255, 255, 0.04);
 
   /* Typography */
   --font-heading: 'Barlow Condensed', sans-serif;

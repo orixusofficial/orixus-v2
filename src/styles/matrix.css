@@ -57,15 +57,15 @@
 .matrix__add-btn:hover {
   background-color: var(--color-accent-subtle);
   border-color: var(--color-accent);
-  box-shadow: 0 0 12px rgba(197, 160, 89, 0.15);
+  box-shadow: 0 0 16px rgba(197, 160, 89, 0.18);
 }
 
 /* Selector Panel */
 .matrix__range {
   display: flex;
   gap: 2px;
-  background-color: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background-color: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: var(--radius-sm);
   padding: 3px;
 }
@@ -75,7 +75,7 @@
   font-family: var(--font-heading);
   font-size: 10px;
   font-weight: 700;
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
   border-radius: var(--radius-sm);
   transition: all var(--transition-base) var(--ease-premium);
   letter-spacing: 0.08em;
@@ -85,8 +85,8 @@
 }
 
 .matrix__range-btn:hover {
-  color: var(--color-text-secondary);
-  background-color: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-primary);
+  background-color: rgba(255, 255, 255, 0.04);
 }
 
 .matrix__range-btn--active {
@@ -113,24 +113,24 @@
 }
 
 .matrix__stat-card {
-  background: rgba(12, 14, 17, 0.7);
+  background: rgba(14, 16, 20, 0.85);
   backdrop-filter: blur(12px);
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: var(--radius-md);
   padding: var(--space-lg);
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
   transition: all var(--transition-base);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
   position: relative;
   overflow: hidden;
 }
 
 .matrix__stat-card:hover {
   transform: translateY(-2px);
-  border-color: var(--color-accent-subtle);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 12px rgba(179, 142, 70, 0.03);
+  border-color: rgba(179, 142, 70, 0.18);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 20px rgba(179, 142, 70, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 @media (max-width: 768px) {
@@ -157,19 +157,20 @@
 
 .matrix__stat-card-desc {
   font-size: 11px;
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
+  opacity: 0.8;
 }
 
 /* ========================================
    Discipline Matrix Containment
    ======================================== */
 .matrix__grid-wrapper {
-  background: rgba(8, 10, 13, 0.55);
+  background: rgba(10, 12, 16, 0.85);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: var(--radius-lg);
   padding: var(--space-xl);
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.03);
   display: flex;
   flex-direction: column;
 }
@@ -224,12 +225,7 @@
   width: 140px;
   min-width: 140px;
   justify-content: flex-end;
-  position: sticky;
-  left: 0;
-  z-index: 10;
-  background-color: var(--color-surface); /* Standard card surface matches #0C0E11 */
   padding-right: var(--space-sm);
-  box-shadow: 4px 0 8px -4px rgba(0, 0, 0, 0.5);
 }
 
 .matrix__label {
@@ -238,7 +234,7 @@
   color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  opacity: 0.75;
+  opacity: 0.9;
   transition: all var(--transition-base) var(--ease-premium);
   text-align: right;
   white-space: nowrap;
@@ -295,54 +291,46 @@
   border-radius: var(--radius-sm);
   cursor: pointer;
   position: relative;
-  transition: all var(--transition-base) var(--ease-premium);
 }
 
 .matrix__cell-inner {
   width: 100%;
   height: 100%;
   border-radius: inherit;
-  background-color: rgba(255, 255, 255, 0.015);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  transition: all var(--transition-base) var(--ease-premium);
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.02);
+  background-color: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .matrix__cell:hover .matrix__cell-inner {
-  background-color: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.04), 0 4px 10px rgba(0, 0, 0, 0.3);
+  background-color: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.04);
 }
 
-.matrix__cell:active .matrix__cell-inner {
-  transform: scale(0.9);
-}
-
-/* DONE state — Premium warm gold + subtle glow */
+/* DONE state — Premium warm gold */
 .matrix__cell--done .matrix__cell-inner {
   background: var(--color-accent);
-  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, transparent 100%);
   border-color: var(--color-accent-strong);
-  box-shadow: 0 0 10px rgba(179, 142, 70, 0.2);
+  box-shadow: 0 0 8px rgba(179, 142, 70, 0.15);
 }
 
 .matrix__cell--done:hover .matrix__cell-inner {
-  transform: translateY(-1px) scale(1.03);
-  box-shadow: 0 0 16px rgba(179, 142, 70, 0.35);
-  filter: brightness(1.04);
+  background: var(--color-accent-hover);
+  box-shadow: 0 0 12px rgba(179, 142, 70, 0.25);
 }
 
 /* MISSED state — Deep muted crimson, soft border */
 .matrix__cell--missed .matrix__cell-inner {
-  background-color: rgba(168, 41, 41, 0.04);
-  border-color: rgba(168, 41, 41, 0.2);
+  background-color: rgba(220, 50, 50, 0.14);
+  border-color: rgba(220, 60, 60, 0.35);
+  box-shadow: inset 0 0 4px rgba(220, 50, 50, 0.08);
 }
 
 .matrix__cell--missed:hover .matrix__cell-inner {
-  background-color: rgba(168, 41, 41, 0.08);
-  border-color: rgba(168, 41, 41, 0.4);
-  box-shadow: 0 0 8px rgba(168, 41, 41, 0.15);
+  background-color: rgba(220, 50, 50, 0.22);
+  border-color: rgba(220, 60, 60, 0.5);
 }
 
 /* INACTIVE state — Dark steel gray, low emphasis */
@@ -353,8 +341,8 @@
 
 .matrix__cell--inactive .matrix__cell-inner {
   background-color: transparent;
-  border: 1px dashed rgba(255, 255, 255, 0.03);
-  opacity: 0.3;
+  border: 1px dashed rgba(255, 255, 255, 0.06);
+  opacity: 0.4;
 }
 
 /* FUTURE state */
@@ -368,7 +356,7 @@
   opacity: 0.2;
 }
 
-/* TODAY cell highlight — Subtle gold halo glow */
+/* TODAY cell highlight — Subtle gold halo */
 .matrix__cell--today::after {
   content: '';
   position: absolute;
@@ -380,13 +368,13 @@
   box-shadow: 0 0 8px rgba(179, 142, 70, 0.2);
   border-radius: calc(var(--radius-sm) + 2px);
   pointer-events: none;
-  animation: todayFocusPulse 3s infinite var(--ease-premium);
+  animation: todayFocusPulse 3s infinite ease-in-out;
 }
 
 @keyframes todayFocusPulse {
-  0% { opacity: 0.2; transform: scale(1); }
-  50% { opacity: 0.45; transform: scale(1.02); }
-  100% { opacity: 0.2; transform: scale(1); }
+  0% { opacity: 0.25; }
+  50% { opacity: 0.5; }
+  100% { opacity: 0.25; }
 }
 
 /* ========================================
@@ -405,11 +393,6 @@
 .matrix__day-labels-spacer {
   width: 140px;
   min-width: 140px;
-  position: sticky;
-  left: 0;
-  z-index: 10;
-  background-color: var(--color-surface);
-  box-shadow: 4px 0 8px -4px rgba(0, 0, 0, 0.5);
 }
 
 .matrix__day-labels-cells {
@@ -422,9 +405,10 @@
   min-width: 26px;
   text-align: center;
   font-size: 9px;
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
   font-weight: 800;
   line-height: 1;
+  opacity: 0.85;
 }
 
 /* ========================================
@@ -465,7 +449,7 @@
   justify-content: center;
   margin-top: var(--space-lg);
   padding-top: var(--space-md);
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .matrix__legend {
@@ -482,7 +466,7 @@
 
 .matrix__legend-label {
   font-size: 10px;
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-weight: 800;
@@ -500,8 +484,8 @@
 }
 
 .matrix__legend-cell--empty {
-  background-color: rgba(255, 68, 68, 0.05);
-  border: 1px solid rgba(255, 68, 68, 0.25);
+  background-color: rgba(220, 50, 50, 0.14);
+  border: 1px solid rgba(220, 60, 60, 0.35);
 }
 
 .matrix__legend-cell--filled {
@@ -521,13 +505,13 @@
     min-width: 22px;
   }
   .matrix__label-group {
-    width: 110px;
-    min-width: 110px;
+    width: 100px;
+    min-width: 100px;
     padding-right: var(--space-xs);
   }
   .matrix__day-labels-spacer {
-    width: 110px;
-    min-width: 110px;
+    width: 100px;
+    min-width: 100px;
   }
   .matrix__row {
     gap: var(--space-md);
@@ -540,5 +524,8 @@
   }
   .matrix__cells {
     gap: var(--space-xs);
+  }
+  .matrix__label {
+    font-size: 10px;
   }
 }

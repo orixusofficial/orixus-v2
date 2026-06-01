@@ -3,7 +3,7 @@ import Sidebar from '../components/Sidebar';
 import TopNav from '../components/TopNav';
 import '../styles/layout.css';
 
-export default function AppLayout({ children, activeItem, onNavigate }) {
+export default function AppLayout({ children, activeItem, onNavigate, isAuthenticated = false }) {
   const [sidebarOpen, setSidebarOpen]         = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -51,6 +51,7 @@ export default function AppLayout({ children, activeItem, onNavigate }) {
         isOpen={sidebarOpen}
         collapsed={sidebarCollapsed}
         onCollapse={handleSidebarCollapse}
+        isAuthenticated={isAuthenticated}
       />
 
       {/* Overlay — mobile only */}

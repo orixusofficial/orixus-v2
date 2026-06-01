@@ -53,14 +53,21 @@ const NAV_ITEMS = [
   { id: 'journal',   label: 'Journal',   icon: ICONS.journal },
 ];
 
-const SECONDARY_ITEMS = [
-  { id: 'profile',  label: 'Profile',  icon: ICONS.profile },
+const ACCOUNT_ITEMS_AUTHENTICATED = [
+  { id: 'profile', label: 'Profile', icon: ICONS.profile },
   { id: 'settings', label: 'Settings', icon: ICONS.settings },
-  { id: 'login',    label: 'Login',    icon: ICONS.login },
-  { id: 'logout',   label: 'Logout',   icon: ICONS.logout },
+  { id: 'logout', label: 'Logout', icon: ICONS.logout },
 ];
 
-export default function Sidebar({ activeItem = 'dashboard', onNavigate, isOpen, collapsed, onCollapse }) {
+export default function Sidebar({
+  activeItem = 'dashboard',
+  onNavigate,
+  isOpen,
+  collapsed,
+  onCollapse,
+  isAuthenticated = false,
+}) {
+  const accountItems = isAuthenticated ? ACCOUNT_ITEMS_AUTHENTICATED : [];
   return (
     <aside className={`sidebar${isOpen ? ' sidebar--open' : ''}${collapsed ? ' sidebar--collapsed' : ''}`}>
 
@@ -105,7 +112,7 @@ export default function Sidebar({ activeItem = 'dashboard', onNavigate, isOpen, 
         <div className="sidebar__divider" />
 
         <div className="sidebar__section-label">Account</div>
-        {SECONDARY_ITEMS.map((item) => (
+        {accountItems.map((item) => (
           <button
             key={item.id}
             className={`sidebar__link${activeItem === item.id ? ' sidebar__link--active' : ''}`}

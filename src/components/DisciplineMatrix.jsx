@@ -260,6 +260,7 @@ export default function DisciplineMatrix({
   onOpenAddHabit,
   completionData,
   setCompletionData,
+  onToggleCompletion,
   customDays,
   setCustomDays,
   range,
@@ -275,7 +276,15 @@ export default function DisciplineMatrix({
   const days = useMemo(() => getDays(activeDaysCount), [activeDaysCount]);
 
   const toggleCell = useCallback((habitId, date) => {
-    const key = `${habitId}:${dateKey(date)}`;
+    const dk = dateKey(date);
+    const key = `${habitId}:${dk}`;
+    const nextCompleted = !completionData[key];
+
+    if (onToggleCompletion) {
+      onToggleCompletion(habitId, dk, nextCompleted);
+      return;
+    }
+
     setCompletionData((prev) => {
       const next = { ...prev };
       if (next[key]) {
@@ -285,7 +294,7 @@ export default function DisciplineMatrix({
       }
       return next;
     });
-  }, [setCompletionData]);
+  }, [completionData, onToggleCompletion, setCompletionData]);
 
   const stats = useMemo(
     () => computeStats(habits, days, completionData),

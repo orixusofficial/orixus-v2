@@ -1,6 +1,25 @@
 import '../styles/dashboard.css';
 
-export default function ProfilePage({ habits, completionData }) {
+function initialsFromUser(user, profile) {
+  const name = profile?.display_name?.trim();
+  if (name) {
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return name.slice(0, 2).toUpperCase();
+  }
+  const email = user?.email ?? '';
+  if (email) return email.slice(0, 2).toUpperCase();
+  return 'OX';
+}
+
+function operatorLabel(user, profile) {
+  const name = profile?.display_name?.trim();
+  if (name) return name;
+  if (user?.email) return user.email.split('@')[0];
+  return 'Operator';
+}
+
+export default function ProfilePage({ habits, completionData, user, profile }) {
   // Let's compute rank details
   const totalCompletions = Object.values(completionData).filter(Boolean).length;
   
@@ -31,11 +50,12 @@ export default function ProfilePage({ habits, completionData }) {
         <div className="profile-main-card">
           <div className="profile-avatar-row">
             <div className="profile-avatar">
-              <span className="profile-avatar-letters">OX</span>
+              <span className="profile-avatar-letters">{initialsFromUser(user, profile)}</span>
             </div>
             <div className="profile-identity">
-              <h3 className="profile-name">Operator #0921</h3>
+              <h3 className="profile-name">{operatorLabel(user, profile)}</h3>
               <span className="profile-rank">{rank}</span>
+              {user?.email && <span className="profile-email">{user.email}</span>}
             </div>
           </div>
 

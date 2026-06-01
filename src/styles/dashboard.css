@@ -1184,3 +1184,71 @@
   border-color: var(--color-text-secondary);
 }
 
+/* ---- Auth (login / signup shell) ---- */
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--color-bg-primary, #0a0a0b);
+}
+
+.auth-shell__inner {
+  width: 100%;
+  max-width: 480px;
+}
+
+.auth-shell__status,
+.auth-shell__hint {
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-top: 12px;
+}
+
+.auth-panel {
+  margin-top: 20px;
+  max-width: 400px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.auth-form__submit {
+  margin-top: 8px;
+  width: 100%;
+}
+
+.auth-form__error {
+  color: #e85d5d;
+  font-size: 0.875rem;
+  margin: 8px 0 0;
+}
+
+.auth-form__footer {
+  margin-top: 16px;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.auth-form__link {
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+  text-decoration: underline;
+}
+
+.profile-email {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+

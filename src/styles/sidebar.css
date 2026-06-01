@@ -8,14 +8,15 @@
   left: 0;
   width: var(--sidebar-width);
   height: 100vh;
-  background-color: var(--color-surface);
-  border-right: 1px solid var(--color-border);
+  background-color: #090A0D;
+  border-right: 1px solid rgba(255, 255, 255, 0.03);
   display: flex;
   flex-direction: column;
   z-index: 100;
   transition: width var(--transition-slow), transform var(--transition-slow);
   overflow: hidden;
   will-change: width, transform;
+  box-shadow: 1px 0 20px rgba(0, 0, 0, 0.4);
 }
 
 /* ----------------------------------------
@@ -251,9 +252,9 @@
 /* Active state — Elite SaaS Glow */
 .sidebar__link--active {
   color: var(--color-text-primary);
-  background: rgba(197, 160, 89, 0.03);
-  border-color: rgba(197, 160, 89, 0.15);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 20px rgba(0, 0, 0, 0.25);
+  background: rgba(179, 142, 70, 0.02);
+  border-color: rgba(179, 142, 70, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 .sidebar__link--active::before {
@@ -263,7 +264,7 @@
 
 .sidebar--collapsed .sidebar__link--active {
   border-color: var(--color-accent);
-  box-shadow: 0 0 12px rgba(197, 160, 89, 0.15);
+  box-shadow: 0 0 12px rgba(179, 142, 70, 0.12);
 }
 
 /* Auth specific styling (Login/Logout) */
@@ -295,7 +296,7 @@
 .sidebar__link:hover .sidebar__icon {
   opacity: 1;
   color: var(--color-accent);
-  filter: drop-shadow(0 0 4px rgba(197, 160, 89, 0.4));
+  filter: drop-shadow(0 0 4px rgba(179, 142, 70, 0.3));
 }
 
 /* ---- Link text ---- */
@@ -315,11 +316,12 @@
   .sidebar {
     width: var(--sidebar-width) !important;
     transform: translateX(-100%);
+    transition: transform var(--transition-base) !important;
   }
 
   .sidebar--open {
     transform: translateX(0);
-    box-shadow: 30px 0 60px rgba(0,0,0,0.8);
+    box-shadow: 20px 0 40px rgba(0, 0, 0, 0.85);
   }
 
   .sidebar__hamburger {

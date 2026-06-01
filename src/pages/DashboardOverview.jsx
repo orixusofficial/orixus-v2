@@ -117,9 +117,9 @@ export default function DashboardOverview({ habits, completionData, onNavigate, 
 
   return (
     <div className="dashboard-overview">
-      <div className="dashboard-overview__header">
-        <h1 className="dashboard-overview__title">Overview</h1>
-        <p className="dashboard-overview__quote">“{quote}”</p>
+      <div className="page-header">
+        <h1 className="page-title">Overview</h1>
+        <p className="page-quote">“{quote}”</p>
       </div>
 
       <div className="dashboard-overview__grid">
@@ -147,7 +147,7 @@ export default function DashboardOverview({ habits, completionData, onNavigate, 
         {/* Habits Progress Panel */}
         <div className="dashboard-overview__panel">
           <div className="dashboard-overview__panel-header">
-            <h2 className="dashboard-overview__panel-title">Active Commitments</h2>
+            <h2 className="section-title dashboard-overview__panel-title">Active Commitments</h2>
             <button 
               className="dashboard-overview__action-btn"
               onClick={onOpenAddHabit}

@@ -22,9 +22,9 @@ export default function ProfilePage({ habits, completionData }) {
 
   return (
     <div className="profile-page">
-      <div className="dashboard-overview__header">
-        <h1 className="dashboard-overview__title">Operator Profile</h1>
-        <p className="dashboard-overview__quote">“Identity is built by proof. Who are you when nobody is looking?”</p>
+      <div className="page-header">
+        <h1 className="page-title">Operator Profile</h1>
+        <p className="page-quote">“Identity is built by proof. Who are you when nobody is looking?”</p>
       </div>
 
       <div className="profile-layout">

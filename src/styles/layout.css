@@ -24,19 +24,27 @@
 
 /* ---- Mobile overlay ---- */
 .app-layout__overlay {
-  display: none;
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(2px);
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   z-index: 99;
   opacity: 0;
-  transition: opacity var(--transition-slow);
+  pointer-events: none;
+  transition: opacity var(--transition-base);
 }
 
 .app-layout__overlay--visible {
-  display: block;
   opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---- Page Container (Phase 1) ---- */
+.page-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-xl) var(--space-2xl);
 }
 
 /* ----------------------------------------
@@ -49,5 +57,9 @@
 
   .app-layout--collapsed .app-layout__content {
     margin-left: 0;
+  }
+
+  .page-container {
+    padding: var(--space-base) var(--space-base) var(--space-xl);
   }
 }

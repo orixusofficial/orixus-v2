@@ -42,15 +42,15 @@ export default function JournalPage() {
 
   return (
     <div className="journal-page">
-      <div className="dashboard-overview__header">
-        <h1 className="dashboard-overview__title">Tactical Journal</h1>
-        <p className="dashboard-overview__quote">“Write to clear the fog. Reflect to reinforce standard behaviors.”</p>
+      <div className="page-header">
+        <h1 className="page-title">Tactical Journal</h1>
+        <p className="page-quote">“Write to clear the fog. Reflect to reinforce standard behaviors.”</p>
       </div>
 
       <div className="journal-layout">
         {/* Entry Creator */}
         <div className="journal-form-panel">
-          <h3 className="journal-section-title">New Reflection</h3>
+          <h3 className="section-title journal-section-title">New Reflection</h3>
           <form onSubmit={handleSubmit} className="journal-form">
             <div className="journal-form-group">
               <input 
@@ -96,7 +96,7 @@ export default function JournalPage() {
 
         {/* Entries list */}
         <div className="journal-entries-list">
-          <h3 className="journal-section-title">Historical Logs</h3>
+          <h3 className="section-title journal-section-title">Historical Logs</h3>
           {entries.map((entry) => (
             <div key={entry.id} className="journal-entry-card">
               <div className="journal-entry-header">

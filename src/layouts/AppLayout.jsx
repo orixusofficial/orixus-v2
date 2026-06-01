@@ -62,7 +62,9 @@ export default function AppLayout({ children, activeItem, onNavigate }) {
       <TopNav onMenuToggle={handleMenuToggle} sidebarCollapsed={sidebarCollapsed} />
 
       <main className="app-layout__content">
-        {children}
+        <div className="page-container">
+          {children}
+        </div>
       </main>
     </div>
   );

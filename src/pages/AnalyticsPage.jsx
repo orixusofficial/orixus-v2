@@ -20,9 +20,9 @@ export default function AnalyticsPage({ habits, completionData }) {
 
   return (
     <div className="analytics-page">
-      <div className="dashboard-overview__header">
-        <h1 className="dashboard-overview__title">Analytics</h1>
-        <p className="dashboard-overview__quote">“Measure to refine. Numbers don't lie, actions don't cheat.”</p>
+      <div className="page-header">
+        <h1 className="page-title">Analytics</h1>
+        <p className="page-quote">“Measure to refine. Numbers don't lie, actions don't cheat.”</p>
       </div>
 
       <div className="analytics-grid">
@@ -62,7 +62,7 @@ export default function AnalyticsPage({ habits, completionData }) {
 
       {/* Habits Breakdown */}
       <div className="analytics-section">
-        <h3 className="analytics-section-title">Habit Breakdown & Consistencies</h3>
+        <h3 className="section-title analytics-section-title">Habit Breakdown & Consistencies</h3>
         <div className="analytics-breakdown-list">
           {habits.length === 0 ? (
             <p className="analytics-empty">No habits registered to compile stats. Start tracking to generate reports.</p>

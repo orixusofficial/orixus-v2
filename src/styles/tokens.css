@@ -1,28 +1,27 @@
 /* ========================================
    Orixus — Design Tokens
    ======================================== */
-
 :root {
-  /* Background — Deeper, more powerful darks */
-  --color-bg: #0F1115;
-  --color-surface: #16191E;
-  --color-surface-hover: #1D2128;
-  --color-surface-raised: #232831;
+  /* Background — Deeper, layered, tactical luxury darks */
+  --color-bg: #060709;             /* matte black primary background */
+  --color-surface: #0C0E11;        /* rich charcoal secondary surface */
+  --color-surface-hover: #12151B;  /* dark graphite for active cards and hovers */
+  --color-surface-raised: #1A1D24; /* soft dark gray for elevated modals */
 
-  /* Text — Brighter ivory for high contrast */
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: rgba(255, 255, 255, 0.75);
-  --color-text-muted: rgba(255, 255, 255, 0.4);
+  /* Text — Soft Ivory and Tactical Grays */
+  --color-text-primary: #E1E3E6;   /* soft luxurious ivory */
+  --color-text-secondary: #9297A0; /* muted steel gray */
+  --color-text-muted: #525862;     /* low contrast tactical gray */
 
-  /* Accent — Stronger, richer gold/bronze */
-  --color-accent: #C5A059;
-  --color-accent-hover: #D4B475;
-  --color-accent-subtle: rgba(197, 160, 89, 0.12);
-  --color-accent-strong: #E5C384;
+  /* Accent — Premium Soft Warm Champagne Gold */
+  --color-accent: #B38E46;         /* rich, scarce warm gold */
+  --color-accent-hover: #C29F57;   /* soft amber hover gold */
+  --color-accent-subtle: rgba(179, 142, 70, 0.05); /* highly scarce gold overlay */
+  --color-accent-strong: #CEAA62;  /* champagne gold highlight */
 
-  /* Borders — Clearer separation */
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-subtle: rgba(255, 255, 255, 0.04);
+  /* Borders — Minimal, soft, physical borders */
+  --color-border: rgba(255, 255, 255, 0.04);
+  --color-border-subtle: rgba(255, 255, 255, 0.02);
 
   /* Typography */
   --font-heading: 'Barlow Condensed', sans-serif;

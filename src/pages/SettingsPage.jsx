@@ -9,14 +9,14 @@ export default function SettingsPage() {
 
   return (
     <div className="settings-page">
-      <div className="dashboard-overview__header">
-        <h1 className="dashboard-overview__title">System Settings</h1>
-        <p className="dashboard-overview__quote">“Optimize the environment to ensure compliance.”</p>
+      <div className="page-header">
+        <h1 className="page-title">System Settings</h1>
+        <p className="page-quote">“Optimize the environment to ensure compliance.”</p>
       </div>
 
       <div className="settings-layout">
         <div className="settings-section-card">
-          <h3 className="settings-section-title">Tactical Interfaces</h3>
+          <h3 className="section-title settings-section-title">Tactical Interfaces</h3>
           
           <div className="settings-option-item">
             <div className="settings-option-info">
@@ -59,7 +59,7 @@ export default function SettingsPage() {
         </div>
 
         <div className="settings-section-card">
-          <h3 className="settings-section-title">Operations Notifications</h3>
+          <h3 className="section-title settings-section-title">Operations Notifications</h3>
           
           <div className="settings-option-item">
             <div className="settings-option-info">

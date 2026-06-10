@@ -3,11 +3,27 @@ import { isSupabaseConfigured, supabase } from '../lib/supabase';
 
 const AuthContext = createContext(null);
 
+// Set to true to bypass auth gating in development. Set to false to test real Supabase auth.
+const BYPASS_AUTH = import.meta.env.DEV && true;
+
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (BYPASS_AUTH) {
+      setSession({
+        user: {
+          id: 'dev-user-id',
+          email: 'dev-operator@orixus.io',
+          isMock: true,
+          user_metadata: { display_name: 'Dev Operator' },
+        },
+      });
+      setLoading(false);
+      return;
+    }
+
     if (!isSupabaseConfigured) {
       setLoading(false);
       return;
@@ -36,18 +52,46 @@ export function AuthProvider({ children }) {
   }, []);
 
   const signUp = useCallback(async (email, password) => {
+    if (BYPASS_AUTH) {
+      const mockData = {
+        user: {
+          id: 'dev-user-id',
+          email: email,
+          isMock: true,
+          user_metadata: { display_name: 'Dev Operator' },
+        },
+      };
+      setSession(mockData);
+      return mockData;
+    }
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw error;
     return data;
   }, []);
 
   const signIn = useCallback(async (email, password) => {
+    if (BYPASS_AUTH) {
+      const mockData = {
+        user: {
+          id: 'dev-user-id',
+          email: email,
+          isMock: true,
+          user_metadata: { display_name: 'Dev Operator' },
+        },
+      };
+      setSession(mockData);
+      return mockData;
+    }
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     return data;
   }, []);
 
   const signOut = useCallback(async () => {
+    if (BYPASS_AUTH) {
+      setSession(null);
+      return;
+    }
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   }, []);
@@ -75,3 +119,4 @@ export function useAuth() {
   }
   return ctx;
 }
+

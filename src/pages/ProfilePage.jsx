@@ -1,4 +1,5 @@
 import '../styles/dashboard.css';
+import { calculatePoints, getRankInfo } from '../utils/analyticsHelpers';
 
 function initialsFromUser(user, profile) {
   const name = profile?.display_name?.trim();
@@ -20,24 +21,14 @@ function operatorLabel(user, profile) {
 }
 
 export default function ProfilePage({ habits, completionData, user, profile }) {
-  // Let's compute rank details
-  const totalCompletions = Object.values(completionData).filter(Boolean).length;
+  // Compute rank details using unified analytics helpers
+  const points = calculatePoints(habits, completionData);
+  const rankInfo = getRankInfo(points);
   
-  let rank = "Centurion (Tier 1)";
-  let level = 1;
-  let levelProgress = 20;
-
-  if (totalCompletions >= 40) {
-    rank = "Imperator (Tier 3)";
-    level = 5;
-    levelProgress = Math.min(100, Math.round(((totalCompletions - 40) / 100) * 100));
-  } else if (totalCompletions >= 15) {
-    rank = "Decurion (Tier 2)";
-    level = 3;
-    levelProgress = Math.round(((totalCompletions - 15) / 25) * 100);
-  } else {
-    levelProgress = Math.round((totalCompletions / 15) * 100);
-  }
+  const rank = `${rankInfo.name} (Tier ${rankInfo.level})`;
+  const level = rankInfo.level;
+  const levelProgress = rankInfo.progressPercent;
+  const totalCompletions = Object.values(completionData).filter(Boolean).length;
 
   return (
     <div className="profile-page">

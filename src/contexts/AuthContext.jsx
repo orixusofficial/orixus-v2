@@ -3,9 +3,8 @@ import { isSupabaseConfigured, supabase } from '../lib/supabase';
 
 const AuthContext = createContext(null);
 
-// TEMPORARY DEVELOPMENT BYPASS: Skips login/signup in development mode (localhost)
-// In production (Vercel), this is false and normal Supabase authentication is used
-const BYPASS_AUTH = import.meta.env.DEV === true;
+// Set to true to bypass auth gating in development. Set to false to test real Supabase auth.
+const BYPASS_AUTH = import.meta.env.DEV && true;
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);

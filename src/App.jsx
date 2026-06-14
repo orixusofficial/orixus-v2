@@ -1,17 +1,23 @@
-import { useEffect, useState } from 'react';
-import { useAuth } from './contexts/AuthContext';
-import AuthLoading from './components/AuthLoading';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
+import { useState } from 'react';
+// TEMPORARY AUTH BYPASS
+// import { useEffect } from 'react';
+// import { useAuth } from './contexts/AuthContext';
+// import AuthLoading from './components/AuthLoading';
+// import LoginPage from './pages/LoginPage';
+// import SignupPage from './pages/SignupPage';
 import AuthenticatedApp from './AuthenticatedApp';
 import './styles/dashboard.css';
 
-const AUTH_VIEWS = ['login', 'signup'];
+// TEMPORARY AUTH BYPASS
+// const AUTH_VIEWS = ['login', 'signup'];
 
 export default function App() {
-  const { session, loading } = useAuth();
+  // TEMPORARY AUTH BYPASS
+  // const { session, loading } = useAuth();
   const [activeItem, setActiveItem] = useState('dashboard');
 
+  // TEMPORARY AUTH BYPASS
+  /*
   useEffect(() => {
     if (loading) return;
 
@@ -26,7 +32,10 @@ export default function App() {
       setActiveItem('dashboard');
     }
   }, [session, loading, activeItem]);
+  */
 
+  // TEMPORARY AUTH BYPASS
+  /*
   if (loading) {
     return <AuthLoading />;
   }
@@ -37,12 +46,14 @@ export default function App() {
     }
     return <LoginPage onNavigate={setActiveItem} />;
   }
+  */
 
+  // TEMPORARY AUTH BYPASS
   return (
     <AuthenticatedApp
-      activeItem={activeItem}
+      activeItem={activeItem === 'login' || activeItem === 'signup' ? 'dashboard' : activeItem}
       onNavigate={setActiveItem}
-      onLoggedOut={() => setActiveItem('login')}
+      onLoggedOut={() => setActiveItem('dashboard')}
     />
   );
 }

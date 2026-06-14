@@ -3,8 +3,8 @@ import { isSupabaseConfigured, supabase } from '../lib/supabase';
 
 const AuthContext = createContext(null);
 
-// Set to true to bypass auth gating in development. Set to false to test real Supabase auth.
-const BYPASS_AUTH = import.meta.env.DEV && true;
+// TEMPORARY AUTH BYPASS
+const BYPASS_AUTH = true;
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);

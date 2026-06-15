@@ -6,6 +6,7 @@ import { useState } from 'react';
 // import LoginPage from './pages/LoginPage';
 // import SignupPage from './pages/SignupPage';
 import AuthenticatedApp from './AuthenticatedApp';
+import LandingPage from './pages/LandingPage';
 import './styles/dashboard.css';
 
 // TEMPORARY AUTH BYPASS
@@ -15,6 +16,7 @@ export default function App() {
   // TEMPORARY AUTH BYPASS
   // const { session, loading } = useAuth();
   const [activeItem, setActiveItem] = useState('dashboard');
+  const [showLanding, setShowLanding] = useState(true);
 
   // TEMPORARY AUTH BYPASS
   /*
@@ -49,11 +51,19 @@ export default function App() {
   */
 
   // TEMPORARY AUTH BYPASS
+  if (showLanding) {
+    return <LandingPage onEnterApp={() => setShowLanding(false)} />;
+  }
+
+  // TEMPORARY AUTH BYPASS
   return (
     <AuthenticatedApp
       activeItem={activeItem === 'login' || activeItem === 'signup' ? 'dashboard' : activeItem}
       onNavigate={setActiveItem}
-      onLoggedOut={() => setActiveItem('dashboard')}
+      onLoggedOut={() => {
+        setActiveItem('dashboard');
+        setShowLanding(true);
+      }}
     />
   );
 }

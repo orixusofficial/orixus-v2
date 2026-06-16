@@ -75,10 +75,10 @@ export default function Sidebar({
       <div className="sidebar__brand">
         <div className="sidebar__logo" aria-label="Orixus">
           <span className="sidebar__logo-full">
-            Ori<span className="sidebar__logo-accent">x</span>us<span className="sidebar__logo-accent">.</span>
+            Orixus.
           </span>
           <span className="sidebar__logo-collapsed">
-            <span className="sidebar__logo-accent">O</span><span className="sidebar__logo-accent">.</span>
+            O.
           </span>
         </div>
 

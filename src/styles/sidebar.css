@@ -57,7 +57,7 @@
   font-weight: 800;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--color-text-primary);
+  color: #FFFFFF;
   white-space: nowrap;
   position: relative;
   overflow: hidden;
@@ -96,7 +96,7 @@
 }
 
 .sidebar__logo-accent {
-  color: var(--color-accent);
+  color: #A79277;
 }
 
 /* ---- Hamburger/Collapse button — Bolder & Higher Contrast ---- */

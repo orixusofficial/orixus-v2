@@ -58,7 +58,7 @@
 
 .landing-logo,
 .landing-footer-logo {
-  color: var(--color-text-primary);
+  color: #FFFFFF;
   font-family: var(--font-heading);
   font-size: 1.85rem;
   font-weight: 700;

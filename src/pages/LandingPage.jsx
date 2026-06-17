@@ -212,7 +212,7 @@ export default function LandingPage({ onEnterApp }) {
             </p>
             <div className="landing-hero-actions">
               <button className="landing-btn-primary" onClick={handleEnterApp}>
-                Start Free
+                Start Your Journey
               </button>
               <a
                 className="landing-btn-secondary"
@@ -309,7 +309,7 @@ export default function LandingPage({ onEnterApp }) {
         <section className="landing-final-cta">
           <h2>Build the person you want to become.</h2>
           <button className="landing-btn-primary" onClick={handleEnterApp}>
-            Start Free
+            Start Your Journey
           </button>
         </section>
       </main>

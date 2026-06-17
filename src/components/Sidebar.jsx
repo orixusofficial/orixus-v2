@@ -47,7 +47,6 @@ const ICONS = {
 };
 
 const NAV_ITEMS = [
-  { id: 'dashboard', label: 'Dashboard', icon: ICONS.dashboard },
   { id: 'habits',    label: 'Habits',    icon: ICONS.habits },
   { id: 'analytics', label: 'Analytics', icon: ICONS.analytics },
   { id: 'journal',   label: 'Journal',   icon: ICONS.journal },
@@ -56,11 +55,10 @@ const NAV_ITEMS = [
 const ACCOUNT_ITEMS_AUTHENTICATED = [
   { id: 'profile', label: 'Profile', icon: ICONS.profile },
   { id: 'settings', label: 'Settings', icon: ICONS.settings },
-  { id: 'logout', label: 'Logout', icon: ICONS.logout },
 ];
 
 export default function Sidebar({
-  activeItem = 'dashboard',
+  activeItem = 'habits',
   onNavigate,
   isOpen,
   collapsed,

@@ -214,7 +214,7 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
       {/* Profile Hero Card */}
       <div className={`profile-hero-card ${loading ? 'profile-hero-card--loading' : ''}`}>
         <div className="profile-hero-card__avatar">
-          <div className="profile-avatar">
+          <div className="profile-avatar" style={{ backgroundColor: profile?.avatar_color || '#A79277' }}>
             <span className="profile-avatar-letters">
               {profile?.display_name ? profile.display_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'DO'}
             </span>

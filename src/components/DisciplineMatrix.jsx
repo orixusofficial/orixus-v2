@@ -233,8 +233,15 @@ function CustomDurationModal({ isOpen, onClose, onConfirm, initialValue }) {
 }
 
 /* ---- Day column labels ---- */
-function DayLabels({ days }) {
+function DayLabels({ days, displayMode }) {
   const step = days.length <= 7 ? 1 : days.length <= 30 ? 5 : days.length <= 90 ? 10 : 30;
+
+  const formatDate = (day, index) => {
+    if (displayMode === 'number') {
+      return `Day ${index + 1}`;
+    }
+    return day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
 
   return (
     <div className="matrix__day-labels">
@@ -244,7 +251,7 @@ function DayLabels({ days }) {
           const show = i % step === 0 || i === days.length - 1;
           return (
             <div className="matrix__day-label" key={i}>
-              {show ? day.getDate() : ''}
+              {show ? formatDate(day, i) : ''}
             </div>
           );
         })}
@@ -254,9 +261,9 @@ function DayLabels({ days }) {
 }
 
 /* ---- Main Component ---- */
-export default function DisciplineMatrix({ 
-  habits, 
-  onRemoveHabit, 
+export default function DisciplineMatrix({
+  habits,
+  onRemoveHabit,
   onOpenAddHabit,
   completionData,
   setCompletionData,
@@ -264,7 +271,8 @@ export default function DisciplineMatrix({
   customDays,
   setCustomDays,
   range,
-  setRange
+  setRange,
+  habitDisplayMode = 'date'
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -306,15 +314,15 @@ export default function DisciplineMatrix({
       <div className="matrix__header">
         <div className="matrix__header-left">
           <h2 className="matrix__title">Discipline Matrix</h2>
-          <button 
-            className="matrix__add-btn" 
+          <button
+            className="matrix__add-btn"
             onClick={onOpenAddHabit}
             aria-label="Add habit"
           >
             + Add Habit
           </button>
         </div>
-        
+
         <div className="matrix__range">
           {STATIC_RANGES.map((r) => (
             <button
@@ -359,14 +367,14 @@ export default function DisciplineMatrix({
       {/* Main Grid Wrapper */}
       <div className="matrix__grid-wrapper">
         <div className="matrix__scroll-container">
-          <DayLabels days={days} />
+          <DayLabels days={days} displayMode={habitDisplayMode} />
 
           <div className="matrix__table">
             {habits.map((habit) => (
               <div className="matrix__row" key={habit.id}>
                 <div className="matrix__label-group">
-                  <button 
-                    className="matrix__remove-btn" 
+                  <button
+                    className="matrix__remove-btn"
                     onClick={() => onRemoveHabit(habit)}
                     aria-label="Remove habit"
                   >
@@ -389,7 +397,7 @@ export default function DisciplineMatrix({
                     else if (inactive) cellClass += ' matrix__cell--inactive';
                     else if (future) cellClass += ' matrix__cell--future';
                     else cellClass += ' matrix__cell--missed';
-                    
+
                     if (today) cellClass += ' matrix__cell--today';
 
                     return (
@@ -438,8 +446,8 @@ export default function DisciplineMatrix({
         </div>
       </div>
 
-      <CustomDurationModal 
-        isOpen={isModalOpen} 
+      <CustomDurationModal
+        isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         initialValue={customDays}
         onConfirm={(val) => setCustomDays(val)}

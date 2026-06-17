@@ -36,3 +36,12 @@ export async function setCompletion(userId, habitId, dateKeyStr, completed) {
     if (error) throw error;
   }
 }
+
+export async function deleteAllCompletions(userId) {
+  const { error } = await supabase
+    .from('habit_completions')
+    .delete()
+    .eq('user_id', userId);
+
+  if (error) throw error;
+}

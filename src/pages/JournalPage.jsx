@@ -1,20 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import '../styles/dashboard.css';
 
-export default function JournalPage({ entries = [], onAddEntry }) {
+export default function JournalPage({ entries = [], onAddEntry, defaultMood = 'neutral' }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [mood, setMood] = useState('EXCELLENT');
+  const [mood, setMood] = useState(defaultMood);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   const MOOD_OPTIONS = [
-    { value: 'FAILED', label: 'Failed', color: '#a85454' },
-    { value: 'NEUTRAL', label: 'Neutral', color: '#A0A5AD' },
-    { value: 'GOOD', label: 'Good', color: '#4A90E2' },
-    { value: 'STRONG', label: 'Strong', color: '#5cb85c' },
-    { value: 'EXCELLENT', label: 'Excellent', color: '#B38E46' },
+    { value: 'failed', label: 'Failed', color: '#a85454' },
+    { value: 'neutral', label: 'Neutral', color: '#A0A5AD' },
+    { value: 'good', label: 'Good', color: '#4A90E2' },
+    { value: 'strong', label: 'Strong', color: '#5cb85c' },
+    { value: 'excellent', label: 'Excellent', color: '#B38E46' },
   ];
+
+  // Update mood when defaultMood changes
+  useEffect(() => {
+    setMood(defaultMood);
+  }, [defaultMood]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

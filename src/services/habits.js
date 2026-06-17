@@ -34,3 +34,12 @@ export async function deleteHabit(habitId) {
   const { error } = await supabase.from('habits').delete().eq('id', habitId);
   if (error) throw error;
 }
+
+export async function deleteAllHabits(userId) {
+  const { error } = await supabase
+    .from('habits')
+    .delete()
+    .eq('user_id', userId);
+
+  if (error) throw error;
+}

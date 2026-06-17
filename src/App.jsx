@@ -15,7 +15,7 @@ import './styles/dashboard.css';
 export default function App() {
   // TEMPORARY AUTH BYPASS
   // const { session, loading } = useAuth();
-  const [activeItem, setActiveItem] = useState('dashboard');
+  const [activeItem, setActiveItem] = useState('habits');
   const [showLanding, setShowLanding] = useState(true);
 
   // TEMPORARY AUTH BYPASS
@@ -58,10 +58,10 @@ export default function App() {
   // TEMPORARY AUTH BYPASS
   return (
     <AuthenticatedApp
-      activeItem={activeItem === 'login' || activeItem === 'signup' ? 'dashboard' : activeItem}
+      activeItem={activeItem === 'login' || activeItem === 'signup' ? 'habits' : activeItem}
       onNavigate={setActiveItem}
       onLoggedOut={() => {
-        setActiveItem('dashboard');
+        setActiveItem('habits');
         setShowLanding(true);
       }}
     />

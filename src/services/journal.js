@@ -36,3 +36,12 @@ export async function createJournalEntry(userId, { title, content, mood }) {
   if (error) throw error;
   return mapEntry(data);
 }
+
+export async function deleteAllJournalEntries(userId) {
+  const { error } = await supabase
+    .from('journal_entries')
+    .delete()
+    .eq('user_id', userId);
+
+  if (error) throw error;
+}

@@ -10,6 +10,7 @@ export default function HabitsPage({
   setCustomDays,
   range,
   setRange,
+  habitDisplayMode,
 }) {
   return (
     <div className="habits-page">
@@ -23,6 +24,7 @@ export default function HabitsPage({
         setCustomDays={setCustomDays}
         range={range}
         setRange={setRange}
+        habitDisplayMode={habitDisplayMode}
       />
     </div>
   );

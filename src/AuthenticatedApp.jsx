@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import AppLayout from './layouts/AppLayout';
-import DashboardOverview from './pages/DashboardOverview';
 import HabitsPage from './pages/HabitsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import JournalPage from './pages/JournalPage';
@@ -207,15 +206,6 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
     }
 
     switch (activeItem) {
-      case 'dashboard':
-        return (
-          <DashboardOverview
-            habits={habits}
-            completionData={completionData}
-            onNavigate={onNavigate}
-            onOpenAddHabit={() => setIsAddOpen(true)}
-          />
-        );
       case 'habits':
         return (
           <HabitsPage
@@ -228,12 +218,13 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
             setCustomDays={setCustomDays}
             range={range}
             setRange={setRange}
+            habitDisplayMode={profile?.habit_display_mode || 'date'}
           />
         );
       case 'analytics':
         return <AnalyticsPage habits={habits} completionData={completionData} />;
       case 'journal':
-        return <JournalPage entries={journalEntries} onAddEntry={addJournalEntry} />;
+        return <JournalPage entries={journalEntries} onAddEntry={addJournalEntry} defaultMood={profile?.default_journal_mood || 'focused'} />;
       case 'profile':
         return <ProfilePage habits={habits} completionData={completionData} journalEntries={journalEntries} profile={profile} />;
       case 'settings':
@@ -242,11 +233,17 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
         return <LogoutPage onNavigate={onNavigate} onLoggedOut={onLoggedOut} />;
       default:
         return (
-          <DashboardOverview
+          <HabitsPage
             habits={habits}
-            completionData={completionData}
-            onNavigate={onNavigate}
+            onRemoveHabit={(habit) => setHabitToRemove(habit)}
             onOpenAddHabit={() => setIsAddOpen(true)}
+            completionData={completionData}
+            onToggleCompletion={toggleCompletion}
+            customDays={customDays}
+            setCustomDays={setCustomDays}
+            range={range}
+            setRange={setRange}
+            habitDisplayMode={profile?.habit_display_mode || 'date'}
           />
         );
     }

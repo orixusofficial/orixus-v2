@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import * as habitsService from '../services/habits';
 import * as completionsService from '../services/completions';
 import * as journalService from '../services/journal';
-import { ensureProfile, fetchProfile } from '../services/profile';
+import { ensureProfile, fetchProfile, updateProfile } from '../services/profile';
 
 export function useUserData() {
   const { user } = useAuth();
@@ -197,6 +197,60 @@ export function useUserData() {
     [user],
   );
 
+  const updateProfileSettings = useCallback(
+    async (updates) => {
+      if (!user) return;
+      if (user.isMock) {
+        setProfile((prev) => {
+          const next = { ...prev, ...updates };
+          localStorage.setItem('orixus_profile', JSON.stringify(next));
+          return next;
+        });
+        return;
+      }
+      const updated = await updateProfile(user.id, updates);
+      setProfile(updated);
+    },
+    [user],
+  );
+
+  const resetAllHabits = useCallback(async () => {
+    if (!user) return;
+    if (user.isMock) {
+      setHabits([]);
+      setCompletionData({});
+      localStorage.setItem('orixus_habits', '[]');
+      localStorage.setItem('orixus_completions', '{}');
+      return;
+    }
+    await habitsService.deleteAllHabits(user.id);
+    await completionsService.deleteAllCompletions(user.id);
+    setHabits([]);
+    setCompletionData({});
+  }, [user]);
+
+  const resetStreak = useCallback(async () => {
+    if (!user) return;
+    if (user.isMock) {
+      setCompletionData({});
+      localStorage.setItem('orixus_completions', '{}');
+      return;
+    }
+    await completionsService.deleteAllCompletions(user.id);
+    setCompletionData({});
+  }, [user]);
+
+  const deleteAllJournalEntries = useCallback(async () => {
+    if (!user) return;
+    if (user.isMock) {
+      setJournalEntries([]);
+      localStorage.setItem('orixus_journal', '[]');
+      return;
+    }
+    await journalService.deleteAllJournalEntries(user.id);
+    setJournalEntries([]);
+  }, [user]);
+
   return {
     habits,
     completionData,
@@ -210,6 +264,10 @@ export function useUserData() {
     addHabit,
     removeHabit,
     addJournalEntry,
+    updateProfileSettings,
+    resetAllHabits,
+    resetStreak,
+    deleteAllJournalEntries,
   };
 }
 

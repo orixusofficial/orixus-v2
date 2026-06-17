@@ -1,18 +1,19 @@
+import { useMemo, useState, useEffect } from 'react';
 import '../styles/dashboard.css';
 
 const RANKS = [
-  { name: 'Initiate', requirement: 'Current rank' },
-  { name: 'Ascendant', requirement: '30 day streak' },
-  { name: 'Vanguard', requirement: '60 day streak' },
-  { name: 'Apex', requirement: '90 day streak' },
-  { name: 'Sovereign', requirement: '180 day streak' },
+  { name: 'Initiate', minStreak: 0, minHabits: 0 },
+  { name: 'Ascendant', minStreak: 7, minHabits: 20 },
+  { name: 'Vanguard', minStreak: 30, minHabits: 100 },
+  { name: 'Apex', minStreak: 60, minHabits: 300 },
+  { name: 'Sovereign', minStreak: 180, minHabits: 1000 },
 ];
 
-const ACHIEVEMENTS = [
-  { name: 'First Spark', description: 'Complete your first habit check-in', icon: 'flame', unlocked: true },
-  { name: 'Week Warrior', description: 'Maintain a 7-day streak', icon: 'calendar', unlocked: false },
-  { name: 'Deep Thinker', description: 'Write 10 journal entries', icon: 'notebook', unlocked: false },
-  { name: 'Elite Status', description: 'Reach Vanguard rank', icon: 'trophy', unlocked: false },
+const ACHIEVEMENTS_CONFIG = [
+  { name: 'First Spark', description: 'Complete your first habit check-in', icon: 'flame', check: (data) => data.totalHabits >= 1 },
+  { name: '7-Day Streak', description: 'Maintain a 7-day streak', icon: 'calendar', check: (data) => data.streak >= 7 },
+  { name: 'First Log', description: 'Write your first journal entry', icon: 'notebook', check: (data) => data.journalCount >= 1 },
+  { name: 'Century', description: 'Complete 100 habits', icon: 'trophy', check: (data) => data.totalHabits >= 100 },
 ];
 
 const ICONS = {
@@ -57,51 +58,209 @@ const ICONS = {
   ),
 };
 
-export default function ProfilePage() {
+export default function ProfilePage({ habits = [], completionData = {}, journalEntries = [], profile = null }) {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading state for smooth transition
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Calculate all metrics from real data
+  const metrics = useMemo(() => {
+    const totalHabits = Object.values(completionData).filter(v => v).length;
+    const journalCount = journalEntries.length;
+
+    // Calculate day streak
+    const dateKeyStr = (date) => {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    };
+
+    const isBefore = (dateA, dateB) => {
+      const a = new Date(dateA);
+      const b = new Date(dateB);
+      a.setHours(0, 0, 0, 0);
+      b.setHours(0, 0, 0, 0);
+      return a < b;
+    };
+
+    // Get unique dates with completions
+    const completionDates = new Set();
+    Object.keys(completionData).forEach(key => {
+      if (completionData[key]) {
+        const dateStr = key.split(':')[1];
+        completionDates.add(dateStr);
+      }
+    });
+
+    // Debug: Log raw data
+    console.log('ProfilePage - Raw completionData:', completionData);
+    console.log('ProfilePage - Completion dates:', Array.from(completionDates));
+    console.log('ProfilePage - Profile:', profile);
+
+    // Calculate streak - go backwards from today/yesterday counting consecutive days with completions
+    let streak = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const checkDate = (date) => {
+      const dateStr = dateKeyStr(date);
+      return Array.from(completionDates).some(d => d === dateStr);
+    };
+
+    // If no habits have ever been completed, streak = 0
+    if (completionDates.size === 0) {
+      streak = 0;
+    } else {
+      // Start checking from today
+      let checkDateObj = new Date(today);
+
+      // If today has no completions, start from yesterday
+      if (!checkDate(checkDateObj)) {
+        checkDateObj.setDate(today.getDate() - 1);
+      }
+
+      // Count consecutive days backwards until a day with no completions is found
+      while (checkDate(checkDateObj)) {
+        streak++;
+        checkDateObj.setDate(checkDateObj.getDate() - 1);
+      }
+    }
+
+    // Calculate consistency - use first habit completion date, not account creation date
+    let consistency = 0;
+    if (completionDates.size > 0) {
+      // Find the first habit completion date
+      const sortedDates = Array.from(completionDates).sort();
+      const firstCompletionDate = new Date(sortedDates[0]);
+      firstCompletionDate.setHours(0, 0, 0, 0);
+
+      // Calculate total days since first habit completion
+      const daysSinceFirstCompletion = Math.ceil((today - firstCompletionDate) / (1000 * 60 * 60 * 24));
+
+      // Debug: Log consistency calculation
+      console.log('ProfilePage - First completion date:', firstCompletionDate);
+      console.log('ProfilePage - Days since first completion:', daysSinceFirstCompletion);
+      console.log('ProfilePage - Unique days with completions:', completionDates.size);
+
+      // Calculate consistency percentage
+      if (daysSinceFirstCompletion > 0) {
+        consistency = Math.min(100, Math.round((completionDates.size / daysSinceFirstCompletion) * 100));
+      }
+    }
+
+    console.log('ProfilePage - Final consistency %:', consistency);
+
+    // Determine current rank
+    let currentRankIndex = 0;
+    for (let i = RANKS.length - 1; i >= 0; i--) {
+      if (streak >= RANKS[i].minStreak && totalHabits >= RANKS[i].minHabits) {
+        currentRankIndex = i;
+        break;
+      }
+    }
+
+    const currentRank = RANKS[currentRankIndex];
+    const nextRank = RANKS[currentRankIndex + 1];
+
+    // Calculate progress to next rank
+    let progressPercent = 0;
+    if (nextRank) {
+      const streakProgress = Math.min(100, (streak / nextRank.minStreak) * 100);
+      const habitsProgress = Math.min(100, (totalHabits / nextRank.minHabits) * 100);
+      progressPercent = Math.round((streakProgress + habitsProgress) / 2);
+    } else {
+      progressPercent = 100;
+    }
+
+    // Calculate next rank requirements
+    let nextRankRequirement = 'Max rank achieved';
+    if (nextRank) {
+      const streakNeeded = Math.max(0, nextRank.minStreak - streak);
+      const habitsNeeded = Math.max(0, nextRank.minHabits - totalHabits);
+      nextRankRequirement = `${streakNeeded} day streak + ${habitsNeeded} habits needed`;
+    }
+
+    return {
+      totalHabits,
+      streak,
+      checkIns: totalHabits,
+      consistency,
+      journalCount,
+      currentRankIndex,
+      currentRank,
+      nextRank,
+      progressPercent,
+      nextRankRequirement,
+    };
+  }, [completionData, journalEntries, profile]);
+
+  // Calculate achievements
+  const achievements = useMemo(() => {
+    return ACHIEVEMENTS_CONFIG.map(achievement => ({
+      ...achievement,
+      unlocked: achievement.check(metrics),
+    }));
+  }, [metrics]);
+
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
   return (
     <div className="profile-page">
       {/* Profile Hero Card */}
-      <div className="profile-hero-card">
+      <div className={`profile-hero-card ${loading ? 'profile-hero-card--loading' : ''}`}>
         <div className="profile-hero-card__avatar">
           <div className="profile-avatar">
-            <span className="profile-avatar-letters">DO</span>
+            <span className="profile-avatar-letters">
+              {profile?.display_name ? profile.display_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'DO'}
+            </span>
           </div>
         </div>
         <div className="profile-hero-card__identity">
-          <h3 className="profile-hero-card__name">Dev Operator</h3>
-          <span className="profile-hero-card__joined">Joined January 2026</span>
+          <h3 className="profile-hero-card__name">{profile?.display_name || 'Dev Operator'}</h3>
+          <span className="profile-hero-card__joined">
+            Joined {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'January 2026'}
+          </span>
           <span className="profile-hero-card__rank-pill">
             {ICONS.shield}
-            <span>Initiate</span>
+            <span>{metrics.currentRank.name}</span>
           </span>
         </div>
         <div className="profile-hero-card__progress">
-          <div className="profile-hero-card__progress-label">Initiate → Ascendant</div>
-          <div className="profile-hero-card__progress-track">
-            <div className="profile-hero-card__progress-bar" style={{ width: '35%' }} />
+          <div className="profile-hero-card__progress-label">
+            {metrics.currentRank.name} {metrics.nextRank ? `→ ${metrics.nextRank.name}` : ''}
           </div>
-          <span className="profile-hero-card__progress-value">35% to next rank</span>
+          <div className="profile-hero-card__progress-track">
+            <div className="profile-hero-card__progress-bar" style={{ width: `${metrics.progressPercent}%` }} />
+          </div>
+          <span className="profile-hero-card__progress-value">{metrics.nextRankRequirement}</span>
         </div>
       </div>
 
       {/* Stat Cards */}
       <div className="profile-stats-grid profile-stats-grid--four">
-        <div className="dashboard-overview__card">
-          <span className="dashboard-overview__card-value">0</span>
+        <div className={`dashboard-overview__card ${loading ? 'dashboard-overview__card--loading' : ''}`}>
+          <div className="dashboard-overview__card-icon">{ICONS.flame}</div>
+          <span className="dashboard-overview__card-value">{metrics.streak}</span>
           <span className="dashboard-overview__card-label">Day Streak</span>
         </div>
-        <div className="dashboard-overview__card">
-          <span className="dashboard-overview__card-value">0</span>
+        <div className={`dashboard-overview__card ${loading ? 'dashboard-overview__card--loading' : ''}`}>
+          <div className="dashboard-overview__card-icon">{ICONS.check}</div>
+          <span className="dashboard-overview__card-value">{metrics.totalHabits}</span>
           <span className="dashboard-overview__card-label">Habits Done</span>
         </div>
-        <div className="dashboard-overview__card">
-          <span className="dashboard-overview__card-value">0%</span>
+        <div className={`dashboard-overview__card ${loading ? 'dashboard-overview__card--loading' : ''}`}>
+          <div className="dashboard-overview__card-icon">{ICONS.target}</div>
+          <span className="dashboard-overview__card-value">{metrics.consistency}%</span>
           <span className="dashboard-overview__card-label">Consistency</span>
         </div>
-        <div className="dashboard-overview__card">
-          <span className="dashboard-overview__card-value">0</span>
+        <div className={`dashboard-overview__card ${loading ? 'dashboard-overview__card--loading' : ''}`}>
+          <div className="dashboard-overview__card-icon">{ICONS.activity}</div>
+          <span className="dashboard-overview__card-value">{metrics.checkIns}</span>
           <span className="dashboard-overview__card-label">Check-ins</span>
         </div>
       </div>
@@ -109,25 +268,27 @@ export default function ProfilePage() {
       {/* Two Column Section */}
       <div className="profile-two-column">
         {/* Rank Progression */}
-        <div className="profile-section-card">
+        <div className={`profile-section-card ${loading ? 'profile-section-card--loading' : ''}`}>
           <h3 className="profile-section-card__title">RANK PROGRESSION</h3>
           <div className="profile-rank-list">
             {RANKS.map((rank, index) => (
-              <div key={rank.name} className={`profile-rank-item ${index === 0 ? 'profile-rank-item--current' : ''}`}>
+              <div key={rank.name} className={`profile-rank-item ${index === metrics.currentRankIndex ? 'profile-rank-item--current' : index < metrics.currentRankIndex ? 'profile-rank-item--completed' : 'profile-rank-item--locked'}`}>
                 <div className="profile-rank-item__dot" />
                 <span className="profile-rank-item__name">{rank.name}</span>
-                <span className="profile-rank-item__requirement">{rank.requirement}</span>
+                <span className="profile-rank-item__requirement">
+                  {index === metrics.currentRankIndex ? 'Current rank' : `${rank.minStreak} day streak + ${rank.minHabits} habits`}
+                </span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Achievements */}
-        <div className="profile-section-card">
+        <div className={`profile-section-card ${loading ? 'profile-section-card--loading' : ''}`}>
           <h3 className="profile-section-card__title">ACHIEVEMENTS</h3>
           <div className="profile-achievement-list">
-            {ACHIEVEMENTS.map((achievement) => (
-              <div key={achievement.name} className={`profile-achievement-item ${achievement.unlocked ? 'profile-achievement-item--unlocked' : ''}`}>
+            {achievements.map((achievement) => (
+              <div key={achievement.name} className={`profile-achievement-item ${achievement.unlocked ? 'profile-achievement-item--unlocked' : 'profile-achievement-item--locked'}`}>
                 <div className="profile-achievement-item__icon">
                   {ICONS[achievement.icon]}
                 </div>

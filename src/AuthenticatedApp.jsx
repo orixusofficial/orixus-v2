@@ -235,7 +235,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
       case 'journal':
         return <JournalPage entries={journalEntries} onAddEntry={addJournalEntry} />;
       case 'profile':
-        return <ProfilePage />;
+        return <ProfilePage habits={habits} completionData={completionData} journalEntries={journalEntries} profile={profile} />;
       case 'settings':
         return <SettingsPage />;
       case 'logout':

@@ -1606,6 +1606,93 @@
   grid-template-columns: repeat(4, 1fr);
 }
 
+/* Premium Stat Card Styles */
+.profile-stats-grid .dashboard-overview__card {
+  padding: var(--space-2xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-md);
+  position: relative;
+}
+
+.profile-stats-grid .dashboard-overview__card-value {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.profile-stats-grid .dashboard-overview__card:first-child .dashboard-overview__card-value {
+  color: var(--color-accent);
+  text-shadow: 0 0 20px rgba(179, 142, 70, 0.3);
+}
+
+.profile-stats-grid .dashboard-overview__card-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--color-accent);
+  opacity: 0.8;
+}
+
+/* Loading state for cards */
+.profile-stats-grid .dashboard-overview__card--loading {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.profile-stats-grid .dashboard-overview__card--loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  animation: loadingShimmer 1.5s infinite;
+}
+
+@keyframes loadingShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Loading state for hero card */
+.profile-hero-card--loading {
+  opacity: 0.5;
+  position: relative;
+}
+
+.profile-hero-card--loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  animation: loadingShimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+/* Loading state for section cards */
+.profile-section-card--loading {
+  opacity: 0.5;
+  position: relative;
+}
+
+.profile-section-card--loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  animation: loadingShimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
 /* Two Column Section */
 .profile-two-column {
   display: grid;

@@ -2649,3 +2649,51 @@
   }
 }
 
+/* ========================================
+   Auth Loading Shell
+   ======================================== */
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg);
+}
+
+.auth-shell__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-base);
+}
+
+.auth-shell__status {
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  animation: authShellPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes authShellPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.auth-shell__hint {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+/* Legacy error styles (used in old modal wrappers) */
+.auth-form__error {
+  font-size: var(--text-xs);
+  color: #e07070;
+  font-weight: 600;
+  margin-top: var(--space-xs);
+}

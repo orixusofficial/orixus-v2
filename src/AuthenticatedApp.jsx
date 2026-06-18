@@ -128,7 +128,8 @@ function RemoveHabitModal({ isOpen, habit, onClose, onConfirm }) {
     try {
       await onConfirm(habit.id);
     } catch (err) {
-      setError(err.message ?? 'Could not remove habit.');
+      console.error('🔴 useUserData loadAll error:', err);
+      setError(err.message ?? 'Failed to load your data.');
     } finally {
       setRemoving(false);
     }
@@ -194,6 +195,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
     }
 
     if (error) {
+      console.log('🔴 Sync Error UI render – error object:', error);
       return (
         <div className="dashboard-overview">
           <h1 className="dashboard-overview__title">Sync Error</h1>
@@ -228,7 +230,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
       case 'profile':
         return <ProfilePage habits={habits} completionData={completionData} journalEntries={journalEntries} profile={profile} />;
       case 'settings':
-        return <SettingsPage />;
+        return <SettingsPage onLoggedOut={onLoggedOut} />;
       case 'logout':
         return <LogoutPage onNavigate={onNavigate} onLoggedOut={onLoggedOut} />;
       default:

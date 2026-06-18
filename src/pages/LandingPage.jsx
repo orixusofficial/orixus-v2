@@ -149,7 +149,13 @@ function ProductArea({ area }) {
   );
 }
 
-export default function LandingPage({ onEnterApp }) {
+/**
+ * LandingPage
+ *
+ * Props:
+ *   onOpenAuth(tab) — opens the auth modal with 'signup' or 'login' tab
+ */
+export default function LandingPage({ onOpenAuth }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSectionClick = (event, target) => {
@@ -158,9 +164,14 @@ export default function LandingPage({ onEnterApp }) {
     document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const handleEnterApp = () => {
+  const handleSignUp = () => {
     setMobileMenuOpen(false);
-    onEnterApp?.();
+    onOpenAuth?.('signup');
+  };
+
+  const handleLogIn = () => {
+    setMobileMenuOpen(false);
+    onOpenAuth?.('login');
   };
 
   return (
@@ -169,7 +180,7 @@ export default function LandingPage({ onEnterApp }) {
       <div className="landing-depth-line" />
 
       <nav className="landing-nav">
-        <OrixusLogo onClick={handleEnterApp} />
+        <OrixusLogo onClick={handleSignUp} />
 
         <button
           className={`landing-mobile-toggle${mobileMenuOpen ? ' open' : ''}`}
@@ -191,7 +202,8 @@ export default function LandingPage({ onEnterApp }) {
               {link.label}
             </a>
           ))}
-          <button className="landing-btn-start" onClick={handleEnterApp}>
+          {/* "Start Free" in nav → Log In tab */}
+          <button className="landing-btn-start" onClick={handleLogIn} id="landing-nav-start-free">
             Start Free
           </button>
         </div>
@@ -211,7 +223,12 @@ export default function LandingPage({ onEnterApp }) {
               sharpen discipline, and create measurable personal growth over time.
             </p>
             <div className="landing-hero-actions">
-              <button className="landing-btn-primary" onClick={handleEnterApp}>
+              {/* "Start Your Journey" → Sign Up tab */}
+              <button
+                className="landing-btn-primary"
+                onClick={handleSignUp}
+                id="landing-hero-start-journey"
+              >
                 Start Your Journey
               </button>
               <a
@@ -308,7 +325,12 @@ export default function LandingPage({ onEnterApp }) {
 
         <section className="landing-final-cta">
           <h2>Build the person you want to become.</h2>
-          <button className="landing-btn-primary" onClick={handleEnterApp}>
+          {/* Final CTA → Sign Up tab */}
+          <button
+            className="landing-btn-primary"
+            onClick={handleSignUp}
+            id="landing-final-start-journey"
+          >
             Start Your Journey
           </button>
         </section>
@@ -317,7 +339,7 @@ export default function LandingPage({ onEnterApp }) {
       <footer className="landing-footer">
         <div className="landing-footer__main">
           <div>
-            <OrixusLogo className="landing-footer-logo" onClick={handleEnterApp} />
+            <OrixusLogo className="landing-footer-logo" onClick={handleSignUp} />
             <p>A personal evolution system for discipline, consistency, and growth.</p>
           </div>
           <div className="landing-footer__links">

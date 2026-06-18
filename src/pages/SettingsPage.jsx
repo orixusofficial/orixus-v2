@@ -168,7 +168,7 @@ function EditModal({ isOpen, onClose, onSave, title, currentValue, type = 'text'
   );
 }
 
-export default function SettingsPage() {
+export default function SettingsPage({ onLoggedOut }) {
   const { signOut } = useAuth();
   const { profile, updateProfileSettings, resetAllHabits, resetStreak, deleteAllJournalEntries, refresh } = useUserData();
   const [username, setUsername] = useState(profile?.display_name || '');
@@ -288,7 +288,7 @@ export default function SettingsPage() {
   const handleLogout = async () => {
     try {
       await signOut();
-      window.location.href = '/';
+      onLoggedOut?.();
     } catch (error) {
       showNotification('Failed to logout', 'error');
     }

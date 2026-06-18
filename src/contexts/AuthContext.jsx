@@ -3,27 +3,11 @@ import { isSupabaseConfigured, supabase } from '../lib/supabase';
 
 const AuthContext = createContext(null);
 
-// TEMPORARY AUTH BYPASS
-const BYPASS_AUTH = true;
-
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (BYPASS_AUTH) {
-      setSession({
-        user: {
-          id: 'dev-user-id',
-          email: 'dev-operator@orixus.io',
-          isMock: true,
-          user_metadata: { display_name: 'Dev Operator' },
-        },
-      });
-      setLoading(false);
-      return;
-    }
-
     if (!isSupabaseConfigured) {
       setLoading(false);
       return;
@@ -41,8 +25,10 @@ export function AuthProvider({ children }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession);
-      setLoading(false);
+      if (mounted) {
+        setSession(nextSession);
+        setLoading(false);
+      }
     });
 
     return () => {
@@ -51,47 +37,36 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  const signUp = useCallback(async (email, password) => {
-    if (BYPASS_AUTH) {
-      const mockData = {
-        user: {
-          id: 'dev-user-id',
-          email: email,
-          isMock: true,
-          user_metadata: { display_name: 'Dev Operator' },
-        },
-      };
-      setSession(mockData);
-      return mockData;
-    }
-    const { data, error } = await supabase.auth.signUp({ email, password });
+  const signUp = useCallback(async (email, password, fullName) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName ?? '' },
+      },
+    });
     if (error) throw error;
     return data;
   }, []);
 
   const signIn = useCallback(async (email, password) => {
-    if (BYPASS_AUTH) {
-      const mockData = {
-        user: {
-          id: 'dev-user-id',
-          email: email,
-          isMock: true,
-          user_metadata: { display_name: 'Dev Operator' },
-        },
-      };
-      setSession(mockData);
-      return mockData;
-    }
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     return data;
   }, []);
 
+  const signInWithGoogle = useCallback(async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+    if (error) throw error;
+    return data;
+  }, []);
+
   const signOut = useCallback(async () => {
-    if (BYPASS_AUTH) {
-      setSession(null);
-      return;
-    }
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   }, []);
@@ -103,10 +78,11 @@ export function AuthProvider({ children }) {
       loading,
       signUp,
       signIn,
+      signInWithGoogle,
       signOut,
       isConfigured: isSupabaseConfigured,
     }),
-    [session, loading, signUp, signIn, signOut],
+    [session, loading, signUp, signIn, signInWithGoogle, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -119,4 +95,3 @@ export function useAuth() {
   }
   return ctx;
 }
-

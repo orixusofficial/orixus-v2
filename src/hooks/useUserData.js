@@ -44,7 +44,7 @@ export function useUserData() {
         return;
       }
 
-      await ensureProfile(user.id);
+      await ensureProfile(user);
       const [habitsRows, completionMap, journalRows, profileRow] = await Promise.all([
         habitsService.fetchHabits(user.id),
         completionsService.fetchCompletions(user.id),
@@ -57,6 +57,7 @@ export function useUserData() {
       setJournalEntries(journalRows);
       setProfile(profileRow);
     } catch (err) {
+      console.error('🔴 useUserData loadAll error:', err);
       setError(err.message ?? 'Failed to load your data.');
     } finally {
       setLoading(false);

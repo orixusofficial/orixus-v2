@@ -1,69 +1,61 @@
 import { useState } from 'react';
-// TEMPORARY AUTH BYPASS
-// import { useEffect } from 'react';
-// import { useAuth } from './contexts/AuthContext';
-// import AuthLoading from './components/AuthLoading';
-// import LoginPage from './pages/LoginPage';
-// import SignupPage from './pages/SignupPage';
+import { useAuth } from './contexts/AuthContext';
+import AuthLoading from './components/AuthLoading';
+import AuthModal from './components/AuthModal';
 import AuthenticatedApp from './AuthenticatedApp';
 import LandingPage from './pages/LandingPage';
 import './styles/dashboard.css';
 
-// TEMPORARY AUTH BYPASS
-// const AUTH_VIEWS = ['login', 'signup'];
-
 export default function App() {
-  // TEMPORARY AUTH BYPASS
-  // const { session, loading } = useAuth();
+  const { session, loading } = useAuth();
   const [activeItem, setActiveItem] = useState('habits');
-  const [showLanding, setShowLanding] = useState(true);
 
-  // TEMPORARY AUTH BYPASS
-  /*
-  useEffect(() => {
-    if (loading) return;
+  // Auth modal state
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState('signup');
 
-    if (!session) {
-      if (!AUTH_VIEWS.includes(activeItem)) {
-        setActiveItem('login');
-      }
-      return;
-    }
+  const openAuth = (tab = 'signup') => {
+    setAuthModalTab(tab);
+    setAuthModalOpen(true);
+  };
 
-    if (AUTH_VIEWS.includes(activeItem)) {
-      setActiveItem('dashboard');
-    }
-  }, [session, loading, activeItem]);
-  */
+  const closeAuth = () => setAuthModalOpen(false);
 
-  // TEMPORARY AUTH BYPASS
-  /*
+  const handleAuthSuccess = () => {
+    setAuthModalOpen(false);
+    setActiveItem('habits');
+  };
+
+  const handleLoggedOut = () => {
+    setActiveItem('habits');
+  };
+
+  // 1. Loading — restore session from Supabase
   if (loading) {
     return <AuthLoading />;
   }
 
+  // 2. No session — show Landing with auth modal wired
   if (!session) {
-    if (activeItem === 'signup') {
-      return <SignupPage onNavigate={setActiveItem} />;
-    }
-    return <LoginPage onNavigate={setActiveItem} />;
+    return (
+      <>
+        <LandingPage onOpenAuth={openAuth} />
+        <AuthModal
+          isOpen={authModalOpen}
+          defaultTab={authModalTab}
+          onClose={closeAuth}
+          onSuccess={handleAuthSuccess}
+        />
+      </>
+    );
   }
-  */
 
-  // TEMPORARY AUTH BYPASS
-  if (showLanding) {
-    return <LandingPage onEnterApp={() => setShowLanding(false)} />;
-  }
-
-  // TEMPORARY AUTH BYPASS
+  // 3. Authenticated — show full app
   return (
     <AuthenticatedApp
-      activeItem={activeItem === 'login' || activeItem === 'signup' ? 'habits' : activeItem}
+      activeItem={activeItem}
       onNavigate={setActiveItem}
-      onLoggedOut={() => {
-        setActiveItem('habits');
-        setShowLanding(true);
-      }}
+      onLoggedOut={handleLoggedOut}
     />
   );
 }

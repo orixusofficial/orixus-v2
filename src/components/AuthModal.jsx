@@ -2,6 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/auth-modal.css';
 
+const LOGIN_ATTEMPTS_KEY = 'orixus_login_attempts';
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_MS = 15 * 60 * 1000;
+const RESEND_SECONDS = 60;
+
 const GoogleIcon = () => (
   <svg className="auth-modal__google-icon" viewBox="0 0 24 24" aria-hidden="true">
     <path
@@ -23,7 +28,222 @@ const GoogleIcon = () => (
   </svg>
 );
 
-function SignUpView({ onSwitchToLogin, onSuccess, onClose }) {
+function getPasswordRules(password) {
+  return [
+    { id: 'length', label: 'At least 8 characters', met: password.length >= 8 },
+    { id: 'uppercase', label: 'At least 1 uppercase letter', met: /[A-Z]/.test(password) },
+    { id: 'number', label: 'At least 1 number', met: /\d/.test(password) },
+    { id: 'special', label: 'At least 1 special character', met: /[^A-Za-z0-9]/.test(password) },
+  ];
+}
+
+function getPasswordStrength(password) {
+  if (!password) {
+    return { level: 0, label: '', className: 'weak' };
+  }
+
+  const score = getPasswordRules(password).filter((rule) => rule.met).length;
+  if (score <= 1) return { level: 1, label: 'Weak', className: 'weak' };
+  if (score === 2) return { level: 2, label: 'Fair', className: 'fair' };
+  if (score === 3) return { level: 3, label: 'Strong', className: 'strong' };
+  return { level: 4, label: 'Very Strong', className: 'very-strong' };
+}
+
+function formatCountdown(ms) {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = String(totalSeconds % 60).padStart(2, '0');
+  return `${minutes}:${seconds}`;
+}
+
+function readLoginAttempts() {
+  try {
+    const value = JSON.parse(localStorage.getItem(LOGIN_ATTEMPTS_KEY) || '{"count":0,"lockedUntil":0}');
+    if (value.lockedUntil && value.lockedUntil <= Date.now()) {
+      return { count: 0, lockedUntil: 0 };
+    }
+    return value;
+  } catch {
+    return { count: 0, lockedUntil: 0 };
+  }
+}
+
+function writeLoginAttempts(next) {
+  localStorage.setItem(LOGIN_ATTEMPTS_KEY, JSON.stringify(next));
+}
+
+function clearLoginAttempts() {
+  localStorage.removeItem(LOGIN_ATTEMPTS_KEY);
+}
+
+function PasswordStrengthChecker({ password }) {
+  if (!password) return null;
+
+  const rules = getPasswordRules(password);
+  const strength = getPasswordStrength(password);
+
+  return (
+    <div className="auth-modal__password-strength">
+      <div className="auth-modal__strength-row">
+        <div className="auth-modal__strength-track" aria-hidden="true">
+          <span
+            className={`auth-modal__strength-fill auth-modal__strength-fill--${strength.className}`}
+            style={{ width: `${strength.level * 25}%` }}
+          />
+        </div>
+        <span className={`auth-modal__strength-label auth-modal__strength-label--${strength.className}`}>
+          {strength.label}
+        </span>
+      </div>
+      <ul className="auth-modal__password-rules">
+        {rules.map((rule) => (
+          <li className={rule.met ? 'is-met' : ''} key={rule.id}>
+            <span aria-hidden="true">{rule.met ? '+' : '-'}</span>
+            {rule.label}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function OtpInput({ value, onChange, disabled }) {
+  const inputsRef = useRef([]);
+
+  const setDigit = (index, nextValue) => {
+    const digit = nextValue.replace(/\D/g, '').slice(-1);
+    const next = value.padEnd(6, ' ').split('');
+    next[index] = digit || ' ';
+    onChange(next.join('').replace(/\s/g, '').slice(0, 6));
+
+    if (digit && index < 5) {
+      inputsRef.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (event, index) => {
+    if (event.key === 'Backspace' && !value[index] && index > 0) {
+      inputsRef.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (event) => {
+    event.preventDefault();
+    const pasted = event.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    if (!pasted) return;
+    onChange(pasted);
+    inputsRef.current[Math.min(pasted.length, 5)]?.focus();
+  };
+
+  return (
+    <div className="auth-modal__otp-inputs" onPaste={handlePaste}>
+      {Array.from({ length: 6 }).map((_, index) => (
+        <input
+          aria-label={`OTP digit ${index + 1}`}
+          className="auth-modal__otp-input"
+          disabled={disabled}
+          inputMode="numeric"
+          key={index}
+          maxLength={1}
+          onChange={(event) => setDigit(index, event.target.value)}
+          onKeyDown={(event) => handleKeyDown(event, index)}
+          ref={(node) => {
+            inputsRef.current[index] = node;
+          }}
+          type="text"
+          value={value[index] || ''}
+        />
+      ))}
+    </div>
+  );
+}
+
+function VerifyEmailView({ email, onSuccess }) {
+  const { verifyEmailOtp, resendSignupOtp } = useAuth();
+  const [otp, setOtp] = useState('');
+  const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(RESEND_SECONDS);
+
+  useEffect(() => {
+    if (resendCountdown <= 0) return undefined;
+    const timer = window.setInterval(() => {
+      setResendCountdown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [resendCountdown]);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError('');
+    setInfo('');
+
+    if (otp.length !== 6) {
+      setError('Enter the 6 digit code from your email.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await verifyEmailOtp(email, otp);
+      onSuccess?.();
+    } catch {
+      setError('Invalid or expired code');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (resendCountdown > 0 || resending) return;
+    setError('');
+    setInfo('');
+    setResending(true);
+    try {
+      await resendSignupOtp(email);
+      setInfo('A new code has been sent.');
+      setResendCountdown(RESEND_SECONDS);
+    } catch (err) {
+      setError(err.message ?? 'Could not resend code.');
+    } finally {
+      setResending(false);
+    }
+  };
+
+  return (
+    <form className="auth-modal__form" onSubmit={handleSubmit} noValidate>
+      <div className="auth-modal__verify-copy">
+        <h3>Verify your email</h3>
+        <p>Check your email for a 6 digit OTP code sent to {email}.</p>
+      </div>
+
+      <OtpInput value={otp} onChange={setOtp} disabled={loading} />
+
+      {error && <p className="auth-modal__error" role="alert">{error}</p>}
+      {info && <p className="auth-modal__info" role="status">{info}</p>}
+
+      <button className="auth-modal__submit" type="submit" disabled={loading || otp.length !== 6}>
+        {loading ? <><span className="auth-modal__spinner" />Verifying...</> : 'Verify Email'}
+      </button>
+
+      <p className="auth-modal__switch">
+        Did not receive it?{' '}
+        <button
+          type="button"
+          className="auth-modal__switch-link"
+          onClick={handleResend}
+          disabled={resendCountdown > 0 || resending}
+        >
+          {resendCountdown > 0 ? `Resend code in ${resendCountdown}s` : resending ? 'Sending...' : 'Resend code'}
+        </button>
+      </p>
+    </form>
+  );
+}
+
+function SignUpView({ onSwitchToLogin, onVerificationRequired }) {
   const { signUp, signInWithGoogle } = useAuth();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -38,25 +258,22 @@ function SignUpView({ onSwitchToLogin, onSuccess, onClose }) {
     nameRef.current?.focus();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setError('');
     setInfo('');
 
     if (!fullName.trim()) { setError('Please enter your full name.'); return; }
-    if (!email.trim())    { setError('Please enter your email address.'); return; }
-    if (password.length < 6) { setError('Password must be at least 6 characters.'); return; }
+    if (!email.trim()) { setError('Please enter your email address.'); return; }
+    if (getPasswordStrength(password).level < 3) {
+      setError('Password must be Strong or Very Strong to continue.');
+      return;
+    }
 
     setLoading(true);
     try {
-      const data = await signUp(email.trim(), password, fullName.trim());
-      // If session exists immediately — email confirmation is disabled
-      if (data?.session) {
-        onSuccess?.();
-      } else {
-        // Email confirmation required
-        setInfo('Account created! Check your email to confirm your address, then log in.');
-      }
+      await signUp(email.trim(), password, fullName.trim());
+      onVerificationRequired?.(email.trim());
     } catch (err) {
       const msg = err.message ?? 'Could not create account.';
       if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('already exists')) {
@@ -64,7 +281,7 @@ function SignUpView({ onSwitchToLogin, onSuccess, onClose }) {
       } else if (msg.toLowerCase().includes('invalid email')) {
         setError('Please enter a valid email address.');
       } else if (msg.toLowerCase().includes('weak password') || msg.toLowerCase().includes('password')) {
-        setError('Password is too weak. Use at least 6 characters.');
+        setError('Password is too weak. Use a stronger password.');
       } else {
         setError(msg);
       }
@@ -78,7 +295,6 @@ function SignUpView({ onSwitchToLogin, onSuccess, onClose }) {
     setGoogleLoading(true);
     try {
       await signInWithGoogle();
-      // OAuth redirects away, so no onSuccess call needed here
     } catch (err) {
       setError(err.message ?? 'Google sign-in failed.');
       setGoogleLoading(false);
@@ -97,7 +313,7 @@ function SignUpView({ onSwitchToLogin, onSuccess, onClose }) {
           autoComplete="name"
           placeholder="John Doe"
           value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
+          onChange={(event) => setFullName(event.target.value)}
           disabled={loading || googleLoading}
         />
       </div>
@@ -111,7 +327,7 @@ function SignUpView({ onSwitchToLogin, onSuccess, onClose }) {
           autoComplete="email"
           placeholder="you@example.com"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(event) => setEmail(event.target.value)}
           disabled={loading || googleLoading}
         />
       </div>
@@ -123,15 +339,16 @@ function SignUpView({ onSwitchToLogin, onSuccess, onClose }) {
           className="auth-modal__input"
           type="password"
           autoComplete="new-password"
-          placeholder="Min. 6 characters"
+          placeholder="Min. 8 characters"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(event) => setPassword(event.target.value)}
           disabled={loading || googleLoading}
         />
+        <PasswordStrengthChecker password={password} />
       </div>
 
       {error && <p className="auth-modal__error" role="alert">{error}</p>}
-      {info  && <p className="auth-modal__info"  role="status">{info}</p>}
+      {info && <p className="auth-modal__info" role="status">{info}</p>}
 
       <button
         className="auth-modal__submit"
@@ -139,7 +356,7 @@ function SignUpView({ onSwitchToLogin, onSuccess, onClose }) {
         disabled={loading || googleLoading}
         id="auth-signup-submit"
       >
-        {loading ? <><span className="auth-modal__spinner" />Creating…</> : 'Create Account'}
+        {loading ? <><span className="auth-modal__spinner" />Creating...</> : 'Create Account'}
       </button>
 
       <div className="auth-modal__divider">
@@ -153,7 +370,11 @@ function SignUpView({ onSwitchToLogin, onSuccess, onClose }) {
         disabled={loading || googleLoading}
         id="auth-signup-google"
       >
-        {googleLoading ? <><span className="auth-modal__spinner" style={{ borderTopColor: 'var(--color-text-secondary)' }} />Redirecting…</> : <><GoogleIcon />Sign up with Google</>}
+        {googleLoading ? (
+          <><span className="auth-modal__spinner" style={{ borderTopColor: 'var(--color-text-secondary)' }} />Redirecting...</>
+        ) : (
+          <><GoogleIcon />Sign up with Google</>
+        )}
       </button>
 
       <p className="auth-modal__switch">
@@ -173,26 +394,78 @@ function LogInView({ onSwitchToSignUp, onSuccess }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [attemptState, setAttemptState] = useState(() => readLoginAttempts());
+  const [now, setNow] = useState(0);
   const emailRef = useRef(null);
+
+  const lockedUntil = attemptState.lockedUntil || 0;
+  const currentTime = now || 0;
+  const isLocked = lockedUntil > currentTime && lockedUntil > 0;
+  const lockRemaining = Math.max(0, lockedUntil - currentTime);
+  const attemptsRemaining = Math.max(0, MAX_LOGIN_ATTEMPTS - (attemptState.count || 0));
 
   useEffect(() => {
     emailRef.current?.focus();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (!lockedUntil) return undefined;
+    const timer = window.setInterval(() => {
+      const nextNow = Date.now();
+      setNow(nextNow);
+      if (lockedUntil <= nextNow) {
+        const next = { count: 0, lockedUntil: 0 };
+        writeLoginAttempts(next);
+        setAttemptState(next);
+      }
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [lockedUntil]);
+
+  const recordFailedAttempt = () => {
+    const current = readLoginAttempts();
+    const nextCount = (current.count || 0) + 1;
+    const next = {
+      count: nextCount,
+      lockedUntil: nextCount >= MAX_LOGIN_ATTEMPTS ? Date.now() + LOCKOUT_MS : 0,
+    };
+    writeLoginAttempts(next);
+    setAttemptState(next);
+    setNow(Date.now());
+    return next;
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setError('');
 
-    if (!email.trim())    { setError('Please enter your email address.'); return; }
-    if (!password)        { setError('Please enter your password.'); return; }
+    const lockCheck = readLoginAttempts();
+    const lockRemainingNow = Math.max(0, (lockCheck.lockedUntil || 0) - Date.now());
+    if (lockRemainingNow > 0) {
+      setAttemptState(lockCheck);
+      setNow(Date.now());
+      setError(`Too many failed attempts. Try again in ${formatCountdown(lockRemainingNow)}.`);
+      return;
+    }
+    if (!email.trim()) { setError('Please enter your email address.'); return; }
+    if (!password) { setError('Please enter your password.'); return; }
 
     setLoading(true);
     try {
       await signIn(email.trim(), password);
+      clearLoginAttempts();
+      setAttemptState({ count: 0, lockedUntil: 0 });
       onSuccess?.();
     } catch (err) {
+      const nextAttemptState = recordFailedAttempt();
       const msg = err.message ?? 'Could not log in.';
-      if (msg.toLowerCase().includes('invalid login') || msg.toLowerCase().includes('invalid credentials') || msg.toLowerCase().includes('wrong')) {
+      if (nextAttemptState.lockedUntil) {
+        setError(`Too many failed attempts. Try again in ${formatCountdown(LOCKOUT_MS)}.`);
+      } else if (
+        msg.toLowerCase().includes('invalid login') ||
+        msg.toLowerCase().includes('invalid credentials') ||
+        msg.toLowerCase().includes('wrong')
+      ) {
         setError('Incorrect email or password. Please try again.');
       } else if (msg.toLowerCase().includes('email not confirmed')) {
         setError('Your email is not confirmed. Check your inbox and confirm before logging in.');
@@ -229,8 +502,8 @@ function LogInView({ onSwitchToSignUp, onSuccess }) {
           autoComplete="email"
           placeholder="you@example.com"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          disabled={loading || googleLoading}
+          onChange={(event) => setEmail(event.target.value)}
+          disabled={loading || googleLoading || isLocked}
         />
       </div>
 
@@ -243,20 +516,30 @@ function LogInView({ onSwitchToSignUp, onSuccess }) {
           autoComplete="current-password"
           placeholder="Your password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          disabled={loading || googleLoading}
+          onChange={(event) => setPassword(event.target.value)}
+          disabled={loading || googleLoading || isLocked}
         />
       </div>
 
       {error && <p className="auth-modal__error" role="alert">{error}</p>}
+      {isLocked && (
+        <p className="auth-modal__error" role="alert">
+          Too many failed attempts. Try again in {formatCountdown(lockRemaining)}.
+        </p>
+      )}
+      {!isLocked && attemptState.count >= 3 && attemptState.count < MAX_LOGIN_ATTEMPTS && (
+        <p className="auth-modal__info" role="status">
+          {attemptsRemaining} attempts remaining
+        </p>
+      )}
 
       <button
         className="auth-modal__submit"
         type="submit"
-        disabled={loading || googleLoading}
+        disabled={loading || googleLoading || isLocked}
         id="auth-login-submit"
       >
-        {loading ? <><span className="auth-modal__spinner" />Logging in…</> : 'Log In'}
+        {loading ? <><span className="auth-modal__spinner" />Logging in...</> : 'Log In'}
       </button>
 
       <div className="auth-modal__divider">
@@ -267,10 +550,14 @@ function LogInView({ onSwitchToSignUp, onSuccess }) {
         className="auth-modal__google-btn"
         type="button"
         onClick={handleGoogle}
-        disabled={loading || googleLoading}
+        disabled={loading || googleLoading || isLocked}
         id="auth-login-google"
       >
-        {googleLoading ? <><span className="auth-modal__spinner" style={{ borderTopColor: 'var(--color-text-secondary)' }} />Redirecting…</> : <><GoogleIcon />Sign in with Google</>}
+        {googleLoading ? (
+          <><span className="auth-modal__spinner" style={{ borderTopColor: 'var(--color-text-secondary)' }} />Redirecting...</>
+        ) : (
+          <><GoogleIcon />Sign in with Google</>
+        )}
       </button>
 
       <p className="auth-modal__switch">
@@ -283,46 +570,44 @@ function LogInView({ onSwitchToSignUp, onSuccess }) {
   );
 }
 
-/**
- * AuthModal — centered overlay popup with Sign Up / Log In tabs.
- *
- * Props:
- *   isOpen      {boolean}              — whether modal is visible
- *   defaultTab  {'signup'|'login'}     — which tab to start on
- *   onClose     {() => void}           — called to dismiss the modal
- *   onSuccess   {() => void}           — called after successful auth
- */
 export default function AuthModal({ isOpen, defaultTab = 'signup', onClose, onSuccess }) {
   const [activeTab, setActiveTab] = useState(defaultTab);
+  const [verificationEmail, setVerificationEmail] = useState('');
   const overlayRef = useRef(null);
 
-  // Sync tab when modal is opened with a different default
   useEffect(() => {
-    if (isOpen) setActiveTab(defaultTab);
+    if (!isOpen) return undefined;
+    const timer = window.setTimeout(() => {
+      setActiveTab(defaultTab);
+      setVerificationEmail('');
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [isOpen, defaultTab]);
 
-  // Escape key to close
   useEffect(() => {
-    if (!isOpen) return;
-    const handleKey = (e) => { if (e.key === 'Escape') onClose?.(); };
+    if (!isOpen) return undefined;
+    const handleKey = (event) => {
+      if (event.key === 'Escape') onClose?.();
+    };
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
   }, [isOpen, onClose]);
 
-  // Lock body scroll while open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
     }
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const handleOverlayClick = (e) => {
-    if (e.target === overlayRef.current) onClose?.();
+  const handleOverlayClick = (event) => {
+    if (event.target === overlayRef.current) onClose?.();
   };
 
   return (
@@ -332,10 +617,9 @@ export default function AuthModal({ isOpen, defaultTab = 'signup', onClose, onSu
       onClick={handleOverlayClick}
       role="dialog"
       aria-modal="true"
-      aria-label={activeTab === 'signup' ? 'Create Account' : 'Log In'}
+      aria-label={verificationEmail ? 'Verify your email' : activeTab === 'signup' ? 'Create Account' : 'Log In'}
     >
       <div className="auth-modal">
-        {/* Close button */}
         <button
           className="auth-modal__close"
           onClick={onClose}
@@ -343,42 +627,42 @@ export default function AuthModal({ isOpen, defaultTab = 'signup', onClose, onSu
           type="button"
           id="auth-modal-close"
         >
-          ×
+          &times;
         </button>
 
-        {/* Orixus logo */}
         <span className="auth-modal__logo">Orixus.</span>
 
-        {/* Tab switcher */}
-        <div className="auth-modal__tabs" role="tablist">
-          <button
-            className={`auth-modal__tab${activeTab === 'signup' ? ' auth-modal__tab--active' : ''}`}
-            onClick={() => setActiveTab('signup')}
-            role="tab"
-            aria-selected={activeTab === 'signup'}
-            id="auth-tab-signup"
-            type="button"
-          >
-            Sign Up
-          </button>
-          <button
-            className={`auth-modal__tab${activeTab === 'login' ? ' auth-modal__tab--active' : ''}`}
-            onClick={() => setActiveTab('login')}
-            role="tab"
-            aria-selected={activeTab === 'login'}
-            id="auth-tab-login"
-            type="button"
-          >
-            Log In
-          </button>
-        </div>
+        {!verificationEmail && (
+          <div className="auth-modal__tabs" role="tablist">
+            <button
+              className={`auth-modal__tab${activeTab === 'signup' ? ' auth-modal__tab--active' : ''}`}
+              onClick={() => setActiveTab('signup')}
+              role="tab"
+              aria-selected={activeTab === 'signup'}
+              id="auth-tab-signup"
+              type="button"
+            >
+              Sign Up
+            </button>
+            <button
+              className={`auth-modal__tab${activeTab === 'login' ? ' auth-modal__tab--active' : ''}`}
+              onClick={() => setActiveTab('login')}
+              role="tab"
+              aria-selected={activeTab === 'login'}
+              id="auth-tab-login"
+              type="button"
+            >
+              Log In
+            </button>
+          </div>
+        )}
 
-        {/* Views */}
-        {activeTab === 'signup' ? (
+        {verificationEmail ? (
+          <VerifyEmailView email={verificationEmail} onSuccess={onSuccess} />
+        ) : activeTab === 'signup' ? (
           <SignUpView
             onSwitchToLogin={() => setActiveTab('login')}
-            onSuccess={onSuccess}
-            onClose={onClose}
+            onVerificationRequired={setVerificationEmail}
           />
         ) : (
           <LogInView

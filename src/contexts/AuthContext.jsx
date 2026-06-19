@@ -66,6 +66,25 @@ export function AuthProvider({ children }) {
     return data;
   }, []);
 
+  const verifyEmailOtp = useCallback(async (email, token) => {
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'email',
+    });
+    if (error) throw error;
+    return data;
+  }, []);
+
+  const resendSignupOtp = useCallback(async (email) => {
+    const { data, error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+    });
+    if (error) throw error;
+    return data;
+  }, []);
+
   const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
@@ -79,10 +98,12 @@ export function AuthProvider({ children }) {
       signUp,
       signIn,
       signInWithGoogle,
+      verifyEmailOtp,
+      resendSignupOtp,
       signOut,
       isConfigured: isSupabaseConfigured,
     }),
-    [session, loading, signUp, signIn, signInWithGoogle, signOut],
+    [session, loading, signUp, signIn, signInWithGoogle, verifyEmailOtp, resendSignupOtp, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

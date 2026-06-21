@@ -19,14 +19,18 @@ export async function fetchHabits(userId) {
   return (data ?? []).map(mapHabit);
 }
 
-export async function createHabit(userId, label) {
+export async function createHabit(userId, label, duration = 30) {
+  console.log('Creating habit:', { userId, label, duration });
   const { data, error } = await supabase
     .from('habits')
-    .insert({ user_id: userId, label })
+    .insert({ user_id: userId, label, duration })
     .select('id, label, created_at')
     .single();
 
-  if (error) throw error;
+  if (error) {
+    console.error('Supabase error creating habit:', error);
+    throw error;
+  }
   return mapHabit(data);
 }
 

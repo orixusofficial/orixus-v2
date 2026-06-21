@@ -248,6 +248,10 @@ function SignUpView({ onSwitchToLogin, onVerificationRequired }) {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
   const [loading, setLoading] = useState(false);
@@ -269,6 +273,14 @@ function SignUpView({ onSwitchToLogin, onVerificationRequired }) {
       setError('Password must be Strong or Very Strong to continue.');
       return;
     }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+    if (!termsAccepted) {
+      setError('You must agree to the Terms of Service and Privacy Policy.');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -277,7 +289,7 @@ function SignUpView({ onSwitchToLogin, onVerificationRequired }) {
     } catch (err) {
       const msg = err.message ?? 'Could not create account.';
       if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('already exists')) {
-        setError('An account with this email already exists. Try logging in instead.');
+        setError('This email is already registered. Try logging in instead.');
       } else if (msg.toLowerCase().includes('invalid email')) {
         setError('Please enter a valid email address.');
       } else if (msg.toLowerCase().includes('weak password') || msg.toLowerCase().includes('password')) {
@@ -334,26 +346,118 @@ function SignUpView({ onSwitchToLogin, onVerificationRequired }) {
 
       <div className="auth-modal__field">
         <label className="auth-modal__label" htmlFor="auth-signup-password">Password</label>
-        <input
-          id="auth-signup-password"
-          className="auth-modal__input"
-          type="password"
-          autoComplete="new-password"
-          placeholder="Min. 8 characters"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          disabled={loading || googleLoading}
-        />
+        <div className="auth-modal__password-wrapper">
+          <input
+            id="auth-signup-password"
+            className="auth-modal__input"
+            type={showPassword ? 'text' : 'password'}
+            autoComplete="new-password"
+            placeholder="Min. 8 characters"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            disabled={loading || googleLoading}
+          />
+          <button
+            type="button"
+            className="auth-modal__password-toggle"
+            onClick={() => setShowPassword(!showPassword)}
+            disabled={loading || googleLoading}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            )}
+          </button>
+        </div>
         <PasswordStrengthChecker password={password} />
       </div>
 
-      {error && <p className="auth-modal__error" role="alert">{error}</p>}
+      <div className="auth-modal__field">
+        <label className="auth-modal__label" htmlFor="auth-signup-confirm-password">Confirm Password</label>
+        <div className="auth-modal__password-wrapper">
+          <input
+            id="auth-signup-confirm-password"
+            className={`auth-modal__input${confirmPassword && password !== confirmPassword ? ' auth-modal__input--error' : ''}`}
+            type={showConfirmPassword ? 'text' : 'password'}
+            autoComplete="new-password"
+            placeholder="Confirm your password"
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+            disabled={loading || googleLoading}
+          />
+          <button
+            type="button"
+            className="auth-modal__password-toggle"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            disabled={loading || googleLoading}
+            aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+          >
+            {showConfirmPassword ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            )}
+          </button>
+          {confirmPassword && password === confirmPassword && (
+            <span className="auth-modal__password-check">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </span>
+          )}
+        </div>
+        {confirmPassword && password !== confirmPassword && (
+          <p className="auth-modal__field-error">Passwords do not match</p>
+        )}
+      </div>
+
+      {error && (
+        <p className="auth-modal__error" role="alert">
+          {error}
+          {error.includes('already registered') && (
+            <button
+              type="button"
+              className="auth-modal__error-link"
+              onClick={onSwitchToLogin}
+            >
+              Log In
+            </button>
+          )}
+        </p>
+      )}
       {info && <p className="auth-modal__info" role="status">{info}</p>}
+
+      <div className="auth-modal__field auth-modal__field--checkbox">
+        <label className="auth-modal__checkbox-label">
+          <input
+            type="checkbox"
+            className="auth-modal__checkbox"
+            checked={termsAccepted}
+            onChange={(event) => setTermsAccepted(event.target.checked)}
+            disabled={loading || googleLoading}
+          />
+          <span>I agree to the Terms of Service and Privacy Policy</span>
+        </label>
+      </div>
 
       <button
         className="auth-modal__submit"
         type="submit"
-        disabled={loading || googleLoading}
+        disabled={loading || googleLoading || !termsAccepted}
         id="auth-signup-submit"
       >
         {loading ? <><span className="auth-modal__spinner" />Creating...</> : 'Create Account'}
@@ -391,6 +495,8 @@ function LogInView({ onSwitchToSignUp, onSuccess }) {
   const { signIn, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -452,7 +558,7 @@ function LogInView({ onSwitchToSignUp, onSuccess }) {
 
     setLoading(true);
     try {
-      await signIn(email.trim(), password);
+      await signIn(email.trim(), password, rememberMe);
       clearLoginAttempts();
       setAttemptState({ count: 0, lockedUntil: 0 });
       onSuccess?.();
@@ -466,11 +572,17 @@ function LogInView({ onSwitchToSignUp, onSuccess }) {
         msg.toLowerCase().includes('invalid credentials') ||
         msg.toLowerCase().includes('wrong')
       ) {
-        setError('Incorrect email or password. Please try again.');
+        const remaining = Math.max(0, MAX_LOGIN_ATTEMPTS - (nextAttemptState.count || 0));
+        setError(`Incorrect password. ${remaining} attempts remaining before lockout.`);
       } else if (msg.toLowerCase().includes('email not confirmed')) {
         setError('Your email is not confirmed. Check your inbox and confirm before logging in.');
       } else if (msg.toLowerCase().includes('too many requests')) {
         setError('Too many attempts. Please wait a moment before trying again.');
+      } else if (
+        msg.toLowerCase().includes('user not found') ||
+        msg.toLowerCase().includes('no account')
+      ) {
+        setError('No account found with this email. Try signing up instead.');
       } else {
         setError(msg);
       }
@@ -509,19 +621,53 @@ function LogInView({ onSwitchToSignUp, onSuccess }) {
 
       <div className="auth-modal__field">
         <label className="auth-modal__label" htmlFor="auth-login-password">Password</label>
-        <input
-          id="auth-login-password"
-          className="auth-modal__input"
-          type="password"
-          autoComplete="current-password"
-          placeholder="Your password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          disabled={loading || googleLoading || isLocked}
-        />
+        <div className="auth-modal__password-wrapper">
+          <input
+            id="auth-login-password"
+            className="auth-modal__input"
+            type={showPassword ? 'text' : 'password'}
+            autoComplete="current-password"
+            placeholder="Your password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            disabled={loading || googleLoading || isLocked}
+          />
+          <button
+            type="button"
+            className="auth-modal__password-toggle"
+            onClick={() => setShowPassword(!showPassword)}
+            disabled={loading || googleLoading || isLocked}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
 
-      {error && <p className="auth-modal__error" role="alert">{error}</p>}
+      {error && (
+        <p className="auth-modal__error" role="alert">
+          {error}
+          {error.includes('No account found') && (
+            <button
+              type="button"
+              className="auth-modal__error-link"
+              onClick={onSwitchToSignUp}
+            >
+              Sign Up
+            </button>
+          )}
+        </p>
+      )}
       {isLocked && (
         <p className="auth-modal__error" role="alert">
           Too many failed attempts. Try again in {formatCountdown(lockRemaining)}.
@@ -532,6 +678,19 @@ function LogInView({ onSwitchToSignUp, onSuccess }) {
           {attemptsRemaining} attempts remaining
         </p>
       )}
+
+      <div className="auth-modal__field auth-modal__field--checkbox">
+        <label className="auth-modal__checkbox-label">
+          <input
+            type="checkbox"
+            className="auth-modal__checkbox"
+            checked={rememberMe}
+            onChange={(event) => setRememberMe(event.target.checked)}
+            disabled={loading || googleLoading || isLocked}
+          />
+          <span>Remember me for 30 days</span>
+        </label>
+      </div>
 
       <button
         className="auth-modal__submit"

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import '../styles/matrix.css';
 
 const STATIC_RANGES = [
@@ -234,11 +234,9 @@ function CustomDurationModal({ isOpen, onClose, onConfirm, initialValue }) {
 
 /* ---- Day column labels ---- */
 function DayLabels({ days, displayMode }) {
-  const step = days.length <= 7 ? 1 : days.length <= 30 ? 5 : days.length <= 90 ? 10 : 30;
-
   const formatDate = (day, index) => {
     if (displayMode === 'number') {
-      return `Day ${index + 1}`;
+      return `${index + 1}`;
     }
     return day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
@@ -247,14 +245,11 @@ function DayLabels({ days, displayMode }) {
     <div className="matrix__day-labels">
       <div className="matrix__day-labels-spacer" />
       <div className="matrix__day-labels-cells">
-        {days.map((day, i) => {
-          const show = i % step === 0 || i === days.length - 1;
-          return (
-            <div className="matrix__day-label" key={i}>
-              {show ? formatDate(day, i) : ''}
-            </div>
-          );
-        })}
+        {days.map((day, i) => (
+          <div className="matrix__day-label" key={i}>
+            {formatDate(day, i)}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -275,6 +270,14 @@ export default function DisciplineMatrix({
   habitDisplayMode = 'date'
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const scrollContainerRef = useRef(null);
+
+  // Set initial scroll position to 0 so day 1 is always visible first
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = 0;
+    }
+  }, []);
 
   const activeDaysCount = useMemo(() => {
     const found = STATIC_RANGES.find((r) => r.key === range);
@@ -366,7 +369,7 @@ export default function DisciplineMatrix({
 
       {/* Main Grid Wrapper */}
       <div className="matrix__grid-wrapper">
-        <div className="matrix__scroll-container">
+        <div className="matrix__scroll-container" ref={scrollContainerRef}>
           <DayLabels days={days} displayMode={habitDisplayMode} />
 
           <div className="matrix__table">
@@ -400,6 +403,14 @@ export default function DisciplineMatrix({
 
                     if (today) cellClass += ' matrix__cell--today';
 
+                    const getCellLabel = () => {
+                      if (!done) return null;
+                      if (habitDisplayMode === 'number') {
+                        return `${i + 1}`;
+                      }
+                      return day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    };
+
                     return (
                       <div
                         key={i}
@@ -415,6 +426,7 @@ export default function DisciplineMatrix({
                         }}
                       >
                         <div className="matrix__cell-inner" />
+                        {done && <div className="matrix__cell-label">{getCellLabel()}</div>}
                         <div className="matrix__cell-tooltip">
                           {inactive ? 'Not yet established' : future ? `${habit.label} · Future Day` : `${habit.label} · ${formatTooltipDate(day)}${today ? ' · Today' : ''}`}
                         </div>

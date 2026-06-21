@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUserData } from '../hooks/useUserData';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/dashboard.css';
@@ -168,9 +168,12 @@ function EditModal({ isOpen, onClose, onSave, title, currentValue, type = 'text'
   );
 }
 
-export default function SettingsPage({ onLoggedOut }) {
+export default function SettingsPage({ onLoggedOut, profile: profileProp, updateProfileSettings: updateProfileSettingsProp, refresh: refreshProp }) {
   const { signOut } = useAuth();
-  const { profile, updateProfileSettings, resetAllHabits, resetStreak, deleteAllJournalEntries, refresh } = useUserData();
+  const { resetAllHabits, resetStreak, deleteAllJournalEntries } = useUserData();
+  const profile = profileProp;
+  const updateProfileSettings = updateProfileSettingsProp;
+  const refresh = refreshProp;
   const [username, setUsername] = useState(profile?.display_name || '');
   const [selectedColor, setSelectedColor] = useState(profile?.avatar_color || '#A79277');
   const [journalMood, setJournalMood] = useState(profile?.default_journal_mood || 'NEUTRAL');
@@ -184,6 +187,17 @@ export default function SettingsPage({ onLoggedOut }) {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 3000);
   };
+
+  // Sync local state with profile prop changes
+  useEffect(() => {
+    if (profile) {
+      setUsername(profile.display_name || '');
+      setSelectedColor(profile.avatar_color || '#A79277');
+      setJournalMood(profile.default_journal_mood || 'NEUTRAL');
+      setFirstDayOfWeek(profile.first_day_of_week || 'monday');
+      setHabitDisplayMode(profile.habit_display_mode || 'date');
+    }
+  }, [profile]);
 
   const handleSaveUsername = async (value) => {
     try {

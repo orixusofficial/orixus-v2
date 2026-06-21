@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react';
 import DisciplineMatrix from '../components/DisciplineMatrix';
+import OnboardingModal from '../components/OnboardingModal';
 
 export default function HabitsPage({
   habits,
@@ -11,9 +13,32 @@ export default function HabitsPage({
   range,
   setRange,
   habitDisplayMode,
+  refreshHabits,
 }) {
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    if (habits.length === 0) {
+      setShowOnboarding(true);
+    }
+  }, [habits.length]);
+
+  const handleHabitsCreated = () => {
+    refreshHabits?.();
+  };
+
+  const handleCloseOnboarding = () => {
+    setShowOnboarding(false);
+  };
+
   return (
     <div className="habits-page">
+      {showOnboarding && (
+        <OnboardingModal
+          onClose={handleCloseOnboarding}
+          onHabitsCreated={handleHabitsCreated}
+        />
+      )}
       <DisciplineMatrix
         habits={habits}
         onRemoveHabit={onRemoveHabit}

@@ -178,6 +178,8 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
     addHabit,
     removeHabit,
     addJournalEntry,
+    refresh,
+    updateProfileSettings,
   } = useUserData();
 
   const [customDays, setCustomDays] = useState(365);
@@ -221,6 +223,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
             range={range}
             setRange={setRange}
             habitDisplayMode={profile?.habit_display_mode || 'date'}
+            refreshHabits={refresh}
           />
         );
       case 'analytics':
@@ -230,7 +233,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
       case 'profile':
         return <ProfilePage habits={habits} completionData={completionData} journalEntries={journalEntries} profile={profile} />;
       case 'settings':
-        return <SettingsPage onLoggedOut={onLoggedOut} />;
+        return <SettingsPage onLoggedOut={onLoggedOut} profile={profile} updateProfileSettings={updateProfileSettings} refresh={refresh} />;
       case 'logout':
         return <LogoutPage onNavigate={onNavigate} onLoggedOut={onLoggedOut} />;
       default:

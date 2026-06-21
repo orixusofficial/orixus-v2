@@ -49,8 +49,12 @@ export function AuthProvider({ children }) {
     return data;
   }, []);
 
-  const signIn = useCallback(async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const signIn = useCallback(async (email, password, rememberMe = false) => {
+    const options = {};
+    if (rememberMe) {
+      options.expiresIn = 30 * 24 * 60 * 60; // 30 days in seconds
+    }
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password }, options);
     if (error) throw error;
     return data;
   }, []);

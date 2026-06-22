@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import '../styles/landing.css';
-
+import ScrollReveal from '../components/ScrollReveal';
 const NAV_LINKS = [
   { label: 'Features', target: 'features' },
   { label: 'Philosophy', target: 'philosophy' },
@@ -158,6 +158,140 @@ function ProductArea({ area }) {
 export default function LandingPage({ onOpenAuth }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  useEffect(() => {
+    // 1. Hero word stagger setup
+    const headline = document.querySelector('.landing-hero h1');
+    if (headline) {
+      const text = headline.innerText;
+      const words = text.split(/\s+/);
+      headline.innerHTML = words
+        .map((word, i) => `<span class="hero-word" style="animation-delay: ${i * 80}ms">${word}</span>`)
+        .join(' ');
+    }
+
+    // 2. Navigation scroll listener
+    const handleScroll = () => {
+      const nav = document.querySelector('.landing-nav');
+      if (nav) {
+        if (window.scrollY > 60) {
+          nav.classList.add('nav-scrolled');
+        } else {
+          nav.classList.remove('nav-scrolled');
+        }
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+
+    // 3. Spotlight effect in hero
+    const hero = document.querySelector('.landing-hero');
+    const handleMouseMove = (e) => {
+      if (!hero) return;
+      const rect = hero.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      hero.style.setProperty('--mouse-x', `${x}px`);
+      hero.style.setProperty('--mouse-y', `${y}px`);
+    };
+    if (hero) {
+      hero.addEventListener('mousemove', handleMouseMove);
+    }
+
+    // 4. Scroll Reveal Intersection Observer
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('reveal-active');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px',
+      }
+    );
+
+    // Register elements for scroll reveal
+    const reveals = document.querySelectorAll(
+      '.landing-section-header, .landing-why__statement, .landing-why__body p, .landing-journal-panel, .landing-philosophy h2, .landing-philosophy p, .landing-final-cta h2, .landing-product-area, .landing-preview-metric, .landing-hero-preview, .landing-product-mockup, .landing-rank-step'
+    );
+    reveals.forEach((el) => {
+      el.classList.add('reveal');
+      revealObserver.observe(el);
+    });
+
+    // Stagger delays
+    const productAreas = document.querySelectorAll('.landing-product-area');
+    productAreas.forEach((el, index) => {
+      el.style.transitionDelay = `${index * 120}ms`;
+    });
+
+    const metrics = document.querySelectorAll('.landing-preview-metric');
+    metrics.forEach((el, index) => {
+      el.style.transitionDelay = `${index * 120}ms`;
+    });
+
+    const rankSteps = document.querySelectorAll('.landing-rank-step');
+    rankSteps.forEach((el, index) => {
+      el.style.transitionDelay = `${index * 80}ms`;
+    });
+
+    // 5. Stats count up animation
+    const animateValue = (obj, start, end, duration, suffix) => {
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+        const currentVal = Math.floor(easeProgress * (end - start) + start);
+        obj.innerHTML = currentVal + suffix;
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        } else {
+          obj.innerHTML = end + suffix;
+        }
+      };
+      window.requestAnimationFrame(step);
+    };
+
+    const statsObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const strongEl = entry.target.querySelector('strong');
+            if (strongEl && !strongEl.dataset.animated) {
+              strongEl.dataset.animated = 'true';
+              const originalText = strongEl.innerText;
+              const numMatch = originalText.match(/\d+/);
+              if (numMatch) {
+                const endVal = parseInt(numMatch[0], 10);
+                const suffix = originalText.replace(numMatch[0], '');
+                animateValue(strongEl, 0, endVal, 1500, suffix);
+              }
+            }
+            statsObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const metricsToCount = document.querySelectorAll('.landing-preview-metric');
+    metricsToCount.forEach((el) => statsObserver.observe(el));
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (hero) {
+        hero.removeEventListener('mousemove', handleMouseMove);
+      }
+      revealObserver.disconnect();
+      statsObserver.disconnect();
+    };
+  }, []);
+
   const handleSectionClick = (event, target) => {
     event.preventDefault();
     setMobileMenuOpen(false);
@@ -176,6 +310,121 @@ export default function LandingPage({ onOpenAuth }) {
 
   return (
     <div className="landing-container">
+      <style>{`
+        /* Animation & Motion System CSS */
+        
+        /* 1. Hero Load Animations */
+        @keyframes heroFadeUp {
+          from { opacity: 0; transform: translateY(24px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .landing-hero .landing-eyebrow {
+          animation: heroFadeUp 0.7s ease-out 0.1s both;
+        }
+        .landing-hero h1 {
+          animation: heroFadeUp 0.7s ease-out 0.3s both;
+        }
+        .landing-hero p {
+          animation: heroFadeUp 0.7s ease-out 0.5s both;
+        }
+        .landing-hero-actions {
+          animation: heroFadeUp 0.7s ease-out 0.7s both;
+        }
+
+        /* 2. Spotlight cursor effect in hero */
+        .landing-hero {
+          position: relative;
+          overflow: hidden;
+        }
+        .landing-hero::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(
+            400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+            rgba(201, 168, 76, 0.05),
+            transparent 80%
+          );
+          pointer-events: none;
+          z-index: 1;
+          transition: opacity 0.3s ease;
+        }
+
+        /* 3. Navigation page load entry & scroll state */
+        @keyframes navSlideDown {
+          from {
+            transform: translateY(-100%);
+          }
+          to {
+            transform: translateY(0);
+          }
+        }
+        .landing-nav {
+          animation: navSlideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          background: transparent !important;
+          backdrop-filter: blur(0px) !important;
+          transition: background-color 0.4s ease, backdrop-filter 0.4s ease;
+        }
+        .landing-nav.nav-scrolled {
+          background: rgba(8, 8, 8, 0.95) !important;
+          backdrop-filter: blur(18px) !important;
+        }
+
+        /* 4. Scroll Reveal System */
+        .reveal {
+          opacity: 0;
+          transform: translateY(30px);
+          transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.reveal-active {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        /* 5. Rank step slide-in overrides (from left instead of bottom) */
+        .landing-rank-step.reveal {
+          transform: translateX(-30px);
+        }
+        .landing-rank-step.reveal.reveal-active {
+          transform: translateX(0);
+        }
+        .landing-rank-step {
+          transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease !important;
+        }
+        .landing-rank-step:hover .landing-rank-step__node {
+          color: var(--color-accent, #C9A84C) !important;
+          border-color: var(--color-accent, #C9A84C) !important;
+          transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* 6. Feature cards hover interaction */
+        .landing-product-area {
+          position: relative;
+          transition: transform 0.3s ease, border-left-color 0.3s ease, border-left-width 0.3s ease !important;
+          border-left: 1px solid var(--color-border) !important;
+        }
+        .landing-product-area:hover {
+          transform: translateY(-4px);
+          border-left: 4px solid var(--color-accent, #C9A84C) !important;
+        }
+
+        /* 7. CTA button pulsing */
+        @keyframes ctaPulse {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.02);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+        .landing-btn-primary {
+          animation: ctaPulse 3s ease-in-out infinite;
+          display: inline-flex;
+        }
+      `}</style>
       <div className="landing-grid-overlay" />
       <div className="landing-depth-line" />
 
@@ -214,9 +463,9 @@ export default function LandingPage({ onOpenAuth }) {
           <div className="landing-hero__copy">
             <span className="landing-eyebrow">Personal Evolution System</span>
             <h1>
-              <span>Build Discipline.</span>
-              <span>Track Growth.</span>
-              <span>Become Stronger.</span>
+              Build Discipline.<br />
+              Track Growth.<br />
+              Become Stronger.
             </h1>
             <p>
               A structured system for ambitious people who want to build consistency,
@@ -246,7 +495,7 @@ export default function LandingPage({ onOpenAuth }) {
         <section className="landing-section landing-why" id="features">
           <div className="landing-why__statement">
             <span className="landing-eyebrow">Why Orixus</span>
-            <h2>Most apps track tasks. Orixus tracks personal evolution.</h2>
+            <ScrollReveal baseOpacity={0} enableBlur={true} baseRotation={5} blurStrength={10}>Most apps track tasks. Orixus tracks personal evolution.</ScrollReveal>
           </div>
           <div className="landing-why__body">
             <p>

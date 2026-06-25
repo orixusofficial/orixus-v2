@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
 import '../styles/landing.css';
 import ScrollReveal from '../components/ScrollReveal';
 const NAV_LINKS = [
-  { label: 'Features', target: 'features' },
-  { label: 'Philosophy', target: 'philosophy' },
-  { label: 'Journal', target: 'journal' },
-  { label: 'Analytics', target: 'analytics' },
+  { label: 'Why Orixus', target: 'why-orixus' },
+  { label: 'How It Works', target: 'how-it-works' },
+  { label: 'FAQ', target: 'faq' },
 ];
 
 const PRODUCT_AREAS = [
@@ -29,6 +29,49 @@ const PRODUCT_AREAS = [
     eyebrow: 'Reflection loop',
     description:
       'Capture friction, decisions, and proof so progress becomes conscious.',
+  },
+];
+
+const FEATURES = [
+  {
+    id: 'habit-tracker',
+    number: '01',
+    title: 'Habit Tracker',
+    description:
+      'Build lasting habits through a structured daily execution matrix. Every action logged is a brick in the foundation of who you are becoming.',
+    tag: 'Daily Execution',
+  },
+  {
+    id: 'discipline-tracker',
+    number: '02',
+    title: 'Discipline Tracker',
+    description:
+      'Move beyond task lists. Orixus tracks behavioral consistency over time, giving you an honest, unfiltered view of your discipline in practice.',
+    tag: 'Consistency System',
+  },
+  {
+    id: 'personal-growth-journal',
+    number: '03',
+    title: 'Personal Growth Journal',
+    description:
+      'Capture friction points, decisions, and reflections after each cycle. Structured journaling turns raw effort into compounding intelligence.',
+    tag: 'Reflection Loop',
+  },
+  {
+    id: 'progress-analytics',
+    number: '04',
+    title: 'Progress Analytics',
+    description:
+      'Track streaks, execution rates, rank progression, and behavioral trends. Data-driven insight into your long-term personal development.',
+    tag: 'Growth Metrics',
+  },
+  {
+    id: 'identity-progression-system',
+    number: '05',
+    title: 'Identity Progression System',
+    description:
+      'Consistent action earns rank. From Initiate to Sovereign — your identity evolves as your habits compound, creating a visible, earned record of growth.',
+    tag: 'Rank Progression',
   },
 ];
 
@@ -156,20 +199,16 @@ function ProductArea({ area }) {
  *   onOpenAuth(tab) — opens the auth modal with 'signup' or 'login' tab
  */
 export default function LandingPage({ onOpenAuth }) {
+  const scrollRef = useRef(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    // 1. Hero word stagger setup
-    const headline = document.querySelector('.landing-hero h1');
-    if (headline) {
-      const text = headline.innerText;
-      const words = text.split(/\s+/);
-      headline.innerHTML = words
-        .map((word, i) => `<span class="hero-word" style="animation-delay: ${i * 80}ms">${word}</span>`)
-        .join(' ');
-    }
+  const scrollCarousel = (amount) => {
+    if (!scrollRef.current) return;
+    scrollRef.current.scrollBy({ left: amount, behavior: 'smooth' });
+  };
 
-    // 2. Navigation scroll listener
+  useEffect(() => {
+    // 1. Navigation scroll listener
     const handleScroll = () => {
       const nav = document.querySelector('.landing-nav');
       if (nav) {
@@ -183,21 +222,7 @@ export default function LandingPage({ onOpenAuth }) {
     window.addEventListener('scroll', handleScroll);
     handleScroll();
 
-    // 3. Spotlight effect in hero
-    const hero = document.querySelector('.landing-hero');
-    const handleMouseMove = (e) => {
-      if (!hero) return;
-      const rect = hero.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      hero.style.setProperty('--mouse-x', `${x}px`);
-      hero.style.setProperty('--mouse-y', `${y}px`);
-    };
-    if (hero) {
-      hero.addEventListener('mousemove', handleMouseMove);
-    }
-
-    // 4. Scroll Reveal Intersection Observer
+    // 2. Scroll Reveal Intersection Observer
     const revealObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -238,7 +263,7 @@ export default function LandingPage({ onOpenAuth }) {
       el.style.transitionDelay = `${index * 80}ms`;
     });
 
-    // 5. Stats count up animation
+    // 3. Stats count up animation
     const animateValue = (obj, start, end, duration, suffix) => {
       let startTimestamp = null;
       const step = (timestamp) => {
@@ -284,9 +309,6 @@ export default function LandingPage({ onOpenAuth }) {
     // Cleanup
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      if (hero) {
-        hero.removeEventListener('mousemove', handleMouseMove);
-      }
       revealObserver.disconnect();
       statsObserver.disconnect();
     };
@@ -331,26 +353,7 @@ export default function LandingPage({ onOpenAuth }) {
           animation: heroFadeUp 0.7s ease-out 0.7s both;
         }
 
-        /* 2. Spotlight cursor effect in hero */
-        .landing-hero {
-          position: relative;
-          overflow: hidden;
-        }
-        .landing-hero::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(
-            400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-            rgba(201, 168, 76, 0.05),
-            transparent 80%
-          );
-          pointer-events: none;
-          z-index: 1;
-          transition: opacity 0.3s ease;
-        }
-
-        /* 3. Navigation page load entry & scroll state */
+        /* 2. Navigation page load entry & scroll state */
         @keyframes navSlideDown {
           from {
             transform: translateY(-100%);
@@ -370,7 +373,7 @@ export default function LandingPage({ onOpenAuth }) {
           backdrop-filter: blur(18px) !important;
         }
 
-        /* 4. Scroll Reveal System */
+        /* 3. Scroll Reveal System */
         .reveal {
           opacity: 0;
           transform: translateY(30px);
@@ -381,7 +384,7 @@ export default function LandingPage({ onOpenAuth }) {
           transform: translateY(0);
         }
 
-        /* 5. Rank step slide-in overrides (from left instead of bottom) */
+        /* 4. Rank step slide-in overrides (from left instead of bottom) */
         .landing-rank-step.reveal {
           transform: translateX(-30px);
         }
@@ -397,7 +400,7 @@ export default function LandingPage({ onOpenAuth }) {
           transition: color 0.3s ease, border-color 0.3s ease;
         }
 
-        /* 6. Feature cards hover interaction */
+        /* 5. Feature cards hover interaction */
         .landing-product-area {
           position: relative;
           transition: transform 0.3s ease, border-left-color 0.3s ease, border-left-width 0.3s ease !important;
@@ -408,21 +411,35 @@ export default function LandingPage({ onOpenAuth }) {
           border-left: 4px solid var(--color-accent, #C9A84C) !important;
         }
 
-        /* 7. CTA button pulsing */
-        @keyframes ctaPulse {
-          0% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.02);
-          }
-          100% {
-            transform: scale(1);
-          }
+        /* 6. Carousel Arrow Controls */
+        .landing-feature-scroll-wrapper {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
         }
-        .landing-btn-primary {
-          animation: ctaPulse 3s ease-in-out infinite;
-          display: inline-flex;
+        .landing-feature-arrow {
+          display: none;
+          flex-shrink: 0;
+          align-items: center;
+          justify-content: center;
+          width: 2.5rem;
+          height: 2.5rem;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid var(--color-border);
+          border-radius: var(--radius-sm);
+          color: var(--color-text-primary);
+          cursor: pointer;
+          transition: border-color 0.2s, color 0.2s, background 0.2s;
+        }
+        .landing-feature-arrow:hover {
+          border-color: #A79277;
+          color: #A79277;
+          background: rgba(167,146,119,0.08);
+        }
+        @media (min-width: 1024px) {
+          .landing-feature-arrow {
+            display: flex;
+          }
         }
       `}</style>
       <div className="landing-grid-overlay" />
@@ -451,8 +468,10 @@ export default function LandingPage({ onOpenAuth }) {
               {link.label}
             </a>
           ))}
-          {/* "Start Free" in nav → Log In tab */}
-          <button className="landing-btn-start" onClick={handleLogIn} id="landing-nav-start-free">
+          <button className="landing-btn-login" onClick={handleLogIn}>
+            Login
+          </button>
+          <button className="landing-btn-start" onClick={handleSignUp}>
             Start Free
           </button>
         </div>
@@ -462,17 +481,16 @@ export default function LandingPage({ onOpenAuth }) {
         <header className="landing-hero">
           <div className="landing-hero__copy">
             <span className="landing-eyebrow">Personal Evolution System</span>
-            <h1>
-              Build Discipline.<br />
-              Track Growth.<br />
-              Become Stronger.
+            <h1 className="hero-headline">
+              BUILD DISCIPLINE.<br />
+              TRACK GROWTH.<br />
+              BECOME STRONGER.
             </h1>
             <p>
               A structured system for ambitious people who want to build consistency,
               sharpen discipline, and create measurable personal growth over time.
             </p>
             <div className="landing-hero-actions">
-              {/* "Start Your Journey" → Sign Up tab */}
               <button
                 className="landing-btn-primary"
                 onClick={handleSignUp}
@@ -482,8 +500,8 @@ export default function LandingPage({ onOpenAuth }) {
               </button>
               <a
                 className="landing-btn-secondary"
-                href="#features"
-                onClick={(event) => handleSectionClick(event, 'features')}
+                href="#how-it-works"
+                onClick={(event) => handleSectionClick(event, 'how-it-works')}
               >
                 See the System
               </a>
@@ -492,7 +510,7 @@ export default function LandingPage({ onOpenAuth }) {
           <HeroPreview />
         </header>
 
-        <section className="landing-section landing-why" id="features">
+        <section className="landing-section landing-why" id="why-orixus">
           <div className="landing-why__statement">
             <span className="landing-eyebrow">Why Orixus</span>
             <ScrollReveal baseOpacity={0} enableBlur={true} baseRotation={5} blurStrength={10}>Most apps track tasks. Orixus tracks personal evolution.</ScrollReveal>
@@ -510,6 +528,50 @@ export default function LandingPage({ onOpenAuth }) {
           </div>
         </section>
 
+        <section className="landing-section landing-features" id="how-it-works" aria-labelledby="features-title">
+          <SectionHeader
+            eyebrow="What Orixus Does"
+            title="A complete system for personal growth"
+            align="center"
+          >
+            Everything you need to build habits, track progress, stay consistent, and become a stronger version of yourself.
+          </SectionHeader>
+          <div className="landing-feature-scroll-wrapper">
+            <button
+              className="landing-feature-arrow landing-feature-arrow--left"
+              onClick={() => scrollCarousel(-300)}
+              aria-label="Scroll left"
+            >
+              {'<'}
+            </button>
+            <div className="landing-feature-grid" ref={scrollRef} role="list">
+              {FEATURES.map((feature) => (
+                <article
+                  className="landing-feature-card"
+                  key={feature.id}
+                  id={feature.id}
+                  role="listitem"
+                >
+                  <div className="landing-feature-card__header">
+                    <span className="landing-feature-card__number" aria-hidden="true">{feature.number}</span>
+                    <span className="landing-feature-card__tag">{feature.tag}</span>
+                  </div>
+                  <h3 className="landing-feature-card__title">{feature.title}</h3>
+                  <p className="landing-feature-card__desc">{feature.description}</p>
+                  <div className="landing-feature-card__rule" aria-hidden="true" />
+                </article>
+              ))}
+            </div>
+            <button
+              className="landing-feature-arrow landing-feature-arrow--right"
+              onClick={() => scrollCarousel(300)}
+              aria-label="Scroll right"
+            >
+              {'>'}
+            </button>
+          </div>
+        </section>
+
         <section className="landing-section landing-product-section" aria-labelledby="product-title">
           <SectionHeader
             eyebrow="Product Preview"
@@ -523,6 +585,35 @@ export default function LandingPage({ onOpenAuth }) {
             {PRODUCT_AREAS.map((area) => (
               <ProductArea area={area} key={area.id} />
             ))}
+          </div>
+        </section>
+
+        <section className="landing-section landing-comparison">
+          <SectionHeader
+            eyebrow="Why Orixus"
+            title="Traditional apps vs. Orixus"
+          />
+          <div className="landing-comparison-grid">
+            <div className="landing-comparison-side">
+              <h3>Traditional Habit Apps</h3>
+              <ul>
+                <li>Track tasks and to-dos</li>
+                <li>Focus on completion streaks</li>
+                <li>Simple checkbox interfaces</li>
+                <li>No identity progression</li>
+                <li>Task-oriented motivation</li>
+              </ul>
+            </div>
+            <div className="landing-comparison-side landing-comparison-side--orixus">
+              <h3>Orixus</h3>
+              <ul>
+                <li>Track identity and discipline</li>
+                <li>Focus on consistency and growth</li>
+                <li>Visual discipline matrix</li>
+                <li>Identity rank progression</li>
+                <li>System-based discipline</li>
+              </ul>
+            </div>
           </div>
         </section>
 
@@ -570,6 +661,35 @@ export default function LandingPage({ onOpenAuth }) {
             the quiet work: the repeated standard, the honest record, the identity built
             one deliberate action at a time.
           </p>
+        </section>
+
+        <section className="landing-section landing-faq" id="faq">
+          <SectionHeader
+            eyebrow="FAQ"
+            title="Common questions about Orixus"
+          />
+          <div className="landing-faq-list">
+            <div className="landing-faq-item">
+              <h3>What is Orixus?</h3>
+              <p>Orixus is a discipline-focused self improvement app that combines habit tracking, journaling, analytics, and daily check-ins into one system.</p>
+            </div>
+            <div className="landing-faq-item">
+              <h3>Is Orixus free?</h3>
+              <p>Yes. Core functionality is free.</p>
+            </div>
+            <div className="landing-faq-item">
+              <h3>How does Orixus help build discipline?</h3>
+              <p>Orixus is designed around consistency, accountability, and long-term growth as a personal growth tracker and consistency tracker.</p>
+            </div>
+            <div className="landing-faq-item">
+              <h3>What makes Orixus different from habit trackers?</h3>
+              <p>Orixus focuses on identity growth and consistency rather than simple task completion. It's a discipline tracker, not just a habit tracker.</p>
+            </div>
+            <div className="landing-faq-item">
+              <h3>Can I use Orixus as a journal?</h3>
+              <p>Yes. Orixus includes structured reflection and journaling tools for personal growth.</p>
+            </div>
+          </div>
         </section>
 
         <section className="landing-final-cta">

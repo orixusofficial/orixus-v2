@@ -94,7 +94,7 @@
   padding: var(--space-3xl) var(--space-2xl);
   width: 100%;
   max-width: 480px;
-  box-shadow: 0 50px 100px rgba(0,0,0,0.8);
+  box-shadow: 0 50px 100px rgba(0, 0, 0, 0.8);
   animation: modalSlideUp var(--transition-base);
   position: relative;
   overflow: hidden;
@@ -231,13 +231,25 @@
 }
 
 @keyframes modalFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes modalSlideUp {
-  from { transform: translateY(40px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* ========================================
@@ -253,8 +265,15 @@
 }
 
 @keyframes pageEntrance {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Page Headers (Phase 1) */
@@ -328,13 +347,13 @@
   flex-direction: column;
   gap: var(--space-xs);
   transition: all var(--transition-base);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .dashboard-overview__card:hover {
   transform: translateY(-2px);
   border-color: var(--color-accent-subtle);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 12px rgba(179, 142, 70, 0.03);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 12px rgba(179, 142, 70, 0.03);
 }
 
 @media (max-width: 768px) {
@@ -440,6 +459,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-base);
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 .dashboard-overview__habit-item {
@@ -807,7 +828,7 @@
   overflow-y: auto;
   padding-right: var(--space-xs);
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.05) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.05) transparent;
 }
 
 .analytics-breakdown-item {
@@ -857,7 +878,7 @@
   overflow-x: auto;
   margin-top: var(--space-sm);
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.05) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.05) transparent;
 }
 
 .heatmap-grid-container {
@@ -1077,6 +1098,7 @@
 
 /* Mobile responsive adjustments */
 @media (max-width: 768px) {
+
   .analytics-summary-card,
   .analytics-card,
   .insight-card {
@@ -1096,8 +1118,15 @@
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(2px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ========================================
@@ -1147,7 +1176,9 @@
   gap: var(--space-xs);
 }
 
-.journal-input, .journal-textarea, .journal-select {
+.journal-input,
+.journal-textarea,
+.journal-select {
   width: 100%;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
@@ -1160,7 +1191,9 @@
   outline: none;
 }
 
-.journal-input:focus, .journal-textarea:focus, .journal-select:focus {
+.journal-input:focus,
+.journal-textarea:focus,
+.journal-select:focus {
   border-color: var(--color-accent);
 }
 
@@ -1328,10 +1361,25 @@
   box-shadow: 0 0 8px rgba(var(--mood-bg), 0.15);
 }
 
-.mood-excellent { background: rgba(92, 184, 92, 0.08); color: #5cb85c; }
-.mood-good { background: rgba(179, 142, 70, 0.08); color: var(--color-accent); }
-.mood-neutral { background: rgba(255, 255, 255, 0.03); color: var(--color-text-secondary); }
-.mood-failed { background: rgba(168, 41, 41, 0.08); color: #a85454; }
+.mood-excellent {
+  background: rgba(92, 184, 92, 0.08);
+  color: #5cb85c;
+}
+
+.mood-good {
+  background: rgba(179, 142, 70, 0.08);
+  color: var(--color-accent);
+}
+
+.mood-neutral {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-secondary);
+}
+
+.mood-failed {
+  background: rgba(168, 41, 41, 0.08);
+  color: #a85454;
+}
 
 .journal-entry-title {
   font-size: var(--text-lg);
@@ -1653,8 +1701,13 @@
 }
 
 @keyframes loadingShimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Loading state for hero card */
@@ -2520,6 +2573,7 @@
    Profile Page - Mobile Responsive
    ======================================== */
 @media (max-width: 768px) {
+
   /* Profile Hero Card - Stack vertically on mobile */
   .profile-hero-card {
     grid-template-columns: 1fr;
@@ -2678,8 +2732,15 @@
 }
 
 @keyframes authShellPulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 .auth-shell__hint {

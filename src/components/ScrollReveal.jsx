@@ -32,32 +32,76 @@ const ScrollReveal = ({
     if (!el) return;
     const scroller = scrollContainerRef?.current ?? window;
 
-    gsap.fromTo(
-      el,
-      { transformOrigin: '0% 50%', rotate: baseRotation },
-      { ease: 'none', rotate: 0, scrollTrigger: { trigger: el, scroller, start: 'top bottom', end: rotationEnd, scrub: 0.5, toggleActions: "play none none reverse" } }
+    const tweens = [];
+
+    tweens.push(
+      gsap.fromTo(
+        el,
+        { transformOrigin: '0% 50%', rotate: baseRotation },
+        {
+          ease: 'none',
+          rotate: 0,
+          scrollTrigger: {
+            trigger: el,
+            scroller,
+            start: 'top bottom',
+            end: rotationEnd,
+            scrub: 0.5,
+            toggleActions: 'play none none reset',
+          },
+        }
+      )
     );
 
     const wordElements = el.querySelectorAll('.word');
 
-    gsap.fromTo(
-      wordElements,
-      { opacity: baseOpacity, willChange: 'opacity' },
-      { ease: 'none', opacity: 1, stagger: 0.05, scrollTrigger: { trigger: el, scroller, start: 'top bottom-=20%', end: wordAnimationEnd, scrub: 0.5, toggleActions: "play none none reverse" } }
+    tweens.push(
+      gsap.fromTo(
+        wordElements,
+        { opacity: baseOpacity, willChange: 'opacity' },
+        {
+          ease: 'none',
+          opacity: 1,
+          stagger: 0.05,
+          scrollTrigger: {
+            trigger: el,
+            scroller,
+            start: 'top bottom-=20%',
+            end: wordAnimationEnd,
+            scrub: 0.5,
+            toggleActions: 'play none none reset',
+          },
+        }
+      )
     );
 
     if (enableBlur) {
-      gsap.fromTo(
-        wordElements,
-        { filter: `blur(${blurStrength}px)` },
-        { ease: 'none', filter: 'blur(0px)', stagger: 0.05, scrollTrigger: { trigger: el, scroller, start: 'top bottom-=20%', end: wordAnimationEnd, scrub: 0.5, toggleActions: "play none none reverse" } }
+      tweens.push(
+        gsap.fromTo(
+          wordElements,
+          { filter: `blur(${blurStrength}px)` },
+          {
+            ease: 'none',
+            filter: 'blur(0px)',
+            stagger: 0.05,
+            scrollTrigger: {
+              trigger: el,
+              scroller,
+              start: 'top bottom-=20%',
+              end: wordAnimationEnd,
+              scrub: 0.5,
+              toggleActions: 'play none none reset',
+            },
+          }
+        )
       );
     }
     setTimeout(() => ScrollTrigger.refresh(), 100);
 
     return () => {
-      ScrollTrigger.getAll().forEach(t => {
-        if (t.trigger === el) t.kill();
+      tweens.forEach((tween) => {
+        if (tween.scrollTrigger) tween.scrollTrigger.kill();
+        tween.kill();
       });
       ScrollTrigger.refresh();
     };

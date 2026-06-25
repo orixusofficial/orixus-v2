@@ -19,8 +19,13 @@
 }
 
 @keyframes onboardingOverlayIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* Modal shell */
@@ -33,7 +38,7 @@
   padding: var(--space-2xl) var(--space-2xl);
   box-shadow:
     0 60px 120px rgba(0, 0, 0, 0.85),
-    0 0 0 1px rgba(255,255,255,0.03) inset;
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset;
   animation: onboardingModalIn 320ms var(--ease-elastic) forwards;
   position: relative;
   overflow-x: hidden;
@@ -44,15 +49,24 @@
 .onboarding-modal::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
   opacity: 0.4;
 }
 
 @keyframes onboardingModalIn {
-  from { transform: translateY(28px) scale(0.97); opacity: 0; }
-  to   { transform: translateY(0) scale(1); opacity: 1; }
+  from {
+    transform: translateY(28px) scale(0.97);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 }
 
 /* Step indicator */
@@ -503,8 +517,15 @@
   }
 
   @keyframes onboardingModalInMobile {
-    from { transform: translateY(100%); opacity: 0; }
-    to   { transform: translateY(0); opacity: 1; }
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 
   .onboarding-modal__habit-row {

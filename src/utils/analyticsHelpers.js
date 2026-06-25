@@ -222,39 +222,55 @@ export function calculatePoints(habits, completionData) {
 }
 
 export const RANKS = [
-  { name: "Initiate", min: 0, max: 49, level: 1 },
-  { name: "Ascendant", min: 50, max: 149, level: 2 },
-  { name: "Vanguard", min: 150, max: 349, level: 3 },
-  { name: "Apex", min: 350, max: 699, level: 4 },
-  { name: "Sovereign", min: 700, max: Infinity, level: 5 }
+  { name: "Initiate", minStreak: 0, minHabits: 0, level: 1 },
+  { name: "Ascendant", minStreak: 7, minHabits: 20, level: 2 },
+  { name: "Vanguard", minStreak: 30, minHabits: 100, level: 3 },
+  { name: "Apex", minStreak: 60, minHabits: 300, level: 4 },
+  { name: "Sovereign", minStreak: 180, minHabits: 1000, level: 5 }
 ];
 
 /**
- * Retrieve rank name, progress level, and points details
+ * Retrieve rank name, progress level, and details based on streak and total habits
+ * A user must meet BOTH requirements (streak AND habits) to achieve a rank
  */
-export function getRankInfo(points) {
-  const rank = RANKS.find(r => points >= r.min && points <= r.max) || RANKS[0];
-  
+export function getRankInfo(streak, totalHabits) {
+  let currentRankIndex = 0;
+  for (let i = RANKS.length - 1; i >= 0; i--) {
+    if (streak >= RANKS[i].minStreak && totalHabits >= RANKS[i].minHabits) {
+      currentRankIndex = i;
+      break;
+    }
+  }
+
+  const currentRank = RANKS[currentRankIndex];
+  const nextRank = RANKS[currentRankIndex + 1];
+
   let progressPercent = 0;
   let nextRankPoints = 0;
-  
-  if (rank.max === Infinity) {
-    progressPercent = 100;
-    nextRankPoints = 0;
+  let nextRankName = null;
+  let nextRankRequirement = 'Max rank achieved';
+
+  if (nextRank) {
+    const streakProgress = Math.min(100, (streak / nextRank.minStreak) * 100);
+    const habitsProgress = Math.min(100, (totalHabits / nextRank.minHabits) * 100);
+    progressPercent = Math.round((streakProgress + habitsProgress) / 2);
+    nextRankName = nextRank.name;
+    const streakNeeded = Math.max(0, nextRank.minStreak - streak);
+    const habitsNeeded = Math.max(0, nextRank.minHabits - totalHabits);
+    nextRankRequirement = `${streakNeeded} day streak + ${habitsNeeded} habits needed`;
   } else {
-    const range = rank.max - rank.min + 1;
-    const earnedInRange = points - rank.min;
-    progressPercent = Math.min(100, Math.round((earnedInRange / range) * 100));
-    nextRankPoints = rank.max + 1 - points;
+    progressPercent = 100;
   }
-  
+
   return {
-    name: rank.name,
-    level: rank.level,
-    points,
+    name: currentRank.name,
+    level: currentRank.level,
     progressPercent,
     nextRankPoints,
-    nextRankName: rank.max === Infinity ? null : RANKS[rank.level].name
+    nextRankName,
+    nextRankRequirement,
+    streak,
+    totalHabits
   };
 }
 

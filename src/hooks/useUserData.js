@@ -252,6 +252,76 @@ export function useUserData() {
     setJournalEntries([]);
   }, [user]);
 
+  const calculateStreak = useCallback(() => {
+    if (!completionData || Object.keys(completionData).length === 0 || habits.length === 0) {
+      return 0;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const formatDateKey = (date) => {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    };
+
+    const dateKeys = new Set();
+    Object.keys(completionData).forEach(key => {
+      const dateKeyStr = key.split(':')[1];
+      if (dateKeyStr) {
+        dateKeys.add(dateKeyStr);
+      }
+    });
+
+    const sortedDates = Array.from(dateKeys)
+      .map(dateStr => {
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
+        date.setHours(0, 0, 0, 0);
+        return date;
+      })
+      .sort((a, b) => b - a);
+
+    if (sortedDates.length === 0) {
+      return 0;
+    }
+
+    const mostRecentDate = sortedDates[0];
+    const daysDiff = Math.floor((today - mostRecentDate) / (1000 * 60 * 60 * 24));
+
+    if (daysDiff > 1) {
+      return 0;
+    }
+
+    let streak = 0;
+    let currentDate = daysDiff === 0 ? today : mostRecentDate;
+
+    for (let i = 0; i < 365; i++) {
+      const checkDate = new Date(currentDate);
+      checkDate.setDate(checkDate.getDate() - i);
+
+      const checkDateStr = formatDateKey(checkDate);
+
+      const completedHabitIds = new Set();
+      Object.keys(completionData).forEach(key => {
+        const [habitId, dateKeyStr] = key.split(':');
+        if (dateKeyStr === checkDateStr) {
+          completedHabitIds.add(habitId);
+        }
+      });
+
+      if (completedHabitIds.size === habits.length) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  }, [completionData, habits]);
+
   return {
     habits,
     completionData,
@@ -269,6 +339,7 @@ export function useUserData() {
     resetAllHabits,
     resetStreak,
     deleteAllJournalEntries,
+    calculateStreak,
   };
 }
 

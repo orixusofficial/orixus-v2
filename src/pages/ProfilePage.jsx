@@ -1,13 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import '../styles/dashboard.css';
-
-const RANKS = [
-  { name: 'Initiate', minStreak: 0, minHabits: 0 },
-  { name: 'Ascendant', minStreak: 7, minHabits: 20 },
-  { name: 'Vanguard', minStreak: 30, minHabits: 100 },
-  { name: 'Apex', minStreak: 60, minHabits: 300 },
-  { name: 'Sovereign', minStreak: 180, minHabits: 1000 },
-];
+import { getRankInfo, RANKS } from '../utils/analyticsHelpers';
 
 const ACHIEVEMENTS_CONFIG = [
   { name: 'First Spark', description: 'Complete your first habit check-in', icon: 'flame', check: (data) => data.totalHabits >= 1 },
@@ -155,35 +148,8 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
 
     console.log('ProfilePage - Final consistency %:', consistency);
 
-    // Determine current rank
-    let currentRankIndex = 0;
-    for (let i = RANKS.length - 1; i >= 0; i--) {
-      if (streak >= RANKS[i].minStreak && totalHabits >= RANKS[i].minHabits) {
-        currentRankIndex = i;
-        break;
-      }
-    }
-
-    const currentRank = RANKS[currentRankIndex];
-    const nextRank = RANKS[currentRankIndex + 1];
-
-    // Calculate progress to next rank
-    let progressPercent = 0;
-    if (nextRank) {
-      const streakProgress = Math.min(100, (streak / nextRank.minStreak) * 100);
-      const habitsProgress = Math.min(100, (totalHabits / nextRank.minHabits) * 100);
-      progressPercent = Math.round((streakProgress + habitsProgress) / 2);
-    } else {
-      progressPercent = 100;
-    }
-
-    // Calculate next rank requirements
-    let nextRankRequirement = 'Max rank achieved';
-    if (nextRank) {
-      const streakNeeded = Math.max(0, nextRank.minStreak - streak);
-      const habitsNeeded = Math.max(0, nextRank.minHabits - totalHabits);
-      nextRankRequirement = `${streakNeeded} day streak + ${habitsNeeded} habits needed`;
-    }
+    // Use shared rank calculation
+    const rankInfo = getRankInfo(streak, totalHabits);
 
     return {
       totalHabits,
@@ -191,11 +157,7 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
       checkIns: totalHabits,
       consistency,
       journalCount,
-      currentRankIndex,
-      currentRank,
-      nextRank,
-      progressPercent,
-      nextRankRequirement,
+      rankInfo,
     };
   }, [completionData, journalEntries, profile]);
 
@@ -227,17 +189,17 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
           </span>
           <span className="profile-hero-card__rank-pill">
             {ICONS.shield}
-            <span>{metrics.currentRank.name}</span>
+            <span>{metrics.rankInfo.name}</span>
           </span>
         </div>
         <div className="profile-hero-card__progress">
           <div className="profile-hero-card__progress-label">
-            {metrics.currentRank.name} {metrics.nextRank ? `→ ${metrics.nextRank.name}` : ''}
+            {metrics.rankInfo.name} {metrics.rankInfo.nextRankName ? `→ ${metrics.rankInfo.nextRankName}` : ''}
           </div>
           <div className="profile-hero-card__progress-track">
-            <div className="profile-hero-card__progress-bar" style={{ width: `${metrics.progressPercent}%` }} />
+            <div className="profile-hero-card__progress-bar" style={{ width: `${metrics.rankInfo.progressPercent}%` }} />
           </div>
-          <span className="profile-hero-card__progress-value">{metrics.nextRankRequirement}</span>
+          <span className="profile-hero-card__progress-value">{metrics.rankInfo.nextRankRequirement}</span>
         </div>
       </div>
 
@@ -272,11 +234,11 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
           <h3 className="profile-section-card__title">RANK PROGRESSION</h3>
           <div className="profile-rank-list">
             {RANKS.map((rank, index) => (
-              <div key={rank.name} className={`profile-rank-item ${index === metrics.currentRankIndex ? 'profile-rank-item--current' : index < metrics.currentRankIndex ? 'profile-rank-item--completed' : 'profile-rank-item--locked'}`}>
+              <div key={rank.name} className={`profile-rank-item ${index === metrics.rankInfo.level - 1 ? 'profile-rank-item--current' : index < metrics.rankInfo.level - 1 ? 'profile-rank-item--completed' : 'profile-rank-item--locked'}`}>
                 <div className="profile-rank-item__dot" />
                 <span className="profile-rank-item__name">{rank.name}</span>
                 <span className="profile-rank-item__requirement">
-                  {index === metrics.currentRankIndex ? 'Current rank' : `${rank.minStreak} day streak + ${rank.minHabits} habits`}
+                  {index === metrics.rankInfo.level - 1 ? 'Current rank' : `${rank.minStreak} day streak + ${rank.minHabits} habits`}
                 </span>
               </div>
             ))}

@@ -1656,19 +1656,22 @@
 
 /* Premium Stat Card Styles */
 .profile-stats-grid .dashboard-overview__card {
-  padding: var(--space-2xl);
+  padding: var(--space-lg);
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
-  gap: var(--space-md);
+  gap: var(--space-xs);
   position: relative;
+  min-height: 120px;
 }
 
 .profile-stats-grid .dashboard-overview__card-value {
-  font-size: 48px;
+  font-size: 36px;
   font-weight: 800;
   line-height: 1;
+  color: var(--color-text-primary);
 }
 
 .profile-stats-grid .dashboard-overview__card:first-child .dashboard-overview__card-value {
@@ -1677,10 +1680,20 @@
 }
 
 .profile-stats-grid .dashboard-overview__card-icon {
-  width: 32px;
-  height: 32px;
+  width: 20px;
+  height: 20px;
   color: var(--color-accent);
-  opacity: 0.8;
+  opacity: 0.6;
+  margin-bottom: var(--space-xs);
+}
+
+.profile-stats-grid .dashboard-overview__card-label {
+  font-size: 9px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  margin-top: var(--space-xs);
 }
 
 /* Loading state for cards */

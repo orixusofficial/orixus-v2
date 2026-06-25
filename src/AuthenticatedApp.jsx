@@ -180,12 +180,14 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
     addJournalEntry,
     refresh,
     updateProfileSettings,
+    calculateStreak,
   } = useUserData();
 
   const [customDays, setCustomDays] = useState(365);
   const [range, setRange] = useState('30d');
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [habitToRemove, setHabitToRemove] = useState(null);
+  const streak = calculateStreak();
 
   const renderContent = () => {
     if (loading) {
@@ -255,7 +257,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
   };
 
   return (
-    <AppLayout activeItem={activeItem} onNavigate={onNavigate} isAuthenticated>
+    <AppLayout activeItem={activeItem} onNavigate={onNavigate} isAuthenticated streak={streak}>
       {renderContent()}
 
       <AddHabitModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} onAdd={addHabit} />

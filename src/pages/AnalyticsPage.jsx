@@ -55,8 +55,8 @@ export default function AnalyticsPage({ habits, completionData }) {
     const currentStreak = getCurrentStreak(habits, completionData);
     const bestStreak = getBestStreak(habits, completionData, 365);
     const monthlyImprovement = getMonthlyImprovement(habits, completionData);
-    const totalPoints = calculatePoints(habits, completionData);
-    const rankInfo = getRankInfo(totalPoints);
+    const totalHabits = Object.values(completionData).filter(v => v).length;
+    const rankInfo = getRankInfo(currentStreak, totalHabits);
 
     // Habit consistencies over lifespan
     const habitRankings = habits.map(habit => {
@@ -172,7 +172,7 @@ export default function AnalyticsPage({ habits, completionData }) {
       currentStreak,
       bestStreak,
       monthlyImprovement,
-      totalPoints,
+      totalHabits,
       rankInfo,
       habitRankings,
       chartDataWeekly,
@@ -263,7 +263,7 @@ export default function AnalyticsPage({ habits, completionData }) {
     currentStreak,
     bestStreak,
     monthlyImprovement,
-    totalPoints,
+    totalHabits,
     rankInfo,
     habitRankings,
     heatmapCells,
@@ -285,11 +285,11 @@ export default function AnalyticsPage({ habits, completionData }) {
         {/* Card 1: Discipline Score */}
         <div className="analytics-summary-card">
           <div className="analytics-card-meta">
-            <span className="analytics-card-label">Discipline Score</span>
-            <span className="analytics-card-desc">Weighted evolution index</span>
+            <span className="analytics-card-label">Habits Completed</span>
+            <span className="analytics-card-desc">Total check-ins</span>
           </div>
-          <span className="analytics-card-value">{totalPoints}</span>
-          <span className="analytics-card-detail">Calculated points from completions</span>
+          <span className="analytics-card-value">{totalHabits}</span>
+          <span className="analytics-card-detail">Total habits completed</span>
         </div>
 
         {/* Card 2: Current Rank */}
@@ -305,7 +305,7 @@ export default function AnalyticsPage({ habits, completionData }) {
                 <div className="analytics-mini-progress-bar" style={{ width: `${rankInfo.progressPercent}%` }} />
               </div>
               <span className="analytics-card-detail">
-                {rankInfo.nextRankPoints} pts to {rankInfo.nextRankName}
+                {rankInfo.nextRankRequirement}
               </span>
             </div>
           ) : (

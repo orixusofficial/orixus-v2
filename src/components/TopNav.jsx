@@ -29,7 +29,7 @@ function HamburgerIcon() {
   );
 }
 
-export default function TopNav({ onMenuToggle }) {
+export default function TopNav({ onMenuToggle, streak = 0 }) {
   const today = new Date();
 
   return (
@@ -53,7 +53,7 @@ export default function TopNav({ onMenuToggle }) {
       <div className="topnav__right">
         <div className="topnav__streak">
           <span className="topnav__streak-icon">◆</span>
-          <span>0 day streak</span>
+          <span>{streak} day streak</span>
         </div>
         
         {/* Removed avatar/circular button as per cleanup request */}

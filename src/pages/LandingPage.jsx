@@ -2,6 +2,89 @@ import { useState, useEffect, useRef } from 'react';
 
 import '../styles/landing.css';
 import ScrollReveal from '../components/ScrollReveal';
+const chevronDown = (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M5 7.5L10 12.5L15 7.5"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+function FaqAccordion() {
+  const [openIndex, setOpenIndex] = useState(null);
+
+  return (
+    <>
+      <div className="landing-faq-grid">
+        {FAQ_ITEMS.map((item, index) => {
+          const isOpen = openIndex === index;
+          return (
+            <div
+              key={item.question}
+              className={`landing-faq-item${isOpen ? ' is-open' : ''}`}
+            >
+              <button
+                className="landing-faq-trigger"
+                aria-expanded={isOpen}
+                onClick={() => setOpenIndex(isOpen ? null : index)}
+              >
+                <span className="landing-faq-title">{item.question}</span>
+                <span className="landing-faq-icon" aria-hidden="true">
+                  {chevronDown}
+                </span>
+              </button>
+              <div className="landing-faq-body" aria-hidden={!isOpen}>
+                <p>{item.answer}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="landing-faq-closing">
+        <p className="landing-faq-closing-text">Still have questions?</p>
+        <button className="landing-faq-close-btn">Contact Us</button>
+      </div>
+    </>
+  );
+}
+
+const FAQ_ITEMS = [
+  {
+    question: 'What is Orixus, and how does it work as a habit tracker?',
+    answer:
+      'Orixus is a discipline app and self-improvement app that combines habit tracking, journaling, and streak tracking into one system. It focuses on identity-based growth rather than simple task completion.',
+  },
+  {
+    question: 'Is Orixus free?',
+    answer: 'Yes. Core functionality is free for personal use.',
+  },
+  {
+    question: 'How does Orixus help build long-term consistency?',
+    answer:
+      'Orixus is designed around consistency, accountability, and long-term growth. As a streak tracker and discipline app, it helps users build unwavering consistency through daily practice.',
+  },
+  {
+    question: 'What makes Orixus different from other habit trackers?',
+    answer:
+      'Unlike a traditional habit tracker, Orixus focuses on identity growth and consistency rather than simple task completion. It is a full discipline app with streak tracking, analytics, rank progression, and identity-based habit tracking.',
+  },
+  {
+    question: 'Can I use Orixus for journaling and personal growth?',
+    answer:
+      'Yes. Orixus is a self-improvement app with structured reflection and journaling tools designed to reinforce daily consistency and long-term identity growth.',
+  },
+];
 const NAV_LINKS = [
   { label: 'Why Orixus', target: 'why-orixus' },
   { label: 'How It Works', target: 'how-it-works' },
@@ -664,32 +747,8 @@ export default function LandingPage({ onOpenAuth }) {
         </section>
 
         <section className="landing-section landing-faq" id="faq">
-          <SectionHeader
-            eyebrow="FAQ"
-            title="Common questions about Orixus"
-          />
-          <div className="landing-faq-list">
-            <div className="landing-faq-item">
-              <h3>What is Orixus?</h3>
-              <p>Orixus is a discipline-focused self improvement app that combines habit tracking, journaling, analytics, and daily check-ins into one system.</p>
-            </div>
-            <div className="landing-faq-item">
-              <h3>Is Orixus free?</h3>
-              <p>Yes. Core functionality is free.</p>
-            </div>
-            <div className="landing-faq-item">
-              <h3>How does Orixus help build discipline?</h3>
-              <p>Orixus is designed around consistency, accountability, and long-term growth as a personal growth tracker and consistency tracker.</p>
-            </div>
-            <div className="landing-faq-item">
-              <h3>What makes Orixus different from habit trackers?</h3>
-              <p>Orixus focuses on identity growth and consistency rather than simple task completion. It's a discipline tracker, not just a habit tracker.</p>
-            </div>
-            <div className="landing-faq-item">
-              <h3>Can I use Orixus as a journal?</h3>
-              <p>Yes. Orixus includes structured reflection and journaling tools for personal growth.</p>
-            </div>
-          </div>
+          <SectionHeader eyebrow="FAQ" title="Common questions about Orixus" />
+          <FaqAccordion />
         </section>
 
         <section className="landing-final-cta">

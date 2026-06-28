@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import AuthLoading from './components/AuthLoading';
-import AuthModal from './components/AuthModal';
-import AuthenticatedApp from './AuthenticatedApp';
 import LandingPage from './pages/LandingPage';
 import './styles/dashboard.css';
+
+const AuthenticatedApp = lazy(() => import('./AuthenticatedApp'));
+const AuthModal = lazy(() => import('./components/AuthModal'));
 
 export default function App() {
   const { session, loading } = useAuth();
@@ -40,22 +41,25 @@ export default function App() {
     return (
       <>
         <LandingPage onOpenAuth={openAuth} />
-        <AuthModal
-          isOpen={authModalOpen}
-          defaultTab={authModalTab}
-          onClose={closeAuth}
-          onSuccess={handleAuthSuccess}
-        />
+        <Suspense fallback={null}>
+          <AuthModal
+            isOpen={authModalOpen}
+            defaultTab={authModalTab}
+            onClose={closeAuth}
+            onSuccess={handleAuthSuccess}
+          />
+        </Suspense>
       </>
     );
   }
 
-  // 3. Authenticated — show full app
   return (
-    <AuthenticatedApp
-      activeItem={activeItem}
-      onNavigate={setActiveItem}
-      onLoggedOut={handleLoggedOut}
-    />
+    <Suspense fallback={null}>
+      <AuthenticatedApp
+        activeItem={activeItem}
+        onNavigate={setActiveItem}
+        onLoggedOut={handleLoggedOut}
+      />
+    </Suspense>
   );
 }

@@ -274,6 +274,97 @@
   color: var(--color-text-primary);
 }
 
+/* Duration grid */
+.onboarding-modal__duration-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xl);
+}
+
+.onboarding-modal__duration-option {
+  padding: var(--space-base);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.onboarding-modal__duration-option:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: var(--color-accent-subtle);
+}
+
+.onboarding-modal__duration-option--active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #000;
+}
+
+.onboarding-modal__duration-option--active:hover:not(:disabled) {
+  background: var(--color-accent-strong);
+  border-color: var(--color-accent-strong);
+}
+
+.onboarding-modal__duration-option:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.onboarding-modal__custom-duration {
+  margin-top: calc(-1 * var(--space-sm));
+  margin-bottom: var(--space-xl);
+}
+
+.onboarding-modal__custom-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-sm) var(--space-base);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.onboarding-modal__custom-input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(179, 142, 70, 0.1);
+}
+
+.onboarding-modal__custom-input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+@media (max-width: 480px) {
+  .onboarding-modal__duration-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-xs);
+  }
+
+  .onboarding-modal__duration-option {
+    min-height: 48px;
+    font-size: var(--text-xs);
+    padding: var(--space-sm);
+  }
+}
+
 /* Remove button */
 .onboarding-modal__remove-btn {
   width: 28px;

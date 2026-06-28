@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import AppLayout from './layouts/AppLayout';
-import HabitsPage from './pages/HabitsPage';
-import AnalyticsPage from './pages/AnalyticsPage';
-import JournalPage from './pages/JournalPage';
-import ProfilePage from './pages/ProfilePage';
-import SettingsPage from './pages/SettingsPage';
-import LogoutPage from './pages/LogoutPage';
 import { useAuth } from './contexts/AuthContext';
 import { useUserData } from './hooks/useUserData';
 import './styles/dashboard.css';
+
+const HabitsPage = lazy(() => import('./pages/HabitsPage'));
+const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
+const JournalPage = lazy(() => import('./pages/JournalPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const LogoutPage = lazy(() => import('./pages/LogoutPage'));
 
 function AddHabitModal({ isOpen, onClose, onAdd }) {
   const [label, setLabel] = useState('');
@@ -258,7 +259,9 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
 
   return (
     <AppLayout activeItem={activeItem} onNavigate={onNavigate} isAuthenticated streak={streak}>
-      {renderContent()}
+      <Suspense fallback={<p>Loading…</p>}>
+        {renderContent()}
+      </Suspense>
 
       <AddHabitModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} onAdd={addHabit} />
 

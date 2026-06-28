@@ -1,19 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { createHabit } from '../services/habits';
 import '../styles/onboarding-modal.css';
 
 const DURATION_OPTIONS = [
-  { value: 7, label: '7 days' },
-  { value: 14, label: '14 days' },
-  { value: 21, label: '21 days' },
-  { value: 30, label: '30 days' },
-  { value: 60, label: '60 days' },
-  { value: 90, label: '90 days' },
-  { value: 9999, label: 'Lifetime' },
+  { value: 7, label: '7 Days' },
+  { value: 30, label: '30 Days' },
+  { value: 90, label: '90 Days' },
+  { value: 'custom', label: 'Custom' },
 ];
 
-export default function OnboardingModal({ onClose, onHabitsCreated }) {
+const RANGE_MAP = {
+  7: '7d',
+  30: '30d',
+  90: '90d',
+  custom: 'custom',
+};
+
+const RANGE_TO_DAYS = {
+  '7d': 7,
+  '30d': 30,
+  '90d': 90,
+};
+
+export default function OnboardingModal({ onClose, onHabitsCreated, range, onRangeChange, customDays, onCustomDaysChange }) {
   const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [habitRows, setHabitRows] = useState([
@@ -21,8 +31,22 @@ export default function OnboardingModal({ onClose, onHabitsCreated }) {
     { id: 2, name: '', duration: 9999 },
     { id: 3, name: '', duration: 9999 },
   ]);
+  const [defaultDuration, setDefaultDuration] = useState(() => {
+    if (range === 'custom') return 'custom';
+    return RANGE_TO_DAYS[range] || 30;
+  });
+  const [customDuration, setCustomDuration] = useState(customDays?.toString() || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (range === 'custom') {
+      setDefaultDuration('custom');
+      setCustomDuration(customDays?.toString() || '');
+    } else {
+      setDefaultDuration(RANGE_TO_DAYS[range] || 30);
+    }
+  }, [range, customDays]);
 
   const handleAddRow = () => {
     if (habitRows.length >= 10) return;
@@ -55,7 +79,35 @@ export default function OnboardingModal({ onClose, onHabitsCreated }) {
     setStep(step - 1);
   };
 
+  const handleDurationSelect = (value) => {
+    setDefaultDuration(value);
+    if (onRangeChange) {
+      const mapped = RANGE_MAP[value] || '30d';
+      onRangeChange(mapped);
+    }
+    if (typeof value === 'number' && onCustomDaysChange) {
+      onCustomDaysChange(value);
+    }
+  };
+
+  const handleCustomChange = (e) => {
+    const raw = e.target.value.replace(/\D/g, '');
+    setCustomDuration(raw);
+    const parsed = parseInt(raw, 10);
+    if (!Number.isNaN(parsed) && parsed >= 1 && onCustomDaysChange) {
+      onCustomDaysChange(parsed);
+    }
+  };
+
   const handleContinue = () => {
+    let duration;
+    if (defaultDuration === 'custom') {
+      const parsed = parseInt(customDuration, 10);
+      duration = Number.isNaN(parsed) || parsed < 1 ? 30 : parsed;
+    } else {
+      duration = typeof defaultDuration === 'number' ? defaultDuration : parseInt(defaultDuration, 10);
+    }
+    setHabitRows(habitRows.map((row) => ({ ...row, duration })));
     setStep(3);
   };
 
@@ -179,33 +231,38 @@ export default function OnboardingModal({ onClose, onHabitsCreated }) {
   const renderStep2 = () => (
     <>
       <div className="onboarding-modal__logo">ORIXUS</div>
-      <h2 className="onboarding-modal__title">How long will you commit?</h2>
+      <h2 className="onboarding-modal__title">Choose your commitment length</h2>
       <p className="onboarding-modal__subtitle">
-        Set a duration for each habit. You can always extend later.
+        Select a default duration for all your habits. You can extend individual habits later.
       </p>
 
-      <div className="onboarding-modal__habits">
-        {habitRows.filter(row => row.name.trim()).map((row, index) => (
-          <div key={row.id} className="onboarding-modal__habit-row">
-            <div className="onboarding-modal__habit-number">{index + 1}</div>
-            <div className="onboarding-modal__habit-name">{row.name}</div>
-            <div className="onboarding-modal__duration-wrapper">
-              <select
-                className="onboarding-modal__duration-select"
-                value={row.duration}
-                onChange={(e) => handleRowChange(row.id, 'duration', parseInt(e.target.value))}
-                disabled={loading}
-              >
-                {DURATION_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+      <div className="onboarding-modal__duration-grid">
+        {DURATION_OPTIONS.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            className={`onboarding-modal__duration-option${defaultDuration === option.value ? ' onboarding-modal__duration-option--active' : ''}`}
+            onClick={() => handleDurationSelect(option.value)}
+            disabled={loading}
+          >
+            {option.label}
+          </button>
         ))}
       </div>
+
+      {defaultDuration === 'custom' && (
+        <div className="onboarding-modal__custom-duration">
+          <input
+            type="number"
+            className="onboarding-modal__custom-input"
+            placeholder="Enter days"
+            value={customDuration}
+            onChange={handleCustomChange}
+            min="1"
+            disabled={loading}
+          />
+        </div>
+      )}
 
       {error && <p className="onboarding-modal__error">{error}</p>}
 

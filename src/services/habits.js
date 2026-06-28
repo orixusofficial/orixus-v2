@@ -1,10 +1,12 @@
 import { supabase } from '../lib/supabase';
 
 function mapHabit(row) {
+  const createdAt = new Date(row.created_at);
+  createdAt.setHours(0, 0, 0, 0);
   return {
     id: row.id,
     label: row.label,
-    createdAt: new Date(row.created_at),
+    createdAt,
   };
 }
 

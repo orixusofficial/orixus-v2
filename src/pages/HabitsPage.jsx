@@ -37,6 +37,10 @@ export default function HabitsPage({
         <OnboardingModal
           onClose={handleCloseOnboarding}
           onHabitsCreated={handleHabitsCreated}
+          range={range}
+          onRangeChange={setRange}
+          customDays={customDays}
+          onCustomDaysChange={setCustomDays}
         />
       )}
       <DisciplineMatrix

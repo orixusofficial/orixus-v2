@@ -72,10 +72,12 @@ export function useUserData() {
     async (label) => {
       if (!user) return;
       if (user.isMock) {
+        const createdAt = new Date();
+        createdAt.setHours(0, 0, 0, 0);
         const created = {
           id: `habit-${Date.now()}`,
           label,
-          createdAt: new Date(),
+          createdAt,
         };
         setHabits((prev) => {
           const next = [...prev, created];

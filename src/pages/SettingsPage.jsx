@@ -257,6 +257,7 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
   const handleConfirmResetAllHabits = async () => {
     try {
       await resetAllHabits();
+      await refresh();
       showNotification('All habits and completions reset successfully');
       setConfirmAction(null);
     } catch (error) {
@@ -267,6 +268,7 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
   const handleConfirmResetStreak = async () => {
     try {
       await resetStreak();
+      await refresh();
       showNotification('Streak reset successfully');
       setConfirmAction(null);
     } catch (error) {
@@ -277,6 +279,7 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
   const handleConfirmDeleteJournal = async () => {
     try {
       await deleteAllJournalEntries();
+      await refresh();
       showNotification('All journal entries deleted successfully');
       setConfirmAction(null);
     } catch (error) {

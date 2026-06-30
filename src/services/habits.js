@@ -6,6 +6,7 @@ function mapHabit(row) {
   return {
     id: row.id,
     label: row.label,
+    duration: row.duration ?? 30,
     createdAt,
   };
 }
@@ -13,7 +14,7 @@ function mapHabit(row) {
 export async function fetchHabits(userId) {
   const { data, error } = await supabase
     .from('habits')
-    .select('id, label, created_at')
+    .select('id, label, duration, created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: true });
 
@@ -26,7 +27,7 @@ export async function createHabit(userId, label, duration = 30) {
   const { data, error } = await supabase
     .from('habits')
     .insert({ user_id: userId, label, duration })
-    .select('id, label, created_at')
+    .select('id, label, duration, created_at')
     .single();
 
   if (error) {
@@ -34,6 +35,19 @@ export async function createHabit(userId, label, duration = 30) {
     throw error;
   }
   return mapHabit(data);
+}
+
+export async function updateHabitDuration(userId, habitId, newDuration) {
+  const { error } = await supabase
+    .from('habits')
+    .update({ duration: newDuration })
+    .eq('id', habitId)
+    .eq('user_id', userId);
+
+  if (error) {
+    console.error('Supabase error updating habit duration:', error);
+    throw error;
+  }
 }
 
 export async function deleteHabit(habitId) {

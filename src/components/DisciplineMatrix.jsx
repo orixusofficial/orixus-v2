@@ -9,19 +9,29 @@ const STATIC_RANGES = [
 
 /**
  * Generate an array of Date objects placing TODAY in the middle of the timeline.
+ * If startFromToday is true, start from today instead of centering.
  */
-function getDays(count) {
+function getDays(count, startFromToday = false) {
   const days = [];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
-  // Center today in the tracking window to allow past review and future foresight
-  const pastCount = Math.floor((count - 1) / 2);
-  
-  for (let i = 0; i < count; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - pastCount + i);
-    days.push(d);
+
+  if (startFromToday) {
+    // Start from today for newly created habits
+    for (let i = 0; i < count; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      days.push(d);
+    }
+  } else {
+    // Center today in the tracking window to allow past review and future foresight
+    const pastCount = Math.floor((count - 1) / 2);
+
+    for (let i = 0; i < count; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - pastCount + i);
+      days.push(d);
+    }
   }
   return days;
 }
@@ -116,7 +126,7 @@ function computeStats(habits, days, completionData) {
   };
 
   const todayCompleted = isDayFullyCompleted(today);
-  
+
   let checkDate = new Date(today);
   if (todayCompleted) {
     streak = 1;
@@ -181,7 +191,7 @@ function CustomDurationModal({ isOpen, onClose, onConfirm, initialValue }) {
           <>
             <h3 className="matrix-modal__title">Set Your Discipline Timeline</h3>
             <p className="matrix-modal__subtitle">How long are you willing to stay committed?</p>
-            
+
             <div className="matrix-modal__presets">
               <button className="matrix-modal__preset-btn" onClick={() => selectPreset(30)}>30 Days</button>
               <button className="matrix-modal__preset-btn" onClick={() => selectPreset(60)}>60 Days</button>
@@ -190,17 +200,17 @@ function CustomDurationModal({ isOpen, onClose, onConfirm, initialValue }) {
             </div>
 
             <div className="matrix-modal__input-group">
-              <input 
-                type="number" 
-                className="matrix-modal__input" 
-                value={value} 
+              <input
+                type="number"
+                className="matrix-modal__input"
+                value={value}
                 onChange={e => setValue(e.target.value)}
                 placeholder="Custom Timeline Days"
                 min="1"
                 autoFocus
               />
             </div>
-            
+
             <div className="matrix-modal__actions">
               <button className="matrix-modal__btn matrix-modal__btn--secondary" onClick={handleClose}>
                 Cancel
@@ -216,7 +226,7 @@ function CustomDurationModal({ isOpen, onClose, onConfirm, initialValue }) {
             <p className="matrix-modal__desc">
               This decision changes your discipline path. Weak goals create weak results.
             </p>
-            
+
             <div className="matrix-modal__actions">
               <button className="matrix-modal__btn matrix-modal__btn--secondary" onClick={() => setStep(1)}>
                 Go Back
@@ -284,7 +294,18 @@ export default function DisciplineMatrix({
     return found ? found.days : customDays;
   }, [range, customDays]);
 
-  const days = useMemo(() => getDays(activeDaysCount), [activeDaysCount]);
+  const allHabitsCreatedToday = useMemo(() => {
+    if (habits.length === 0) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return habits.every(h => {
+      const created = new Date(h.createdAt);
+      created.setHours(0, 0, 0, 0);
+      return created.getTime() === today.getTime();
+    });
+  }, [habits]);
+
+  const days = useMemo(() => getDays(activeDaysCount, allHabitsCreatedToday), [activeDaysCount, allHabitsCreatedToday]);
 
   const toggleCell = useCallback((habitId, date) => {
     const dk = dateKey(date);

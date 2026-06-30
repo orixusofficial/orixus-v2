@@ -125,6 +125,27 @@ export function useUserData() {
     [user],
   );
 
+  const updateHabitDuration = useCallback(
+    async (habitId, newDuration) => {
+      if (!user) return;
+
+      if (user.isMock) {
+        setHabits((prev) => {
+          const next = prev.map((h) => (h.id === habitId ? { ...h, duration: newDuration } : h));
+          localStorage.setItem('orixus_habits', JSON.stringify(next));
+          return next;
+        });
+        return;
+      }
+
+      await habitsService.updateHabitDuration(user.id, habitId, newDuration);
+      setHabits((prev) =>
+        prev.map((h) => (h.id === habitId ? { ...h, duration: newDuration } : h))
+      );
+    },
+    [user],
+  );
+
   const setCompletionDataPersisted = useCallback((updater) => {
     setCompletionData((prev) => {
       const next = typeof updater === 'function' ? updater(prev) : updater;
@@ -336,6 +357,7 @@ export function useUserData() {
     refresh: loadAll,
     addHabit,
     removeHabit,
+    updateHabitDuration,
     addJournalEntry,
     updateProfileSettings,
     resetAllHabits,

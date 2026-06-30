@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense, useEffect } from 'react';
 import AppLayout from './layouts/AppLayout';
 import { useAuth } from './contexts/AuthContext';
 import { useUserData } from './hooks/useUserData';
@@ -178,14 +178,28 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
     error,
     addHabit,
     removeHabit,
+    updateHabitDuration,
     addJournalEntry,
     refresh,
     updateProfileSettings,
     calculateStreak,
   } = useUserData();
 
-  const [customDays, setCustomDays] = useState(365);
-  const [range, setRange] = useState('30d');
+  const [customDays, setCustomDays] = useState(() => {
+    const saved = localStorage.getItem('orixus_custom_days');
+    return saved ? parseInt(saved, 10) : 365;
+  });
+  const [range, setRange] = useState(() => {
+    return localStorage.getItem('orixus_matrix_range') || '30d';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('orixus_custom_days', customDays.toString());
+  }, [customDays]);
+
+  useEffect(() => {
+    localStorage.setItem('orixus_matrix_range', range);
+  }, [range]);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [habitToRemove, setHabitToRemove] = useState(null);
   const streak = calculateStreak();
@@ -227,6 +241,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
             setRange={setRange}
             habitDisplayMode={profile?.habit_display_mode || 'date'}
             refreshHabits={refresh}
+            onUpdateHabitDuration={updateHabitDuration}
           />
         );
       case 'analytics':
@@ -252,6 +267,8 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
             range={range}
             setRange={setRange}
             habitDisplayMode={profile?.habit_display_mode || 'date'}
+            refreshHabits={refresh}
+            onUpdateHabitDuration={updateHabitDuration}
           />
         );
     }

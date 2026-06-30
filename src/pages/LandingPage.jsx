@@ -163,7 +163,7 @@ const RANKS = ['Initiate', 'Ascendant', 'Vanguard', 'Apex', 'Sovereign'];
 function OrixusLogo({ className = 'landing-logo', onClick }) {
   return (
     <button className={className} onClick={onClick} aria-label="Orixus home">
-      Orixus.
+      <img src="/RB logo.svg" alt="Orixus" />
     </button>
   );
 }

@@ -789,7 +789,7 @@ export default function AuthModal({ isOpen, defaultTab = 'signup', onClose, onSu
           &times;
         </button>
 
-        <span className="auth-modal__logo">Orixus.</span>
+        <img src="/RB logo.svg" alt="Orixus" className="auth-modal__logo" />
 
         {!verificationEmail && (
           <div className="auth-modal__tabs" role="tablist">

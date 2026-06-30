@@ -52,13 +52,6 @@
 
 /* ---- Logo ---- */
 .sidebar__logo {
-  font-family: var(--font-heading);
-  font-size: var(--text-xl);
-  font-weight: 800;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #FFFFFF;
-  white-space: nowrap;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -70,7 +63,18 @@
   align-items: center;
   opacity: 1;
   max-width: 160px;
+  height: 32px;
   transition: opacity 200ms ease, max-width var(--transition-slow);
+}
+
+.sidebar__logo-text {
+  margin-left: 0.5rem;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0;
+  line-height: 1;
 }
 
 .sidebar__logo-collapsed {
@@ -80,12 +84,18 @@
   left: 50%;
   transform: translateX(-50%) translateY(20px);
   opacity: 0;
+  height: 32px;
+  width: 32px;
   transition: opacity 200ms ease, transform var(--transition-slow);
 }
 
 .sidebar--collapsed .sidebar__logo-full {
   opacity: 0;
   max-width: 0;
+}
+
+.sidebar--collapsed .sidebar__logo-text {
+  display: none;
 }
 
 .sidebar--collapsed .sidebar__logo-collapsed {
@@ -95,8 +105,10 @@
   opacity: 1;
 }
 
-.sidebar__logo-accent {
-  color: #A79277;
+.sidebar__logo img {
+  width: auto;
+  height: 100%;
+  object-fit: contain;
 }
 
 /* ---- Hamburger/Collapse button — Bolder & Higher Contrast ---- */

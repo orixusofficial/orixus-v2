@@ -72,12 +72,9 @@ export default function Sidebar({
       {/* Brand + Hamburger */}
       <div className="sidebar__brand">
         <div className="sidebar__logo" aria-label="Orixus">
-          <span className="sidebar__logo-full">
-            Orixus.
-          </span>
-          <span className="sidebar__logo-collapsed">
-            O.
-          </span>
+          <img src="/RB%20logo.svg" alt="Orixus" className="sidebar__logo-full" />
+          <span className="sidebar__logo-text">orixus.</span>
+          <img src="/RB%20logo.svg" alt="Orixus" className="sidebar__logo-collapsed" />
         </div>
 
         <button

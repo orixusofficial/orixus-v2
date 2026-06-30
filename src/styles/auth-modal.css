@@ -83,15 +83,11 @@
 
 /* Logo */
 .auth-modal__logo {
-  font-family: var(--font-heading);
-  font-size: var(--text-xl);
-  font-weight: 900;
-  color: var(--color-accent);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  text-align: center;
   display: block;
-  margin-bottom: var(--space-lg);
+  margin: 0 auto var(--space-lg);
+  height: 32px;
+  width: auto;
+  object-fit: contain;
 }
 
 /* Tab switcher */

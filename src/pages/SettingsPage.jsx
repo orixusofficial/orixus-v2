@@ -87,7 +87,16 @@ const SETTINGS_ICONS = {
   ),
 };
 
-function ConfirmationModal({ isOpen, onClose, onConfirm, title, message }) {
+function ConfirmationModal({ isOpen, onClose, onConfirm, title, message, confirmText = 'Confirm' }) {
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const handleKey = (event) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
@@ -100,7 +109,7 @@ function ConfirmationModal({ isOpen, onClose, onConfirm, title, message }) {
             Cancel
           </button>
           <button className="dashboard-modal__btn dashboard-modal__btn--primary" onClick={onConfirm}>
-            Confirm
+            {confirmText}
           </button>
         </div>
       </div>
@@ -182,6 +191,7 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
   const [notification, setNotification] = useState(null);
   const [confirmAction, setConfirmAction] = useState(null);
   const [editModal, setEditModal] = useState(null);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const showNotification = (message, type = 'success') => {
     setNotification({ message, type });
@@ -303,8 +313,13 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
   };
 
   const handleLogout = async () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const handleConfirmLogout = async () => {
     try {
       await signOut();
+      setShowLogoutConfirm(false);
       onLoggedOut?.();
     } catch (error) {
       showNotification('Failed to logout', 'error');
@@ -472,6 +487,15 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
         onConfirm={handleConfirmDeleteJournal}
         title="Delete All Journal Entries"
         message="Are you sure? This will permanently delete all your journal entries. This cannot be undone."
+      />
+
+      <ConfirmationModal
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={handleConfirmLogout}
+        title="Sign out?"
+        message="Are you sure you want to sign out of your Orixus account?"
+        confirmText="Sign Out"
       />
     </div>
   );

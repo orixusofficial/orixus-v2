@@ -414,8 +414,9 @@ export default function LandingPage({ onOpenAuth }) {
   };
 
   return (
-    <div className="landing-container">
-      <style>{`
+    <>
+      <div className="landing-container">
+        <style>{`
         /* Animation & Motion System CSS */
         
         /* 1. Hero Load Animations */
@@ -787,5 +788,6 @@ export default function LandingPage({ onOpenAuth }) {
         </div>
       </footer>
     </div>
+    </>
   );
 }

@@ -2,6 +2,7 @@ import { useState, lazy, Suspense } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import AuthLoading from './components/AuthLoading';
 import LandingPage from './pages/LandingPage';
+import JsonLd from './components/JsonLd';
 import './styles/dashboard.css';
 
 const AuthenticatedApp = lazy(() => import('./AuthenticatedApp'));
@@ -40,6 +41,7 @@ export default function App() {
   if (!session) {
     return (
       <>
+        <JsonLd />
         <LandingPage onOpenAuth={openAuth} />
         <Suspense fallback={null}>
           <AuthModal

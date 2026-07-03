@@ -74,27 +74,136 @@
   object-fit: contain;
 }
 
+/* Desktop nav links — hidden below 860px, shown by the @media (min-width:860px) block */
 .landing-nav-links {
-  align-items: flex-start;
-  background: rgba(12, 14, 17, 0.98);
-  border-left: 1px solid var(--color-border);
-  bottom: 0;
-  box-shadow: -24px 0 60px rgba(0, 0, 0, 0.42);
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  padding: 6rem 1.5rem 2rem;
-  position: fixed;
-  right: -100%;
-  top: 0;
-  transition: right var(--transition-base);
-  width: min(20rem, 86vw);
-  z-index: 55;
+  display: none;
 }
 
-.landing-nav-links.open {
-  right: 0;
+/* ── Mobile dropdown panel ──────────────────────────────────── */
+@keyframes lpMobMenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
+/* Backdrop — closes menu on outside click */
+.lp-mob-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 998;
+}
+
+.lp-mob-menu {
+  position: fixed;
+  top: 80px; /* just below navbar */
+  left: 16px;
+  right: 16px;
+  max-width: 480px;
+  z-index: 999;
+  background: #2B3038;
+  border: 1px solid rgba(167, 146, 119, 0.28);
+  border-radius: 18px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.25);
+  padding: 1.25rem 1.25rem 1.5rem;
+  box-sizing: border-box;
+  animation: lpMobMenuIn 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.lp-mob-menu__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lp-mob-menu__close {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  transition: border-color 200ms ease, background 200ms ease;
+  flex-shrink: 0;
+}
+
+.lp-mob-menu__close:hover {
+  border-color: #A79277;
+  background: rgba(167, 146, 119, 0.1);
+}
+
+.lp-mob-menu__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.lp-mob-menu__link {
+  background: transparent;
+  border: none;
+  color: rgba(226, 232, 240, 0.82);
+  cursor: pointer;
+  display: block;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1;
+  padding: 0.9rem 0.75rem;
+  text-align: left;
+  text-decoration: none;
+  text-transform: none;
+  transition: color 160ms ease, background 160ms ease;
+  width: 100%;
+  border-radius: 10px;
+}
+
+.lp-mob-menu__link:hover,
+.lp-mob-menu__link:active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.lp-mob-menu__divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0.5rem 0;
+}
+
+.lp-mob-menu__link--primary {
+  background: rgba(167, 146, 119, 0.14);
+  color: #A79277;
+  font-weight: 600;
+  border: 1px solid rgba(167, 146, 119, 0.28);
+  text-align: center;
+  margin-top: 0.25rem;
+}
+
+.lp-mob-menu__link--primary:hover {
+  background: rgba(167, 146, 119, 0.22);
+  color: #C4AA8A;
+}
+
+.lp-mob-menu__link--secondary {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  color: rgba(226, 232, 240, 0.75);
+}
+
+
 
 .landing-nav-link {
   color: var(--color-text-secondary);
@@ -1215,6 +1324,14 @@
     display: none;
   }
 
+  .landing-mobile-backdrop {
+    display: none;
+  }
+
+  .lp-mob-menu {
+    display: none !important;
+  }
+
   .landing-nav {
     justify-content: center;
   }
@@ -1229,6 +1346,7 @@
     background: transparent;
     border: 0;
     box-shadow: none;
+    display: flex;
     flex-direction: row;
     gap: 2.5rem;
     padding: 0;

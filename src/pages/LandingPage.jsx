@@ -291,6 +291,21 @@ export default function LandingPage({ onOpenAuth }) {
   };
 
   useEffect(() => {
+    // Close mobile menu on Escape key press
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setMobileMenuOpen(false);
+      }
+    };
+    if (mobileMenuOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
     // 1. Navigation scroll listener
     const handleScroll = () => {
       const nav = document.querySelector('.landing-nav');
@@ -534,14 +549,15 @@ export default function LandingPage({ onOpenAuth }) {
 
         <button
           className={`landing-mobile-toggle${mobileMenuOpen ? ' open' : ''}`}
-          onClick={() => setMobileMenuOpen((prev) => !prev)}
+          onClick={() => setMobileMenuOpen(true)}
           aria-label="Toggle navigation menu"
           aria-expanded={mobileMenuOpen}
         >
           <span className="landing-mobile-toggle-icon" />
         </button>
 
-        <div className={`landing-nav-links${mobileMenuOpen ? ' open' : ''}`}>
+        {/* Desktop nav links — hidden on mobile via CSS */}
+        <div className="landing-nav-links">
           {NAV_LINKS.map((link) => (
             <a
               href={`#${link.target}`}
@@ -552,14 +568,42 @@ export default function LandingPage({ onOpenAuth }) {
               {link.label}
             </a>
           ))}
-          <button className="landing-btn-login" onClick={handleLogIn}>
-            Login
-          </button>
-          <button className="landing-btn-start" onClick={handleSignUp}>
-            Start Free
-          </button>
+          <button className="landing-btn-login" onClick={handleLogIn}>Login</button>
+          <button className="landing-btn-start" onClick={handleSignUp}>Start Free</button>
         </div>
       </nav>
+
+      {/* Mobile dropdown menu */}
+      {mobileMenuOpen && (
+        <>
+          {/* Invisible backdrop — click outside to close */}
+          <div className="lp-mob-backdrop" onClick={() => setMobileMenuOpen(false)} aria-hidden="true" />
+
+          <div className="lp-mob-menu" role="dialog" aria-modal="true" aria-label="Navigation menu">
+            <div className="lp-mob-menu__top">
+              <OrixusLogo className="landing-logo" onClick={() => setMobileMenuOpen(false)} />
+              <button
+                className="lp-mob-menu__close"
+                aria-label="Close navigation menu"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 6L18 18M6 18L18 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              </button>
+            </div>
+
+            <nav className="lp-mob-menu__nav" aria-label="Mobile navigation">
+              <a href="#why-orixus"   className="lp-mob-menu__link" onClick={(e) => handleSectionClick(e, 'why-orixus')}>Why Orixus</a>
+              <a href="#how-it-works" className="lp-mob-menu__link" onClick={(e) => handleSectionClick(e, 'how-it-works')}>How It Works</a>
+              <a href="#faq"          className="lp-mob-menu__link" onClick={(e) => handleSectionClick(e, 'faq')}>FAQ</a>
+              <div className="lp-mob-menu__divider" />
+              <button className="lp-mob-menu__link lp-mob-menu__link--secondary" onClick={handleLogIn}>Login</button>
+              <button className="lp-mob-menu__link lp-mob-menu__link--primary" onClick={handleSignUp}>Start Free</button>
+            </nav>
+          </div>
+        </>
+      )}
 
       <main>
         <header className="landing-hero">

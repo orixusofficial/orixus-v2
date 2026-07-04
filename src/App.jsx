@@ -3,13 +3,14 @@ import { useAuth } from './contexts/AuthContext';
 import AuthLoading from './components/AuthLoading';
 import LandingPage from './pages/LandingPage';
 import JsonLd from './components/JsonLd';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import './styles/dashboard.css';
 
 const AuthenticatedApp = lazy(() => import('./AuthenticatedApp'));
 const AuthModal = lazy(() => import('./components/AuthModal'));
 
 export default function App() {
-  const { session, loading } = useAuth();
+  const { session, loading, isRecovery } = useAuth();
   const [activeItem, setActiveItem] = useState('habits');
 
   // Auth modal state
@@ -32,12 +33,28 @@ export default function App() {
     setActiveItem('habits');
   };
 
+  const handleNavigateToLogin = () => {
+    setAuthModalOpen(false);
+  };
+
   // 1. Loading — restore session from Supabase
   if (loading) {
     return <AuthLoading />;
   }
 
-  // 2. No session — show Landing with auth modal wired
+  // 2. Recovery session — show reset password page
+  if (isRecovery) {
+    return (
+      <>
+        <JsonLd />
+        <Suspense fallback={null}>
+          <ResetPasswordPage onNavigateToLogin={handleNavigateToLogin} />
+        </Suspense>
+      </>
+    );
+  }
+
+  // 3. No session — show Landing with auth modal wired
   if (!session) {
     return (
       <>

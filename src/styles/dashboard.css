@@ -2197,7 +2197,62 @@
   cursor: pointer;
   padding: 0;
   font: inherit;
+  text-decoration: none;
+  transition: color var(--transition-fast), text-decoration var(--transition-fast);
+}
+
+.auth-form__link:hover:not(:disabled) {
+  color: var(--color-accent-hover);
   text-decoration: underline;
+}
+
+.auth-form__link:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-form__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-top: var(--space-sm);
+}
+
+.auth-form__checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.auth-form__checkbox {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.auth-form__checkbox:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-form__link--forgot {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.auth-form__success {
+  font-size: var(--text-xs);
+  color: var(--color-accent);
+  font-weight: 600;
+  margin: 8px 0 0;
 }
 
 .profile-email {

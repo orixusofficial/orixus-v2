@@ -470,7 +470,7 @@ function SignUpView({ onSwitchToLogin, onVerificationRequired }) {
 }
 
 function LogInView({ onSwitchToSignUp, onSuccess }) {
-  const { signIn, signInWithGoogle } = useAuth();
+  const { signIn, signInWithGoogle, resetPassword } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -480,6 +480,8 @@ function LogInView({ onSwitchToSignUp, onSuccess }) {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [attemptState, setAttemptState] = useState(() => readLoginAttempts());
   const [now, setNow] = useState(0);
+  const [resetMessage, setResetMessage] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
   const emailRef = useRef(null);
 
   const lockedUntil = attemptState.lockedUntil || 0;
@@ -580,6 +582,24 @@ function LogInView({ onSwitchToSignUp, onSuccess }) {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      setError('Please enter your email address first.');
+      return;
+    }
+    setResetLoading(true);
+    setError('');
+    setResetMessage('');
+    try {
+      await resetPassword(email.trim());
+      setResetMessage('Password reset link sent to your email.');
+    } catch (err) {
+      setError(err.message ?? 'Could not send reset link.');
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
   return (
     <form className="auth-modal__form auth-modal__form--login" onSubmit={handleSubmit} noValidate>
       <div className="auth-modal__field">
@@ -656,18 +676,33 @@ function LogInView({ onSwitchToSignUp, onSuccess }) {
           {attemptsRemaining} attempts remaining
         </p>
       )}
+      {resetMessage && (
+        <p className="auth-modal__info" role="status">
+          {resetMessage}
+        </p>
+      )}
 
       <div className="auth-modal__field auth-modal__field--checkbox">
-        <label className="auth-modal__checkbox-label">
-          <input
-            type="checkbox"
-            className="auth-modal__checkbox"
-            checked={rememberMe}
-            onChange={(event) => setRememberMe(event.target.checked)}
-            disabled={loading || googleLoading || isLocked}
-          />
-          <span>Remember me for 30 days</span>
-        </label>
+        <div className="auth-modal__remember-row">
+          <label className="auth-modal__checkbox-label">
+            <input
+              type="checkbox"
+              className="auth-modal__checkbox"
+              checked={rememberMe}
+              onChange={(event) => setRememberMe(event.target.checked)}
+              disabled={loading || googleLoading || isLocked}
+            />
+            <span>Remember me</span>
+          </label>
+          <button
+            type="button"
+            className="auth-modal__forgot-link"
+            onClick={handleForgotPassword}
+            disabled={resetLoading || loading || googleLoading || isLocked}
+          >
+            {resetLoading ? 'Sending…' : 'Forgot password?'}
+          </button>
+        </div>
       </div>
 
       <button

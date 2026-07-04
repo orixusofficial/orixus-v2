@@ -3,11 +3,13 @@ import { useAuth } from '../contexts/AuthContext';
 import '../styles/dashboard.css';
 
 export default function LoginPage({ onNavigate }) {
-  const { signIn, isConfigured } = useAuth();
+  const { signIn, resetPassword, isConfigured } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [resetMessage, setResetMessage] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,6 +21,24 @@ export default function LoginPage({ onNavigate }) {
       setError(err.message ?? 'Authentication failed.');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      setError('Please enter your email address first.');
+      return;
+    }
+    setResetLoading(true);
+    setError('');
+    setResetMessage('');
+    try {
+      await resetPassword(email.trim());
+      setResetMessage('Password reset link sent to your email.');
+    } catch (err) {
+      setError(err.message ?? 'Could not send reset link.');
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -68,6 +88,7 @@ export default function LoginPage({ onNavigate }) {
               />
             </div>
             {error && <p className="auth-form__error">{error}</p>}
+            {resetMessage && <p className="auth-form__success">{resetMessage}</p>}
             <button
               type="submit"
               className="dashboard-overview__btn auth-form__submit"
@@ -76,6 +97,24 @@ export default function LoginPage({ onNavigate }) {
               {submitting ? 'Authenticating…' : 'Access Account'}
             </button>
           </form>
+          <div className="auth-form__row">
+            <label className="auth-form__checkbox-label">
+              <input
+                type="checkbox"
+                className="auth-form__checkbox"
+                disabled={submitting}
+              />
+              <span>Remember me</span>
+            </label>
+            <button
+              type="button"
+              className="auth-form__link auth-form__link--forgot"
+              onClick={handleForgotPassword}
+              disabled={resetLoading}
+            >
+              {resetLoading ? 'Sending…' : 'Forgot password?'}
+            </button>
+          </div>
           <p className="auth-form__footer">
             No account?{' '}
             <button type="button" className="auth-form__link" onClick={() => onNavigate('signup')}>

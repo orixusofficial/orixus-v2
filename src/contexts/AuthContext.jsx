@@ -6,6 +6,12 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isRecovery, setIsRecovery] = useState(false);
+
+  const checkRecoveryFromUrl = useCallback(() => {
+    const hash = window.location.hash;
+    return hash.includes('type=recovery');
+  }, []);
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
@@ -15,16 +21,19 @@ export function AuthProvider({ children }) {
 
     let mounted = true;
 
+    const isRecoveryUrl = checkRecoveryFromUrl();
+
     supabase.auth.getSession().then(({ data: { session: initial } }) => {
       if (mounted) {
         setSession(initial);
+        setIsRecovery(isRecoveryUrl);
         setLoading(false);
       }
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    } = supabase.auth.onAuthStateChange((event, nextSession) => {
       if (mounted) {
         setSession(nextSession);
         setLoading(false);
@@ -35,7 +44,7 @@ export function AuthProvider({ children }) {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [checkRecoveryFromUrl]);
 
   const signUp = useCallback(async (email, password, fullName) => {
     const { data, error } = await supabase.auth.signUp({
@@ -89,9 +98,23 @@ export function AuthProvider({ children }) {
     return data;
   }, []);
 
+  const resetPassword = useCallback(async (email) => {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) throw error;
+    return data;
+  }, []);
+
   const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+  }, []);
+
+  const updatePassword = useCallback(async (password) => {
+    const { data, error } = await supabase.auth.updateUser({ password });
+    if (error) throw error;
+    return data;
   }, []);
 
   const value = useMemo(
@@ -99,15 +122,18 @@ export function AuthProvider({ children }) {
       session,
       user: session?.user ?? null,
       loading,
+      isRecovery,
       signUp,
       signIn,
       signInWithGoogle,
       verifyEmailOtp,
       resendSignupOtp,
+      resetPassword,
+      updatePassword,
       signOut,
       isConfigured: isSupabaseConfigured,
     }),
-    [session, loading, signUp, signIn, signInWithGoogle, verifyEmailOtp, resendSignupOtp, signOut],
+    [session, loading, isRecovery, signUp, signIn, signInWithGoogle, verifyEmailOtp, resendSignupOtp, resetPassword, updatePassword, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { FaInstagram, FaYoutube, FaDiscord, FaTwitter } from 'react-icons/fa';
+import { FaThreads } from 'react-icons/fa6';
 
 import '../styles/landing.css';
 import ScrollReveal from '../components/ScrollReveal';
@@ -20,6 +22,7 @@ const chevronDown = (
     />
   </svg>
 );
+
 
 function FaqAccordion() {
   const [openIndex, setOpenIndex] = useState(null);
@@ -428,6 +431,34 @@ export default function LandingPage({ onOpenAuth }) {
     onOpenAuth?.('login');
   };
 
+  const socialLinks = [
+    {
+      name: 'Instagram',
+      url: 'https://www.instagram.com/orixusofficial/',
+      icon: FaInstagram,
+    },
+    {
+      name: 'Threads',
+      url: 'https://www.threads.com/@orixusofficial',
+      icon: FaThreads,
+    },
+    {
+      name: 'X (Twitter)',
+      url: 'https://x.com/Maniii_ideas',
+      icon: FaTwitter,
+    },
+    {
+      name: 'Discord',
+      url: 'https://discord.com/channels/1522181299572310078/1522181300369231995',
+      icon: FaDiscord,
+    },
+    {
+      name: 'YouTube',
+      url: 'https://www.youtube.com/@Orixus.Official',
+      icon: FaYoutube,
+    },
+  ];
+
   return (
     <>
       <div className="landing-container">
@@ -826,6 +857,20 @@ export default function LandingPage({ onOpenAuth }) {
               </a>
             ))}
           </div>
+        </div>
+        <div className="landing-footer__social">
+          {socialLinks.map((social) => (
+            <a
+              key={social.name}
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="landing-footer__social-link"
+              aria-label={`Connect with Orixus on ${social.name}`}
+            >
+              <social.icon size={21} />
+            </a>
+          ))}
         </div>
         <div className="landing-footer__bottom">
           <span>Copyright 2026 Orixus. All rights reserved.</span>

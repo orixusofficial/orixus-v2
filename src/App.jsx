@@ -1,5 +1,6 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
+import { initGA, trackPageView } from './lib/analytics';
 import AuthLoading from './components/AuthLoading';
 import LandingPage from './pages/LandingPage';
 import JsonLd from './components/JsonLd';
@@ -16,6 +17,18 @@ export default function App() {
   // Auth modal state
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState('signup');
+
+  // Initialize Google Analytics
+  useEffect(() => {
+    initGA();
+  }, []);
+
+  // Track page views on route changes
+  useEffect(() => {
+    if (!loading) {
+      trackPageView(window.location.pathname);
+    }
+  }, [loading, session, isRecovery]);
 
   const openAuth = (tab = 'signup') => {
     setAuthModalTab(tab);

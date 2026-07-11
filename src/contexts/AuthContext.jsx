@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import posthog from 'posthog-js';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 
 const AuthContext = createContext(null);
@@ -37,6 +38,14 @@ export function AuthProvider({ children }) {
       if (mounted) {
         setSession(nextSession);
         setLoading(false);
+        if (event === 'SIGNED_IN' && nextSession?.user) {
+          posthog.identify(nextSession.user.id, {
+            email: nextSession.user.email,
+            name: nextSession.user.user_metadata?.full_name,
+          });
+        } else if (event === 'SIGNED_OUT') {
+          posthog.reset();
+        }
       }
     });
 

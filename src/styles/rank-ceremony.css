@@ -1,0 +1,454 @@
+/* ========================================
+   Orixus — Rank Promotion Ceremony
+   Premium rank promotion experience
+   ======================================== */
+
+.rank-ceremony {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.rank-ceremony__background {
+  position: absolute;
+  inset: 0;
+  background: #060709;
+  animation: rankOverlayFadeIn 300ms ease-out forwards;
+}
+
+.rank-ceremony--closing .rank-ceremony__background {
+  animation: rankOverlayFadeOut 300ms ease-in forwards;
+}
+
+@keyframes rankOverlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes rankOverlayFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.rank-ceremony__card {
+  position: relative;
+  z-index: 2;
+  background: rgba(12, 14, 17, 0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(167, 146, 119, 0.12);
+  border-radius: 28px;
+  padding: 4rem 5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 400px;
+  max-width: 520px;
+  box-shadow: 
+    0 48px 96px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(167, 146, 119, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  animation: rankCardScale 500ms cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.rank-ceremony__card--closing {
+  animation: rankCardScaleOut 300ms ease-in forwards;
+}
+
+@keyframes rankCardScale {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rankCardScaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+.rank-ceremony__header {
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  color: rgba(255, 242, 225, 0.4);
+  margin-bottom: 2rem;
+  text-transform: uppercase;
+}
+
+.rank-ceremony__title {
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #FFF2E1;
+  letter-spacing: 0.15em;
+  margin: 0 0 3rem 0;
+  line-height: 1.1;
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.rank-ceremony__title--animate {
+  animation: rankTitleFade 600ms cubic-bezier(0.25, 1, 0.5, 1) 200ms forwards;
+}
+
+@keyframes rankTitleFade {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rank-ceremony__transition {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.rank-ceremony__rank {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: rgba(255, 242, 225, 0.5);
+  text-transform: uppercase;
+}
+
+.rank-ceremony__rank--old {
+  font-size: 1.125rem;
+  opacity: 0;
+}
+
+.rank-ceremony__rank--old-animate {
+  animation: rankOldFade 400ms ease-out 300ms forwards,
+             rankOldDissolve 500ms ease-in 900ms forwards;
+}
+
+@keyframes rankOldFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes rankOldDissolve {
+  from { 
+    opacity: 1;
+    filter: blur(0);
+  }
+  to { 
+    opacity: 0;
+    filter: blur(8px);
+  }
+}
+
+.rank-ceremony__arrow {
+  font-size: 1.5rem;
+  color: rgba(167, 146, 119, 0.4);
+  opacity: 0;
+}
+
+.rank-ceremony__arrow--animate {
+  animation: rankArrowFade 400ms ease-out 500ms forwards;
+}
+
+@keyframes rankArrowFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.rank-ceremony__rank--new-container {
+  position: relative;
+}
+
+.rank-ceremony__rank--new {
+  font-size: 2.5rem;
+  color: #FFF2E1;
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.rank-ceremony__rank--new-animate {
+  animation: rankNewRise 600ms cubic-bezier(0.25, 1, 0.5, 1) 1400ms forwards;
+}
+
+@keyframes rankNewRise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rank-ceremony__underline {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #A79277, transparent);
+}
+
+.rank-ceremony__underline--animate {
+  animation: rankUnderlineDraw 400ms ease-out 1800ms forwards;
+}
+
+@keyframes rankUnderlineDraw {
+  from { width: 0; }
+  to { width: 120%; }
+}
+
+.rank-ceremony__supporting-text {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: rgba(255, 242, 225, 0.6);
+  line-height: 1.6;
+  margin: 0 0 2.5rem 0;
+  max-width: 320px;
+  opacity: 0;
+}
+
+.rank-ceremony__supporting-text--animate {
+  animation: rankSupportingFade 500ms ease-out 2200ms forwards;
+}
+
+@keyframes rankSupportingFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.rank-ceremony__ladder {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 2.5rem;
+  opacity: 0;
+}
+
+.rank-ceremony__ladder--animate {
+  animation: rankLadderFade 500ms ease-out 2600ms forwards;
+}
+
+@keyframes rankLadderFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.rank-ceremony__ladder-item {
+  font-family: var(--font-heading);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: rgba(255, 242, 225, 0.3);
+  text-transform: uppercase;
+  padding: 0.375rem 0;
+}
+
+.rank-ceremony__ladder-item--current {
+  color: #A79277;
+  font-weight: 600;
+}
+
+.rank-ceremony__ladder-arrow {
+  color: #A79277;
+  margin-right: 0.25rem;
+}
+
+.rank-ceremony__continue {
+  background: transparent;
+  color: #A79277;
+  border: 1px solid rgba(167, 146, 119, 0.3);
+  border-radius: 12px;
+  padding: 0.875rem 2.5rem;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: 
+    background 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease;
+  opacity: 0;
+}
+
+.rank-ceremony__ladder--animate ~ .rank-ceremony__continue {
+  animation: rankButtonFade 400ms ease-out 3000ms forwards;
+}
+
+.rank-ceremony__continue--closing {
+  animation: rankButtonFadeOut 200ms ease-in forwards;
+}
+
+@keyframes rankButtonFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes rankButtonFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.rank-ceremony__continue:hover {
+  background: rgba(167, 146, 119, 0.1);
+  border-color: rgba(167, 146, 119, 0.5);
+  color: #FFF2E1;
+}
+
+.rank-ceremony__continue:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(167, 146, 119, 0.2);
+}
+
+/* Particle effects */
+.rank-ceremony__particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #A79277;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  animation: rankParticleFloat 4s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(167, 146, 119, 0.5);
+}
+
+@keyframes rankParticleFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0);
+  }
+  15% {
+    opacity: 0.5;
+    transform: translateY(-15px) scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: translateY(-50px) scale(0.9);
+  }
+  85% {
+    opacity: 0.15;
+    transform: translateY(-85px) scale(0.7);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100px) scale(0.5);
+  }
+}
+
+/* Background subtle radial */
+.rank-ceremony__background::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(167, 146, 119, 0.04) 0%, transparent 60%);
+  animation: rankBackgroundRadial 5s ease-out forwards;
+}
+
+@keyframes rankBackgroundRadial {
+  from {
+    transform: scale(1);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .rank-ceremony__background,
+  .rank-ceremony__card,
+  .rank-ceremony__title,
+  .rank-ceremony__rank--old,
+  .rank-ceremony__arrow,
+  .rank-ceremony__rank--new,
+  .rank-ceremony__underline,
+  .rank-ceremony__supporting-text,
+  .rank-ceremony__ladder,
+  .rank-ceremony__continue,
+  .rank-ceremony__background::after {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  .rank-ceremony__rank--old {
+    opacity: 0;
+  }
+
+  .rank-ceremony__title {
+    opacity: 1;
+    transform: none;
+  }
+
+  .rank-ceremony__rank--new {
+    opacity: 1;
+    transform: none;
+  }
+
+  .rank-ceremony__underline {
+    width: 120%;
+  }
+
+  .rank-ceremony__supporting-text {
+    opacity: 1;
+  }
+
+  .rank-ceremony__ladder {
+    opacity: 1;
+  }
+
+  .rank-ceremony__continue {
+    opacity: 1;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 580px) {
+  .rank-ceremony__card {
+    padding: 3rem 2.5rem;
+    min-width: auto;
+    max-width: calc(100% - 2rem);
+  }
+
+  .rank-ceremony__title {
+    font-size: 1.75rem;
+  }
+
+  .rank-ceremony__rank--new {
+    font-size: 2rem;
+  }
+
+  .rank-ceremony__supporting-text {
+    font-size: 0.875rem;
+    max-width: 280px;
+  }
+}

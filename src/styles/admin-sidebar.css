@@ -1,0 +1,241 @@
+/* ========================================
+   Orixus — Admin Sidebar
+   ======================================== */
+
+.admin-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background-color: #0A0C10;
+  border-right: 1px solid rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: width var(--transition-slow), transform var(--transition-slow);
+  overflow: hidden;
+  will-change: width, transform;
+  box-shadow: 1px 0 20px rgba(0, 0, 0, 0.4);
+}
+
+/* ----------------------------------------
+   Collapsed state
+   ---------------------------------------- */
+.admin-sidebar--collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+/* ----------------------------------------
+   Brand row
+   ---------------------------------------- */
+.admin-sidebar__brand {
+  padding: 0 var(--space-md) 0 var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+  transition: padding var(--transition-slow);
+}
+
+.admin-sidebar--collapsed .admin-sidebar__brand {
+  padding: 0;
+  justify-content: center;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding-top: var(--space-lg);
+  padding-bottom: var(--space-md);
+}
+
+/* ---- Logo ---- */
+.admin-sidebar__logo {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.admin-sidebar__logo-full {
+  display: inline-flex;
+  align-items: center;
+  opacity: 1;
+  max-width: 160px;
+  height: 32px;
+  transition: opacity 200ms ease, max-width var(--transition-slow);
+}
+
+.admin-sidebar__logo-text {
+  margin-left: 0.5rem;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.admin-sidebar__logo-collapsed {
+  display: inline-flex;
+  align-items: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  opacity: 0;
+  height: 32px;
+  width: 32px;
+  transition: opacity 200ms ease, transform var(--transition-slow);
+}
+
+.admin-sidebar--collapsed .admin-sidebar__logo-full {
+  opacity: 0;
+  max-width: 0;
+}
+
+.admin-sidebar--collapsed .admin-sidebar__logo-text {
+  display: none;
+}
+
+.admin-sidebar--collapsed .admin-sidebar__logo-collapsed {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ---- Hamburger ---- */
+.admin-sidebar__hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.admin-sidebar__hamburger:hover {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+.admin-sidebar__hamburger-bar {
+  width: 18px;
+  height: 2px;
+  background-color: currentColor;
+  border-radius: 2px;
+  transition: width var(--transition-slow);
+}
+
+.admin-sidebar--collapsed .admin-sidebar__hamburger-bar {
+  width: 14px;
+}
+
+/* ----------------------------------------
+   Navigation
+   ---------------------------------------- */
+.admin-sidebar__nav {
+  flex: 1;
+  padding: var(--space-lg) var(--space-md);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.admin-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 12px var(--space-md);
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  text-align: left;
+  width: 100%;
+}
+
+.admin-sidebar__link:hover {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+.admin-sidebar__link--active {
+  background-color: rgba(179, 142, 70, 0.08);
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.admin-sidebar__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.admin-sidebar__link-text {
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity var(--transition-slow);
+}
+
+.admin-sidebar--collapsed .admin-sidebar__link-text {
+  opacity: 0;
+  width: 0;
+}
+
+/* ----------------------------------------
+   Mobile drawer
+   ---------------------------------------- */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    transform: translateX(-100%);
+  }
+
+  .admin-sidebar--open {
+    transform: translateX(0);
+  }
+
+  .admin-sidebar--collapsed {
+    width: var(--sidebar-width);
+  }
+
+  .admin-sidebar--collapsed .admin-sidebar__brand {
+    padding: 0 var(--space-md) 0 var(--space-lg);
+    flex-direction: row;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .admin-sidebar--collapsed .admin-sidebar__logo-full {
+    opacity: 1;
+    max-width: 160px;
+  }
+
+  .admin-sidebar--collapsed .admin-sidebar__logo-text {
+    display: block;
+  }
+
+  .admin-sidebar--collapsed .admin-sidebar__logo-collapsed {
+    opacity: 0;
+  }
+
+  .admin-sidebar--collapsed .admin-sidebar__hamburger-bar {
+    width: 18px;
+  }
+
+  .admin-sidebar--collapsed .admin-sidebar__link-text {
+    opacity: 1;
+    width: auto;
+  }
+}

@@ -1,0 +1,128 @@
+/* ========================================
+   Orixus — Admin Top Navigation
+   ======================================== */
+
+.admin-topnav {
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-width);
+  right: 0;
+  height: var(--topnav-height);
+  background-color: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-xl);
+  z-index: 90;
+  transition: left var(--transition-slow);
+}
+
+.admin-layout--collapsed .admin-topnav {
+  left: var(--sidebar-collapsed-width);
+}
+
+/* ----------------------------------------
+   Left section
+   ---------------------------------------- */
+.admin-topnav__left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+/* Menu button — Mobile only */
+.admin-topnav__menu-btn {
+  display: none;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.admin-topnav__menu-btn:hover {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+/* ----------------------------------------
+   Greeting
+   ---------------------------------------- */
+.admin-topnav__greeting {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-topnav__welcome {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.admin-topnav__date {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  letter-spacing: 0.03em;
+  margin-top: 2px;
+}
+
+/* ----------------------------------------
+   Right section
+   ---------------------------------------- */
+.admin-topnav__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.admin-topnav__badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 6px 12px;
+  background-color: rgba(179, 142, 70, 0.08);
+  border: 1px solid rgba(179, 142, 70, 0.15);
+  border-radius: 100px;
+  font-size: var(--text-xs);
+  color: var(--color-accent);
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.admin-topnav__badge-icon {
+  font-size: 14px;
+}
+
+/* ----------------------------------------
+   Responsive
+   ---------------------------------------- */
+@media (max-width: 768px) {
+  .admin-topnav {
+    left: 0;
+  }
+
+  .admin-layout--collapsed .admin-topnav {
+    left: 0;
+  }
+
+  .admin-topnav__menu-btn {
+    display: flex;
+  }
+
+  .admin-topnav__greeting {
+    flex-direction: row;
+    align-items: baseline;
+    gap: var(--space-sm);
+  }
+
+  .admin-topnav__date {
+    margin-top: 0;
+  }
+}

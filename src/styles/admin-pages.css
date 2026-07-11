@@ -1,0 +1,17 @@
+/* ========================================
+   Orixus — Admin Pages
+   ======================================== */
+
+.admin-page {
+  width: 100%;
+}
+
+.admin-page__title {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: var(--space-xl);
+}

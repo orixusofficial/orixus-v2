@@ -1,7 +1,12 @@
 import { useState, lazy, Suspense, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AppLayout from './layouts/AppLayout';
 import { useAuth } from './contexts/AuthContext';
 import { useUserData } from './hooks/useUserData';
+import { useStreakCelebration } from './hooks/useStreakCelebration';
+import { useRankPromotion } from './hooks/useRankPromotion';
+import CelebrationOverlay from './components/CelebrationOverlay';
+import RankPromotionCeremony from './components/RankPromotionCeremony';
 import './styles/dashboard.css';
 
 const HabitsPage = lazy(() => import('./pages/HabitsPage'));
@@ -167,6 +172,8 @@ function RemoveHabitModal({ isOpen, habit, onClose, onConfirm }) {
 }
 
 export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const {
     habits,
@@ -184,6 +191,19 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
     updateProfileSettings,
     calculateStreak,
   } = useUserData();
+
+  // Determine active item from current route
+  const getActiveItemFromPath = () => {
+    const path = location.pathname;
+    if (path.includes('/habits')) return 'habits';
+    if (path.includes('/analytics')) return 'analytics';
+    if (path.includes('/journal')) return 'journal';
+    if (path.includes('/profile')) return 'profile';
+    if (path.includes('/settings')) return 'settings';
+    return 'habits';
+  };
+
+  const currentActiveItem = getActiveItemFromPath();
 
   const [customDays, setCustomDays] = useState(() => {
     const saved = localStorage.getItem('orixus_custom_days');
@@ -203,6 +223,33 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [habitToRemove, setHabitToRemove] = useState(null);
   const streak = calculateStreak();
+  const customMilestone = profile?.custom_streak_milestone ? parseInt(profile.custom_streak_milestone, 10) : null;
+
+  const {
+    showCelebration,
+    celebrationStreak,
+    onClose: closeCelebration,
+    onCelebrate,
+  } = useStreakCelebration(streak, customMilestone);
+
+  const {
+    showCeremony,
+    oldRank,
+    newRank,
+    onClose: closeCeremony,
+    onPromote,
+  } = useRankPromotion(streak);
+
+  const handleNavigate = (itemId) => {
+    const routeMap = {
+      'habits': '/app/habits',
+      'analytics': '/app/analytics',
+      'journal': '/app/journal',
+      'profile': '/app/profile',
+      'settings': '/app/settings',
+    };
+    navigate(routeMap[itemId] || '/app/habits');
+  };
 
   const renderContent = () => {
     if (loading) {
@@ -226,7 +273,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
       );
     }
 
-    switch (activeItem) {
+    switch (currentActiveItem) {
       case 'habits':
         return (
           <HabitsPage
@@ -253,7 +300,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
       case 'settings':
         return <SettingsPage onLoggedOut={onLoggedOut} profile={profile} updateProfileSettings={updateProfileSettings} refresh={refresh} />;
       case 'logout':
-        return <LogoutPage onNavigate={onNavigate} onLoggedOut={onLoggedOut} />;
+        return <LogoutPage onNavigate={handleNavigate} onLoggedOut={onLoggedOut} />;
       default:
         return (
           <HabitsPage
@@ -275,7 +322,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
   };
 
   return (
-    <AppLayout activeItem={activeItem} onNavigate={onNavigate} isAuthenticated streak={streak}>
+    <AppLayout activeItem={currentActiveItem} onNavigate={handleNavigate} isAuthenticated streak={streak}>
       <Suspense fallback={<p>Loading…</p>}>
         {renderContent()}
       </Suspense>
@@ -290,6 +337,22 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
           await removeHabit(id);
           setHabitToRemove(null);
         }}
+      />
+
+      <CelebrationOverlay
+        isOpen={showCelebration}
+        streak={celebrationStreak}
+        customMilestone={customMilestone}
+        onClose={closeCelebration}
+        onCelebrate={onCelebrate}
+      />
+
+      <RankPromotionCeremony
+        isOpen={showCeremony}
+        oldRank={oldRank}
+        newRank={newRank}
+        onClose={closeCeremony}
+        onPromote={onPromote}
       />
     </AppLayout>
   );

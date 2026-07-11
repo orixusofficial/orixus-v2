@@ -1,0 +1,210 @@
+/* ========================================
+   Orixus - Static Pages (About, Contact, Privacy, Terms)
+   ======================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+.static-page {
+  background: #2B3038;
+  color: #FFF2E1;
+  font-family: var(--font-body);
+  min-height: 100vh;
+  line-height: 1.7;
+}
+
+.static-page__container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 6rem;
+}
+
+.static-page__header {
+  margin-bottom: 4rem;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.static-page__title {
+  color: #FFF2E1;
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+}
+
+.static-page__subtitle {
+  color: #A79277;
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.static-page__section {
+  margin-bottom: 3.5rem;
+}
+
+.static-page__section:last-child {
+  margin-bottom: 0;
+}
+
+.static-page__section-title {
+  color: #FFF2E1;
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.1;
+  margin: 0 0 1.25rem;
+  text-transform: uppercase;
+}
+
+.static-page__section p {
+  color: rgba(255, 242, 225, 0.78);
+  font-size: 1rem;
+  line-height: 1.8;
+  margin: 0 0 1rem;
+}
+
+.static-page__section p:last-child {
+  margin-bottom: 0;
+}
+
+.static-page__list {
+  list-style: none;
+  margin: 1.25rem 0;
+  padding: 0;
+}
+
+.static-page__list li {
+  color: rgba(255, 242, 225, 0.78);
+  font-size: 1rem;
+  line-height: 1.8;
+  margin-bottom: 0.75rem;
+  padding-left: 1.75rem;
+  position: relative;
+}
+
+.static-page__list li::before {
+  content: '•';
+  color: #A79277;
+  font-weight: 700;
+  left: 0;
+  position: absolute;
+}
+
+.static-page__card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 1.75rem;
+  margin: 1.5rem 0;
+}
+
+.static-page__card-title {
+  color: #FFF2E1;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin: 0 0 0.75rem;
+  text-transform: uppercase;
+}
+
+.static-page__card p,
+.static-page__card li {
+  color: rgba(255, 242, 225, 0.78);
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  margin: 0;
+}
+
+.static-page__card p {
+  margin-bottom: 0.75rem;
+}
+
+.static-page__card p:last-child {
+  margin-bottom: 0;
+}
+
+.static-page__email {
+  color: #A79277;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.static-page__email:hover {
+  color: #C4AA8A;
+  text-decoration: underline;
+}
+
+.static-page__back {
+  align-items: center;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  color: #FFF2E1;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  gap: 0.5rem;
+  margin-bottom: 2.5rem;
+  padding: 0.625rem 1.125rem;
+  transition: background 200ms ease, border-color 200ms ease;
+}
+
+.static-page__back:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.static-page__back svg {
+  flex-shrink: 0;
+}
+
+/* Philosophy section special styling */
+.static-page__philosophy {
+  background: rgba(167, 146, 119, 0.06);
+  border-left: 3px solid #A79277;
+  padding: 1.75rem;
+  margin: 1.5rem 0;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.static-page__philosophy p {
+  color: #FFF2E1;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  .static-page__container {
+    padding: 3rem 1.25rem 5rem;
+  }
+
+  .static-page__title {
+    font-size: 2.25rem;
+  }
+
+  .static-page__section-title {
+    font-size: 1.5rem;
+  }
+
+  .static-page__header {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+  }
+
+  .static-page__section {
+    margin-bottom: 2.5rem;
+  }
+}

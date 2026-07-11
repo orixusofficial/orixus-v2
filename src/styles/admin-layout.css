@@ -1,0 +1,63 @@
+/* ========================================
+   Orixus — Admin Layout
+   ======================================== */
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ---- Main content area ---- */
+.admin-layout__content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  margin-top: var(--topnav-height);
+  transition: margin-left var(--transition-slow);
+  min-width: 0;
+}
+
+.admin-layout--collapsed .admin-layout__content {
+  margin-left: var(--sidebar-collapsed-width);
+}
+
+/* ---- Mobile overlay ---- */
+.admin-layout__overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 99;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-base);
+}
+
+.admin-layout__overlay--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---- Admin Page Container ---- */
+.admin-page-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-xl) var(--space-2xl);
+}
+
+/* ----------------------------------------
+   Responsive
+   ---------------------------------------- */
+@media (max-width: 768px) {
+  .admin-layout__content {
+    margin-left: 0;
+  }
+
+  .admin-layout--collapsed .admin-layout__content {
+    margin-left: 0;
+  }
+
+  .admin-page-container {
+    padding: var(--space-base) var(--space-base) var(--space-xl);
+  }
+}

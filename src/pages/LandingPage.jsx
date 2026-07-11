@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { FaInstagram, FaYoutube, FaDiscord, FaTwitter } from 'react-icons/fa';
 import { FaThreads } from 'react-icons/fa6';
+import { useAuth } from '../contexts/AuthContext';
 
 import '../styles/landing.css';
 import ScrollReveal from '../components/ScrollReveal';
@@ -92,6 +93,13 @@ const NAV_LINKS = [
   { label: 'Why Orixus', target: 'why-orixus' },
   { label: 'How It Works', target: 'how-it-works' },
   { label: 'FAQ', target: 'faq' },
+];
+
+const FOOTER_LINKS = [
+  { label: 'About', href: '/about' },
+  { label: 'Contact', href: '/contact' },
+  { label: 'Privacy', href: '/privacy' },
+  { label: 'Terms', href: '/terms' },
 ];
 
 const PRODUCT_AREAS = [
@@ -287,6 +295,7 @@ function ProductArea({ area }) {
 export default function LandingPage({ onOpenAuth }) {
   const scrollRef = useRef(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { session } = useAuth();
 
   const scrollCarousel = (amount) => {
     if (!scrollRef.current) return;
@@ -429,6 +438,11 @@ export default function LandingPage({ onOpenAuth }) {
   const handleLogIn = () => {
     setMobileMenuOpen(false);
     onOpenAuth?.('login');
+  };
+
+  const handleOpenApp = () => {
+    setMobileMenuOpen(false);
+    window.location.href = '/app';
   };
 
   const socialLinks = [
@@ -657,13 +671,12 @@ export default function LandingPage({ onOpenAuth }) {
               >
                 Start Your Journey
               </button>
-              <a
+              <button
                 className="landing-btn-secondary"
-                href="#how-it-works"
-                onClick={(event) => handleSectionClick(event, 'how-it-works')}
+                onClick={handleLogIn}
               >
                 See the System
-              </a>
+              </button>
             </div>
           </div>
           <HeroPreview />
@@ -852,6 +865,14 @@ export default function LandingPage({ onOpenAuth }) {
                 href={`#${link.target}`}
                 onClick={(event) => handleSectionClick(event, link.target)}
                 key={link.target}
+              >
+                {link.label}
+              </a>
+            ))}
+            {FOOTER_LINKS.map((link) => (
+              <a
+                href={link.href}
+                key={link.href}
               >
                 {link.label}
               </a>

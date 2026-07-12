@@ -1,0 +1,47 @@
+[33m43dee24[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Move app routes and improve UX
+[33m915fd6e[m Auth page redesign, brand identity, tagline, hashtags
+[33m34ae3d3[m Auth page redesign, brand identity, tagline, hashtags
+[33m1690a09[m feat: improve auth UX, password recovery flow, mobile navigation, and footer social links
+[33m8a835d7[m feat: implement Supabase password recovery flow and refine auth UX
+[33m353dada[m Auth page redesign, brand identity, tagline, hashtags
+[33m007203a[m feat: redesign landing page mobile navigation and polish mobile UX
+[33mefafd6c[m Add Google Search Console verification
+[33mff4215e[m Add Google Search Console verification
+[33mf62f995[m Add structured data and SEO improvements
+[33m86158fd[m Checkpoint: MVP complete with branding and UX improvements
+[33m61ece93[m Checkpoint: Fixed Danger Zone state synchronization
+[33m3e5242c[m Checkpoint: before fixing new habit start position
+[33mcac8bff[m Checkpoint: Stable v0.3 - Production fixes, responsive landing page, premium FAQ
+[33m2d685af[m Checkpoint: Stable v0.2 - Landing page, auth, habits, analytics, profile, security
+[33ma1724fb[m Landing page scroll reveal, hero fix, blackhole logo concept
+[33m52f88e9[m Landing page scroll reveal, hero fix, blackhole logo concept
+[33m40a19d8[m Checkpoint - stable landing page and analytics
+[33maa49135[m Add ScrollReveal animation, theme system, landing page redesign
+[33m7bb6351[m Add onboarding flow, fix habits grid alignment, settings live update
+[33m8f00254[m Add password strength checker, OTP verification, and rate limiting to auth
+[33m8acfc27[m Add Supabase auth, profiles, habits, journal, check-ins tables
+[33m6cc8e8f[m Fix logo color to full white across all pages including landing page
+[33ma873d6c[m Fix logo color to full white across all pages including landing page
+[33m3d22993[m Fix logo color to full white across all pages including landing page
+[33m93d5d80[m Fix logo color to full white across all pages including landing page
+[33maf72cbb[m Fix logo color to full white across all pages including landing page
+[33m82d1257[m Fix logo color to full white across all pages including landing page
+[33mc44550b[m Checkpoint: Analytics progress and UI polish
+[33m54dc661[m test
+[33mdc8edcb[m Landing page update
+[33mb0cdcd5[m Checkpoint before auth removal
+[33m9918d60[m Deploy latest Orixus
+[33md7edb81[m Force Vercel deploy
+[33mc5c3ae2[m IDE test
+[33mab37fed[m Auth bypass for development and Supabase setup
+[33m963a741[m Trigger redeploy
+[33m372f601[m Analytics redesign and UI improvements
+[33m93df0a2[m Analytics redesign and profile updates
+[33m4f2f986[m Before temporary auth bypass
+[33mc7d93ee[m Before Supabase auth integration
+[33m277dfb9[m Stable checkpoint before next phase
+[33me4f63b5[m Backup before using Cursor
+[33m437c0e2[m Phase 1 layout alignment and mobile responsiveness
+[33m88c5116[m Refined habits page UI and UX
+[33m0ecbc29[m Connected Supabase
+[33mbb84d95[m Initial commit

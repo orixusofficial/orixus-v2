@@ -1,5 +1,4 @@
 import { useState, lazy, Suspense, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import AppLayout from './layouts/AppLayout';
 import { useAuth } from './contexts/AuthContext';
 import { useUserData } from './hooks/useUserData';
@@ -172,8 +171,6 @@ function RemoveHabitModal({ isOpen, habit, onClose, onConfirm }) {
 }
 
 export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }) {
-  const navigate = useNavigate();
-  const location = useLocation();
   const { user } = useAuth();
   const {
     habits,
@@ -192,18 +189,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
     calculateStreak,
   } = useUserData();
 
-  // Determine active item from current route
-  const getActiveItemFromPath = () => {
-    const path = location.pathname;
-    if (path.includes('/habits')) return 'habits';
-    if (path.includes('/analytics')) return 'analytics';
-    if (path.includes('/journal')) return 'journal';
-    if (path.includes('/profile')) return 'profile';
-    if (path.includes('/settings')) return 'settings';
-    return 'habits';
-  };
-
-  const currentActiveItem = getActiveItemFromPath();
+  const currentActiveItem = activeItem;
 
   const [customDays, setCustomDays] = useState(() => {
     const saved = localStorage.getItem('orixus_custom_days');
@@ -241,14 +227,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
   } = useRankPromotion(streak);
 
   const handleNavigate = (itemId) => {
-    const routeMap = {
-      'habits': '/app/habits',
-      'analytics': '/app/analytics',
-      'journal': '/app/journal',
-      'profile': '/app/profile',
-      'settings': '/app/settings',
-    };
-    navigate(routeMap[itemId] || '/app/habits');
+    onNavigate(itemId);
   };
 
   const renderContent = () => {
@@ -322,7 +301,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
   };
 
   return (
-    <AppLayout activeItem={currentActiveItem} onNavigate={handleNavigate} isAuthenticated streak={streak}>
+    <AppLayout activeItem={activeItem} onNavigate={handleNavigate} isAuthenticated streak={streak}>
       <Suspense fallback={<p>Loading…</p>}>
         {renderContent()}
       </Suspense>

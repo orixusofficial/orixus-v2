@@ -13,7 +13,7 @@ export default function AboutPage() {
     document.title = 'About | Orixus';
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Learn about Orixus — a discipline system built for ambitious people who want to build consistency, sharpen discipline, and create measurable personal growth.');
+      metaDescription.setAttribute('content', 'Orixus is a personal evolution system for building discipline, consistency, and long-term growth through identity-driven habit tracking.');
     }
   }, []);
 
@@ -37,43 +37,53 @@ export default function AboutPage() {
         <section className="static-page__section">
           <h2 className="static-page__section-title">Our Mission</h2>
           <p>
-            Orixus exists to help ambitious people become disciplined through consistent daily action. We believe that motivation is unreliable, but systems are not. When you build the right structure around your goals, discipline becomes the natural outcome.
-          </p>
-          <p>
-            Every feature in Orixus is designed to reinforce one principle: show up consistently, even when you do not feel like it. Over time, that consistency rewires your identity. You stop being someone who tries to be disciplined and start being someone who simply is.
+            Orixus exists to help ambitious people become disciplined through consistent daily action instead of relying on motivation. We believe that true personal growth comes from building systems that work regardless of how you feel.
           </p>
         </section>
 
         <section className="static-page__section">
           <h2 className="static-page__section-title">Why Orixus Exists</h2>
           <p>
-            Most productivity apps become cluttered with features that distract from what actually matters. Most habit trackers become games where the goal is to maintain a streak rather than to grow. Most people quit because they lose momentum when motivation fades.
+            Most productivity apps become cluttered. Most habit trackers become games. Most people quit because they lose momentum.
           </p>
           <p>
-            Orixus was built to solve this. We created a tool focused on structure, consistency, honesty, and long-term personal growth. No gamification. No unnecessary complexity. Just a clear system that shows the truth about your daily actions and helps you build the identity you want.
+            Orixus was built to create structure, consistency, honesty and long-term personal growth. We strip away the gamification and focus on what actually matters: showing up every day and building the identity you want.
           </p>
         </section>
 
         <section className="static-page__section">
           <h2 className="static-page__section-title">Our Philosophy</h2>
-          <div className="static-page__philosophy">
-            <p>Build systems. Build discipline. Build yourself.</p>
+          <div className="static-page__philosophy-grid">
+            <div className="static-page__philosophy-item">
+              <h3>Build systems.</h3>
+              <p>Motivation is temporary. Systems are permanent.</p>
+            </div>
+            <div className="static-page__philosophy-item">
+              <h3>Build discipline.</h3>
+              <p>Discipline creates freedom from negotiation.</p>
+            </div>
+            <div className="static-page__philosophy-item">
+              <h3>Build yourself.</h3>
+              <p>Every action is a brick in your identity.</p>
+            </div>
+            <div className="static-page__philosophy-item">
+              <h3>Consistency creates identity.</h3>
+              <p>Who you are is what you do repeatedly.</p>
+            </div>
+            <div className="static-page__philosophy-item">
+              <h3>Progress compounds.</h3>
+              <p>Small daily actions create massive long-term results.</p>
+            </div>
           </div>
-          <p>
-            Consistency creates identity. Every time you follow through on a commitment, you are not just checking a box — you are casting a vote for the person you are becoming. Progress compounds. Small, deliberate actions repeated daily create transformations that feel impossible in the moment but inevitable in hindsight.
-          </p>
-          <p>
-            Orixus is built around this belief. We do not sell motivation. We provide the structure that makes discipline sustainable.
-          </p>
         </section>
 
         <section className="static-page__section">
           <h2 className="static-page__section-title">Built for People Who Want More</h2>
           <p>
-            Orixus is designed for students, creators, entrepreneurs, athletes, and builders — anyone who understands that discipline is the foundation of exceptional results. If you are tired of relying on motivation, tired of starting and stopping, tired of knowing you are capable of more but not seeing it in your results, Orixus is for you.
+            Orixus is for students, creators, entrepreneurs, athletes, and builders who understand that success is not about inspiration—it's about the quiet work of showing up every single day.
           </p>
           <p>
-            This is not an app for people who want to feel productive. It is for people who want to be disciplined. The difference is everything.
+            People who want discipline, not motivation. People who want to build systems, not just complete tasks. People who are committed to becoming stronger versions of themselves.
           </p>
         </section>
       </div>

@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { FaInstagram, FaYoutube, FaDiscord, FaTwitter } from 'react-icons/fa';
 import { FaThreads } from 'react-icons/fa6';
-import { useAuth } from '../contexts/AuthContext';
 
 import '../styles/landing.css';
 import ScrollReveal from '../components/ScrollReveal';
@@ -295,7 +294,6 @@ function ProductArea({ area }) {
 export default function LandingPage({ onOpenAuth }) {
   const scrollRef = useRef(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { session } = useAuth();
 
   const scrollCarousel = (amount) => {
     if (!scrollRef.current) return;
@@ -438,11 +436,6 @@ export default function LandingPage({ onOpenAuth }) {
   const handleLogIn = () => {
     setMobileMenuOpen(false);
     onOpenAuth?.('login');
-  };
-
-  const handleOpenApp = () => {
-    setMobileMenuOpen(false);
-    window.location.href = '/app';
   };
 
   const socialLinks = [
@@ -671,12 +664,13 @@ export default function LandingPage({ onOpenAuth }) {
               >
                 Start Your Journey
               </button>
-              <button
+              <a
                 className="landing-btn-secondary"
-                onClick={handleLogIn}
+                href="#how-it-works"
+                onClick={(event) => handleSectionClick(event, 'how-it-works')}
               >
                 See the System
-              </button>
+              </a>
             </div>
           </div>
           <HeroPreview />

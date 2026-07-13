@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useUserData } from '../hooks/useUserData';
 import { useAuth } from '../contexts/AuthContext';
+import { submitFeedback } from '../services/feedback';
 import '../styles/dashboard.css';
 
 const AVATAR_COLORS = [
@@ -83,6 +84,16 @@ const SETTINGS_ICONS = {
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
       <polyline points="16 17 21 12 16 7" />
       <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+  ),
+  star: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  ),
+  starOutline: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </svg>
   ),
 };
@@ -178,7 +189,7 @@ function EditModal({ isOpen, onClose, onSave, title, currentValue, type = 'text'
 }
 
 export default function SettingsPage({ onLoggedOut, profile: profileProp, updateProfileSettings: updateProfileSettingsProp, refresh: refreshProp }) {
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const { resetAllHabits, resetStreak, deleteAllJournalEntries } = useUserData();
   const profile = profileProp;
   const updateProfileSettings = updateProfileSettingsProp;
@@ -192,10 +203,18 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
   const [confirmAction, setConfirmAction] = useState(null);
   const [editModal, setEditModal] = useState(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  
+  // Feedback form state
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+  const [feedbackRating, setFeedbackRating] = useState(0);
+  const [feedbackCategory, setFeedbackCategory] = useState('');
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [feedbackAllowContact, setFeedbackAllowContact] = useState(false);
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
 
   const showNotification = (message, type = 'success') => {
     setNotification({ message, type });
-    setTimeout(() => setNotification(null), 3000);
+    setTimeout(() => setNotification(null), 2000);
   };
 
   // Sync local state with profile prop changes
@@ -326,6 +345,52 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
     }
   };
 
+  const handleFeedbackSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!feedbackRating || !feedbackCategory || !feedbackMessage.trim()) {
+      showNotification('Please fill in all required fields', 'error');
+      return;
+    }
+
+    if (feedbackMessage.length > 1000) {
+      showNotification('Message must be 1000 characters or less', 'error');
+      return;
+    }
+
+    setFeedbackSubmitting(true);
+    try {
+      await submitFeedback({
+        userId: user.id,
+        rating: feedbackRating,
+        category: feedbackCategory,
+        message: feedbackMessage.trim(),
+        allowContact: feedbackAllowContact,
+      });
+      
+      setFeedbackSubmitting(false);
+      setFeedbackModalOpen(false);
+      showNotification('✓ Feedback Submitted');
+      setFeedbackRating(0);
+      setFeedbackCategory('');
+      setFeedbackMessage('');
+      setFeedbackAllowContact(false);
+    } catch (error) {
+      showNotification('Failed to submit feedback', 'error');
+      setFeedbackSubmitting(false);
+    }
+  };
+
+  const handleFeedbackModalClose = () => {
+    if (!feedbackSubmitting) {
+      setFeedbackModalOpen(false);
+      setFeedbackRating(0);
+      setFeedbackCategory('');
+      setFeedbackMessage('');
+      setFeedbackAllowContact(false);
+    }
+  };
+
   return (
     <div className="settings-page">
       {notification && (
@@ -427,6 +492,24 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
           </div>
         </div>
 
+        {/* Help & Feedback Section */}
+        <div className="settings-list-section">
+          <h3 className="settings-list-section__title">Help & Feedback</h3>
+          
+          <div className="settings-feedback-card" onClick={() => setFeedbackModalOpen(true)}>
+            <div className="settings-feedback-card__icon">💬</div>
+            <div className="settings-feedback-card__content">
+              <h4 className="settings-feedback-card__title">Feedback</h4>
+              <p className="settings-feedback-card__description">
+                Help improve Orixus by sharing bugs, ideas or suggestions.
+              </p>
+            </div>
+            <div className="settings-feedback-card__button">
+              Give Feedback
+            </div>
+          </div>
+        </div>
+
         {/* Logout Section */}
         <div className="settings-list-section">
           <div className="settings-list-item settings-list-item--accent" onClick={handleLogout}>
@@ -497,6 +580,102 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
         message="Are you sure you want to sign out of your Orixus account?"
         confirmText="Sign Out"
       />
+
+      {/* Feedback Modal */}
+      <div className={`dashboard-modal-overlay ${feedbackModalOpen ? 'dashboard-modal-overlay--visible' : ''}`} onClick={handleFeedbackModalClose}>
+        <div className="dashboard-modal dashboard-modal--feedback" onClick={(e) => e.stopPropagation()}>
+          <h3 className="dashboard-modal__title">Give Feedback</h3>
+          <form onSubmit={handleFeedbackSubmit} className="settings-feedback-form">
+            <div className="settings-feedback-rating">
+              <label className="settings-feedback-label">Rating</label>
+              <div className="settings-feedback-stars">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    className={`settings-feedback-star ${star <= feedbackRating ? 'settings-feedback-star--active' : ''}`}
+                    onClick={() => setFeedbackRating(star)}
+                    aria-label={`Rate ${star} stars`}
+                    disabled={feedbackSubmitting}
+                  >
+                    {star <= feedbackRating ? SETTINGS_ICONS.star : SETTINGS_ICONS.starOutline}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="settings-feedback-field">
+              <label className="settings-feedback-label" htmlFor="feedback-category">Category</label>
+              <select
+                id="feedback-category"
+                className="settings-feedback-select"
+                value={feedbackCategory}
+                onChange={(e) => setFeedbackCategory(e.target.value)}
+                required
+                disabled={feedbackSubmitting}
+              >
+                <option value="">Select category</option>
+                <option value="Bug Report">Bug Report</option>
+                <option value="Feature Request">Feature Request</option>
+                <option value="UI / UX">UI / UX</option>
+                <option value="General Feedback">General Feedback</option>
+              </select>
+            </div>
+
+            <div className="settings-feedback-field">
+              <label className="settings-feedback-label" htmlFor="feedback-message">Feedback</label>
+              <textarea
+                id="feedback-message"
+                className="settings-feedback-textarea"
+                value={feedbackMessage}
+                onChange={(e) => setFeedbackMessage(e.target.value)}
+                maxLength={1000}
+                placeholder="Share your thoughts..."
+                required
+                disabled={feedbackSubmitting}
+              />
+              <div className="settings-feedback-char-count">
+                {feedbackMessage.length}/1000
+              </div>
+            </div>
+
+            <div className="settings-feedback-checkbox">
+              <label className="settings-feedback-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={feedbackAllowContact}
+                  onChange={(e) => setFeedbackAllowContact(e.target.checked)}
+                  disabled={feedbackSubmitting}
+                />
+                <span>Allow us to contact you regarding this feedback.</span>
+              </label>
+            </div>
+
+            <div className="dashboard-modal__actions">
+              <button
+                type="button"
+                className="dashboard-modal__btn dashboard-modal__btn--secondary"
+                onClick={handleFeedbackModalClose}
+                disabled={feedbackSubmitting}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="dashboard-modal__btn dashboard-modal__btn--primary"
+                disabled={feedbackSubmitting}
+              >
+                {feedbackSubmitting ? (
+                  <span className="feedback-submitting">
+                    <span className="feedback-spinner"></span>
+                    Submitting...
+                  </span>
+                ) : 'Submit Feedback'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

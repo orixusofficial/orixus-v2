@@ -3,7 +3,12 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/index.html",
+      "has": [
+        {
+          "type": "!file"
+        }
+      ]
     }
   ],
   "headers": [

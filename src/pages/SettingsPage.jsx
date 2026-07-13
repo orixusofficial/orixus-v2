@@ -111,7 +111,7 @@ function ConfirmationModal({ isOpen, onClose, onConfirm, title, message, confirm
   if (!isOpen) return null;
 
   return (
-    <div className="dashboard-modal-overlay" onClick={onClose}>
+    <div className={`dashboard-modal-overlay ${isOpen ? 'dashboard-modal-overlay--visible' : ''}`} onClick={onClose}>
       <div className="dashboard-modal" onClick={(e) => e.stopPropagation()}>
         <h3 className="dashboard-modal__title">{title}</h3>
         <p className="dashboard-modal__desc">{message}</p>
@@ -139,7 +139,7 @@ function EditModal({ isOpen, onClose, onSave, title, currentValue, type = 'text'
   };
 
   return (
-    <div className="dashboard-modal-overlay" onClick={onClose}>
+    <div className={`dashboard-modal-overlay ${isOpen ? 'dashboard-modal-overlay--visible' : ''}`} onClick={onClose}>
       <div className="dashboard-modal" onClick={(e) => e.stopPropagation()}>
         <h3 className="dashboard-modal__title">{title}</h3>
         {type === 'select' ? (

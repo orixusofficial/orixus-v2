@@ -53,7 +53,7 @@ function AddHabitModal({ isOpen, onClose, onAdd }) {
   };
 
   return (
-    <div className="dashboard-modal-overlay" onClick={handleClose}>
+    <div className={`dashboard-modal-overlay ${isOpen ? 'dashboard-modal-overlay--visible' : ''}`} onClick={handleClose}>
       <div className="dashboard-modal" onClick={(e) => e.stopPropagation()}>
         {step === 1 ? (
           <>
@@ -141,7 +141,7 @@ function RemoveHabitModal({ isOpen, habit, onClose, onConfirm }) {
   };
 
   return (
-    <div className="dashboard-modal-overlay" onClick={onClose}>
+    <div className={`dashboard-modal-overlay ${isOpen ? 'dashboard-modal-overlay--visible' : ''}`} onClick={onClose}>
       <div className="dashboard-modal dashboard-modal--danger" onClick={(e) => e.stopPropagation()}>
         <h3 className="dashboard-modal__title">Really?</h3>
         <div className="dashboard-modal__quote-box">

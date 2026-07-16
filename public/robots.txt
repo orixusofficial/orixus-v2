@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://orixus.vercel.app/orixus-sitemap.xml
+Sitemap: https://orixus.vercel.app/v2-sitemap.xml

@@ -174,6 +174,17 @@ function OrixusLogo({ className = 'landing-logo', onClick }) {
   return (
     <button className={className} onClick={onClick} aria-label="Orixus home">
       <img src="/RB logo.svg" alt="Orixus" />
+      <span style={{
+        marginLeft: '10px',
+        fontSize: '1.25rem',
+        fontWeight: '600',
+        color: '#FFFFFF',
+        letterSpacing: '0.05em',
+        fontFamily: 'var(--font-heading, "Barlow Condensed", sans-serif)',
+        textTransform: 'uppercase'
+      }}>
+        Orixus
+      </span>
     </button>
   );
 }

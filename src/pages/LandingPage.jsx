@@ -441,12 +441,12 @@ export default function LandingPage({ onOpenAuth }) {
 
   const handleSignUp = () => {
     setMobileMenuOpen(false);
-    onOpenAuth?.('signup');
+    window.location.href = '/signup';
   };
 
   const handleLogIn = () => {
     setMobileMenuOpen(false);
-    onOpenAuth?.('login');
+    window.location.href = '/login';
   };
 
   const socialLinks = [

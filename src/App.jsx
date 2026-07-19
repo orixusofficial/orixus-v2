@@ -2,6 +2,8 @@ import { useState, lazy, Suspense } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import AuthLoading from './components/AuthLoading';
 import LandingPage from './pages/LandingPage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 import JsonLd from './components/JsonLd';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import AboutPage from './pages/AboutPage';
@@ -21,8 +23,11 @@ export default function App() {
   // Check if on admin route
   const isAdminRoute = window.location.pathname === '/admin';
 
-  // Check if on static page route
+  // Check if on auth page route
   const pathname = window.location.pathname;
+  const isAuthPage = pathname === '/login' || pathname === '/signup';
+
+  // Check if on static page route
   const isStaticPage = pathname === '/about' || pathname === '/contact' || pathname === '/privacy' || pathname === '/terms';
 
   // Auth modal state
@@ -66,7 +71,36 @@ export default function App() {
     );
   }
 
-  // 3. Static pages — show without auth requirement
+  // 3. Auth pages — show login/signup
+  if (isAuthPage) {
+    // Redirect logged-in users away from auth pages
+    if (session) {
+      window.location.href = '/';
+      return null;
+    }
+
+    const AuthPageComponent = () => {
+      switch (pathname) {
+        case '/login':
+          return <LoginPage />;
+        case '/signup':
+          return <SignupPage />;
+        default:
+          return <LandingPage onOpenAuth={openAuth} />;
+      }
+    };
+
+    return (
+      <>
+        <JsonLd />
+        <Suspense fallback={null}>
+          <AuthPageComponent />
+        </Suspense>
+      </>
+    );
+  }
+
+  // 4. Static pages — show without auth requirement
   if (isStaticPage) {
     const StaticPageComponent = () => {
       switch (pathname) {
@@ -93,7 +127,7 @@ export default function App() {
     );
   }
 
-  // 4. No session — show Landing with auth modal wired
+  // 5. No session — show Landing with auth modal wired
   if (!session) {
     return (
       <>
@@ -111,7 +145,7 @@ export default function App() {
     );
   }
 
-  // 5. Admin route
+  // 6. Admin route
   if (isAdminRoute) {
     return (
       <Suspense fallback={null}>

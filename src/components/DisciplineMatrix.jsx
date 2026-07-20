@@ -8,32 +8,12 @@ const STATIC_RANGES = [
 ];
 
 /**
- * Generate an array of Date objects placing TODAY in the middle of the timeline.
- * If startFromToday is true, start from today instead of centering.
+ * Parse and normalize a habit's creation date.
  */
-function getDays(count, startFromToday = false) {
-  const days = [];
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  if (startFromToday) {
-    // Start from today for newly created habits
-    for (let i = 0; i < count; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + i);
-      days.push(d);
-    }
-  } else {
-    // Center today in the tracking window to allow past review and future foresight
-    const pastCount = Math.floor((count - 1) / 2);
-
-    for (let i = 0; i < count; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() - pastCount + i);
-      days.push(d);
-    }
-  }
-  return days;
+function getHabitStartDate(habit) {
+  const date = new Date(habit.createdAt || habit.created_at);
+  date.setHours(0, 0, 0, 0);
+  return date;
 }
 
 /**
@@ -92,24 +72,28 @@ function isBefore(dateA, dateB) {
 }
 
 /**
- * STRICT ANALYTICS LOGIC
+ * STRICT ANALYTICS LOGIC (DETERMINISTIC)
  */
-function computeStats(habits, days, completionData) {
-  if (!habits.length || !days.length) return { totalDone: 0, rate: 0, streak: 0 };
+function computeStats(habits, activeDaysCount, completionData) {
+  if (!habits.length) return { totalDone: 0, rate: 0, streak: 0 };
 
   let totalDone = 0;
   let totalActivePossible = 0;
 
   habits.forEach((habit) => {
-    days.forEach((day) => {
-      const active = !isBefore(day, habit.createdAt) && !isFuture(day);
+    const startDate = getHabitStartDate(habit);
+    for (let i = 0; i < activeDaysCount; i++) {
+      const cellDate = new Date(startDate);
+      cellDate.setDate(startDate.getDate() + i);
+
+      const active = !isFuture(cellDate);
       if (active) {
         totalActivePossible++;
-        if (completionData[`${habit.id}:${dateKey(day)}`]) {
+        if (completionData[`${habit.id}:${dateKey(cellDate)}`]) {
           totalDone++;
         }
       }
-    });
+    }
   });
 
   const rate = totalActivePossible > 0 ? Math.round((totalDone / totalActivePossible) * 100) : 0;
@@ -120,7 +104,7 @@ function computeStats(habits, days, completionData) {
 
   const isDayFullyCompleted = (date) => {
     const dateStr = dateKey(date);
-    const activeHabits = habits.filter(h => !isBefore(date, h.createdAt));
+    const activeHabits = habits.filter(h => !isBefore(date, getHabitStartDate(h)));
     if (activeHabits.length === 0) return false;
     return activeHabits.every(h => completionData[`${h.id}:${dateStr}`]);
   };
@@ -294,18 +278,28 @@ export default function DisciplineMatrix({
     return found ? found.days : customDays;
   }, [range, customDays]);
 
-  const allHabitsCreatedToday = useMemo(() => {
-    if (habits.length === 0) return false;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return habits.every(h => {
-      const created = new Date(h.createdAt);
-      created.setHours(0, 0, 0, 0);
-      return created.getTime() === today.getTime();
-    });
-  }, [habits]);
-
-  const days = useMemo(() => getDays(activeDaysCount, allHabitsCreatedToday), [activeDaysCount, allHabitsCreatedToday]);
+  const headerDays = useMemo(() => {
+    if (habits.length > 0) {
+      const firstHabitStart = getHabitStartDate(habits[0]);
+      const result = [];
+      for (let i = 0; i < activeDaysCount; i++) {
+        const d = new Date(firstHabitStart);
+        d.setDate(firstHabitStart.getDate() + i);
+        result.push(d);
+      }
+      return result;
+    } else {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const result = [];
+      for (let i = 0; i < activeDaysCount; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+        result.push(d);
+      }
+      return result;
+    }
+  }, [habits, activeDaysCount]);
 
   const toggleCell = useCallback((habitId, date) => {
     const dk = dateKey(date);
@@ -329,8 +323,8 @@ export default function DisciplineMatrix({
   }, [completionData, onToggleCompletion, setCompletionData]);
 
   const stats = useMemo(
-    () => computeStats(habits, days, completionData),
-    [habits, days, completionData]
+    () => computeStats(habits, activeDaysCount, completionData),
+    [habits, activeDaysCount, completionData]
   );
 
   return (
@@ -391,72 +385,78 @@ export default function DisciplineMatrix({
       {/* Main Grid Wrapper */}
       <div className="matrix__grid-wrapper">
         <div className="matrix__scroll-container" ref={scrollContainerRef}>
-          <DayLabels days={days} displayMode={habitDisplayMode} />
+          <DayLabels days={headerDays} displayMode={habitDisplayMode} />
 
           <div className="matrix__table">
-            {habits.map((habit) => (
-              <div className="matrix__row" key={habit.id}>
-                <div className="matrix__label-group">
-                  <button
-                    className="matrix__remove-btn"
-                    onClick={() => onRemoveHabit(habit)}
-                    aria-label="Remove habit"
-                  >
-                    ×
-                  </button>
-                  <div className="matrix__label" title={habit.label}>
-                    {habit.label}
+            {habits.map((habit) => {
+              const habitStartDate = getHabitStartDate(habit);
+              return (
+                <div className="matrix__row" key={habit.id}>
+                  <div className="matrix__label-group">
+                    <button
+                      className="matrix__remove-btn"
+                      onClick={() => onRemoveHabit(habit)}
+                      aria-label="Remove habit"
+                    >
+                      ×
+                    </button>
+                    <div className="matrix__label" title={habit.label}>
+                      {habit.label}
+                    </div>
+                  </div>
+                  <div className="matrix__cells">
+                    {Array.from({ length: activeDaysCount }).map((_, i) => {
+                      const cellDate = new Date(habitStartDate);
+                      cellDate.setDate(habitStartDate.getDate() + i);
+                      const key = `${habit.id}:${dateKey(cellDate)}`;
+                      const done = !!completionData[key];
+                      const today = isToday(cellDate);
+                      const inactive = false; // Checkbox 1 is always start date, so no cells are before start date
+                      const future = isFuture(cellDate);
+                      const interactive = today;
+
+                      let cellClass = 'matrix__cell';
+                      if (done) cellClass += ' matrix__cell--done';
+                      else if (inactive) cellClass += ' matrix__cell--inactive';
+                      else if (future) cellClass += ' matrix__cell--future';
+                      else cellClass += ' matrix__cell--missed';
+
+                      if (today) cellClass += ' matrix__cell--today';
+
+                      const getCellLabel = () => {
+                        if (!done) return null;
+                        if (habitDisplayMode === 'number') {
+                          return `${i + 1}`;
+                        }
+                        return cellDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                      };
+
+                      return (
+                        <div
+                          key={i}
+                          className={cellClass}
+                          onClick={() => interactive && toggleCell(habit.id, cellDate)}
+                          role="button"
+                          tabIndex={interactive ? 0 : -1}
+                          onKeyDown={(e) => {
+                            if (interactive && (e.key === 'Enter' || e.key === ' ')) {
+                              e.preventDefault();
+                              toggleCell(habit.id, cellDate);
+                            }
+                          }}
+                        >
+                          <div className="matrix__cell-inner" />
+                          {done && <div className="matrix__cell-label">{getCellLabel()}</div>}
+                          <div className="matrix__cell-tooltip">
+                            {inactive ? 'Not yet established' : future ? `${habit.label} · Future Day` : `${habit.label} · ${formatTooltipDate(cellDate)}${today ? ' · Today' : ''}`}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-                <div className="matrix__cells">
-                  {days.map((day, i) => {
-                    const key = `${habit.id}:${dateKey(day)}`;
-                    const done = !!completionData[key];
-                    const today = isToday(day);
-                    const inactive = isBefore(day, habit.createdAt);
-                    const future = isFuture(day);
-
-                    let cellClass = 'matrix__cell';
-                    if (done) cellClass += ' matrix__cell--done';
-                    else if (inactive) cellClass += ' matrix__cell--inactive';
-                    else if (future) cellClass += ' matrix__cell--future';
-                    else cellClass += ' matrix__cell--missed';
-
-                    if (today) cellClass += ' matrix__cell--today';
-
-                    const getCellLabel = () => {
-                      if (!done) return null;
-                      if (habitDisplayMode === 'number') {
-                        return `${i + 1}`;
-                      }
-                      return day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    };
-
-                    return (
-                      <div
-                        key={i}
-                        className={cellClass}
-                        onClick={() => !inactive && !future && toggleCell(habit.id, day)}
-                        role="button"
-                        tabIndex={inactive || future ? -1 : 0}
-                        onKeyDown={(e) => {
-                          if (!inactive && !future && (e.key === 'Enter' || e.key === ' ')) {
-                            e.preventDefault();
-                            toggleCell(habit.id, day);
-                          }
-                        }}
-                      >
-                        <div className="matrix__cell-inner" />
-                        {done && <div className="matrix__cell-label">{getCellLabel()}</div>}
-                        <div className="matrix__cell-tooltip">
-                          {inactive ? 'Not yet established' : future ? `${habit.label} · Future Day` : `${habit.label} · ${formatTooltipDate(day)}${today ? ' · Today' : ''}`}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

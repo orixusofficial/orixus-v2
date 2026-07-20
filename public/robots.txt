@@ -1,4 +1,8 @@
 User-agent: *
+
 Allow: /
 
-Sitemap: https://orixus.vercel.app/v2-sitemap.xml
+Disallow: /login
+Disallow: /signup
+
+Sitemap: https://orixus.vercel.app/sitemap.xml

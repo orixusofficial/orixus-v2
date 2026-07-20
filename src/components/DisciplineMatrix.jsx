@@ -12,7 +12,7 @@ const STATIC_RANGES = [
  */
 function getHabitStartDate(habit) {
   const date = new Date(habit.createdAt || habit.created_at);
-  date.setHours(0, 0, 0, 0);
+  date.setHours(12, 0, 0, 0);
   return date;
 }
 

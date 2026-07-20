@@ -37,8 +37,8 @@ export default function ContactPage() {
         <section className="static-page__section">
           <div className="static-page__contact-card">
             <h2 className="static-page__section-title">Support Email</h2>
-            <a href="mailto:support@orixus.app" className="static-page__email-link">
-              support@orixus.app
+            <a href="mailto:orixusofficial@gmail.com" className="static-page__email-link">
+              orixusofficial@gmail.com
             </a>
           </div>
         </section>

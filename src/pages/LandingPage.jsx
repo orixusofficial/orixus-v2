@@ -56,7 +56,7 @@ function FaqAccordion() {
       </div>
       <div className="landing-faq-closing">
         <p className="landing-faq-closing-text">Still have questions?</p>
-        <button className="landing-faq-close-btn">Contact Us</button>
+        <button className="landing-faq-close-btn" onClick={() => window.location.href = 'mailto:orixusofficial@gmail.com'}>Contact Us</button>
       </div>
     </>
   );

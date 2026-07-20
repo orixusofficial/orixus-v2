@@ -79,7 +79,7 @@ export default function TermsOfServicePage() {
             To the fullest extent permitted by law, Orixus shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the service. This includes, but is not limited to, loss of data, loss of profits, or personal harm.
           </p>
           <p>
-            If you have questions about these terms, reach out to us at <a href="mailto:support@orixus.app" className="static-page__email">support@orixus.app</a>.
+            If you have questions about these terms, reach out to us at <a href="mailto:orixusofficial@gmail.com" className="static-page__email">orixusofficial@gmail.com</a>.
           </p>
         </section>
       </div>

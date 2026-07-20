@@ -81,7 +81,7 @@ export default function PrivacyPolicyPage() {
             You own your data. At any point, you may request deletion of your account and all associated data. This includes your habits, journal entries, check-ins, and any other information tied to your account.
           </p>
           <p>
-            To request account deletion, contact us at <a href="mailto:support@orixus.app" className="static-page__email">support@orixus.app</a>. We will process your request promptly and confirm once your data has been removed.
+            To request account deletion, contact us at <a href="mailto:orixusofficial@gmail.com" className="static-page__email">orixusofficial@gmail.com</a>. We will process your request promptly and confirm once your data has been removed.
           </p>
           <p>
             You may also export your data at any time through your account settings.

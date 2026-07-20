@@ -268,6 +268,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
             habitDisplayMode={profile?.habit_display_mode || 'date'}
             refreshHabits={refresh}
             onUpdateHabitDuration={updateHabitDuration}
+            userId={user?.id}
           />
         );
       case 'analytics':
@@ -295,6 +296,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
             habitDisplayMode={profile?.habit_display_mode || 'date'}
             refreshHabits={refresh}
             onUpdateHabitDuration={updateHabitDuration}
+            userId={user?.id}
           />
         );
     }

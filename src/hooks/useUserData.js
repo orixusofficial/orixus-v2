@@ -71,6 +71,18 @@ export function useUserData() {
   const addHabit = useCallback(
     async (label) => {
       if (!user) return;
+
+      // Initialize cycleStart the FIRST time a habit is ever created for this user.
+      // Never recalculate it afterwards.
+      const cycleKey = `orixus_cycle_start_${user.id}`;
+      if (!localStorage.getItem(cycleKey)) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        localStorage.setItem(cycleKey, `${yyyy}-${mm}-${dd}`);
+      }
+
       if (user.isMock) {
         const createdAt = new Date();
         createdAt.setHours(0, 0, 0, 0);

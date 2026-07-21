@@ -2,13 +2,40 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
-      "source": "/((?!robots\\.txt|sitemap\\.xml|favicon\\.svg|favicon\\.ico|manifest\\.webmanifest|icons\\.svg|logo\\.svg).*)",
+      "source": "/((?!robots\\.txt|sitemap\\.xml|v2-sitemap\\.xml|v3-sitemap\\.xml|orixus-sitemap\\.xml|favicon\\.svg|favicon\\.ico|manifest\\.webmanifest|icons\\.svg|logo\\.svg).*)",
       "destination": "/index.html"
     }
   ],
   "headers": [
     {
       "source": "/sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/v2-sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/v3-sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/orixus-sitemap.xml",
       "headers": [
         {
           "key": "Content-Type",

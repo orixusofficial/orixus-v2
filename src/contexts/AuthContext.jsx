@@ -38,6 +38,9 @@ export function AuthProvider({ children }) {
       if (mounted) {
         setSession(nextSession);
         setLoading(false);
+        if (event === 'PASSWORD_RECOVERY') {
+          setIsRecovery(true);
+        }
         if (event === 'SIGNED_IN' && nextSession?.user) {
           posthog.identify(nextSession.user.id, {
             email: nextSession.user.email,

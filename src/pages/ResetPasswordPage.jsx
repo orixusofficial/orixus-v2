@@ -43,10 +43,14 @@ export default function ResetPasswordPage({ onNavigateToLogin }) {
     try {
       await updatePassword(password);
       setSuccess('Password updated successfully! Redirecting to login...');
+      console.log('[ResetPassword] Password updated successfully, preparing to redirect...');
       setTimeout(async () => {
+        console.log('[ResetPassword] Starting signOut...');
         await signOut();
+        console.log('[ResetPassword] signOut completed, calling onNavigateToLogin...');
         onNavigateToLogin?.();
-      }, 2000);
+        console.log('[ResetPassword] onNavigateToLogin called');
+      }, 1000);
     } catch (err) {
       const msg = err.message ?? 'Could not update password.';
       if (msg.toLowerCase().includes('expired') || msg.toLowerCase().includes('invalid')) {

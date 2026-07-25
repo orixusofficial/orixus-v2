@@ -13,11 +13,11 @@ const AVATAR_COLORS = [
 ];
 
 const JOURNAL_MOODS = [
-  { value: 'FAILED', label: 'Failed' },
-  { value: 'NEUTRAL', label: 'Neutral' },
-  { value: 'GOOD', label: 'Good' },
-  { value: 'STRONG', label: 'Strong' },
-  { value: 'EXCELLENT', label: 'Excellent' },
+  { value: 'FAILED', label: 'Failed', color: '#a85454' },
+  { value: 'NEUTRAL', label: 'Neutral', color: '#A0A5AD' },
+  { value: 'GOOD', label: 'Good', color: '#4A90E2' },
+  { value: 'STRONG', label: 'Strong', color: '#5cb85c' },
+  { value: 'EXCELLENT', label: 'Excellent', color: '#B38E46' },
 ];
 
 const SETTINGS_ICONS = {
@@ -154,6 +154,20 @@ function EditModal({ isOpen, onClose, onSave, title, currentValue, type = 'text'
               </button>
             ))}
           </div>
+        ) : type === 'mood' ? (
+          <div className="journal-discipline-selector">
+            {options.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={`journal-discipline-pill ${value === option.value ? 'journal-discipline-pill--selected' : ''}`}
+                style={{ '--mood-color': option.color }}
+                onClick={() => setValue(option.value)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
         ) : type === 'color' ? (
           <div className="settings-modal-color-group">
             {options.map((color) => (
@@ -196,7 +210,7 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
   const refresh = refreshProp;
   const [username, setUsername] = useState(profile?.display_name || '');
   const [selectedColor, setSelectedColor] = useState(profile?.avatar_color || '#A79277');
-  const [journalMood, setJournalMood] = useState(profile?.default_journal_mood || 'NEUTRAL');
+  const [journalMood, setJournalMood] = useState(profile?.default_discipline_state || 'NEUTRAL');
   const [firstDayOfWeek, setFirstDayOfWeek] = useState(profile?.first_day_of_week || 'monday');
   const [habitDisplayMode, setHabitDisplayMode] = useState(profile?.habit_display_mode || 'date');
   const [notification, setNotification] = useState(null);
@@ -222,7 +236,7 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
     if (profile) {
       setUsername(profile.display_name || '');
       setSelectedColor(profile.avatar_color || '#A79277');
-      setJournalMood(profile.default_journal_mood || 'NEUTRAL');
+      setJournalMood(profile.default_discipline_state || 'NEUTRAL');
       setFirstDayOfWeek(profile.first_day_of_week || 'monday');
       setHabitDisplayMode(profile.habit_display_mode || 'date');
     }
@@ -253,10 +267,11 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
   const handleSaveJournalMood = async (mood) => {
     try {
       setJournalMood(mood);
-      await updateProfileSettings({ default_journal_mood: mood });
+      await updateProfileSettings({ default_discipline_state: mood });
       await refresh();
       showNotification('Default journal mood updated successfully');
     } catch (error) {
+      console.error(error);
       showNotification('Failed to update journal mood', 'error');
     }
   };
@@ -353,8 +368,8 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
       return;
     }
 
-    if (feedbackMessage.length > 1000) {
-      showNotification('Message must be 1000 characters or less', 'error');
+    if (feedbackMessage.length > 250) {
+      showNotification('Message must be 250 characters or less', 'error');
       return;
     }
 
@@ -540,7 +555,8 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
                      editModal?.type === 'firstDay' ? firstDayOfWeek :
                      editModal?.type === 'displayMode' ? habitDisplayMode : ''}
         type={editModal?.type === 'username' ? 'text' :
-              editModal?.type === 'color' ? 'color' : 'select'}
+              editModal?.type === 'color' ? 'color' :
+              editModal?.type === 'mood' ? 'mood' : 'select'}
         options={editModal?.type === 'color' ? AVATAR_COLORS :
                 editModal?.type === 'mood' ? JOURNAL_MOODS :
                 editModal?.type === 'firstDay' ? [{ value: 'monday', label: 'Monday' }, { value: 'sunday', label: 'Sunday' }] :
@@ -629,13 +645,13 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
                 className="settings-feedback-textarea"
                 value={feedbackMessage}
                 onChange={(e) => setFeedbackMessage(e.target.value)}
-                maxLength={1000}
+                maxLength={250}
                 placeholder="Share your thoughts..."
                 required
                 disabled={feedbackSubmitting}
               />
               <div className="settings-feedback-char-count">
-                {feedbackMessage.length}/1000
+                {feedbackMessage.length}/250
               </div>
             </div>
 

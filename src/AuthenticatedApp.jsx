@@ -274,7 +274,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
       case 'analytics':
         return <AnalyticsPage habits={habits} completionData={completionData} />;
       case 'journal':
-        return <JournalPage entries={journalEntries} onAddEntry={addJournalEntry} defaultMood={profile?.default_journal_mood || 'focused'} />;
+        return <JournalPage entries={journalEntries} onAddEntry={addJournalEntry} defaultMood={profile?.default_discipline_state || 'focused'} />;
       case 'profile':
         return <ProfilePage habits={habits} completionData={completionData} journalEntries={journalEntries} profile={profile} />;
       case 'settings':

@@ -16,9 +16,8 @@ export default function JournalPage({ entries = [], onAddEntry, defaultMood = 'n
     { value: 'excellent', label: 'Excellent', color: '#B38E46' },
   ];
 
-  // Update mood when defaultMood changes
   useEffect(() => {
-    setMood(defaultMood);
+    setMood((defaultMood || 'neutral').toLowerCase());
   }, [defaultMood]);
 
   const handleSubmit = async (e) => {
@@ -104,7 +103,7 @@ export default function JournalPage({ entries = [], onAddEntry, defaultMood = 'n
             <p className="auth-shell__hint">No entries yet. Log your first reflection above.</p>
           ) : (
             entries.map((entry) => {
-              const moodOption = MOOD_OPTIONS.find(m => m.value === entry.mood) || MOOD_OPTIONS[2];
+              const moodOption = MOOD_OPTIONS.find(m => m.value === (entry.mood || 'neutral').toLowerCase()) || MOOD_OPTIONS[2];
               return (
                 <div key={entry.id} className="journal-entry-card" style={{ '--card-border-color': moodOption.color }}>
                   <div className="journal-entry-header">

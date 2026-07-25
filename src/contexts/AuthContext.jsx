@@ -111,6 +111,15 @@ export function AuthProvider({ children }) {
   }, []);
 
   const resetPassword = useCallback(async (email) => {
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile) {
+      throw new Error('No account found with this email. Please sign up first.');
+    }
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });

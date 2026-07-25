@@ -594,7 +594,8 @@ function LogInView({ onSwitchToSignUp, onSuccess }) {
       await resetPassword(email.trim());
       setResetMessage('Password reset link sent to your email.');
     } catch (err) {
-      setError(err.message ?? 'Could not send reset link.');
+      const msg = err.message ?? 'Could not send reset link.';
+      setError(msg);
     } finally {
       setResetLoading(false);
     }

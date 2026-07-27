@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import '../styles/dashboard.css';
 import { getRankInfo, RANKS } from '../utils/analyticsHelpers';
+import { getAvatarSignedUrl } from '../services/avatar';
 
 const ACHIEVEMENTS_CONFIG = [
   { name: 'First Spark', description: 'Complete your first habit check-in', icon: 'flame', check: (data) => data.totalHabits >= 1 },
@@ -53,12 +54,22 @@ const ICONS = {
 
 export default function ProfilePage({ habits = [], completionData = {}, journalEntries = [], profile = null }) {
   const [loading, setLoading] = useState(true);
+  const [signedAvatarUrl, setSignedAvatarUrl] = useState(null);
 
   useEffect(() => {
     // Simulate loading state for smooth transition
     const timer = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(timer);
   }, []);
+
+  // Generate signed URL for avatar when profile changes
+  useEffect(() => {
+    if (profile?.avatar_url) {
+      getAvatarSignedUrl(profile.avatar_url).then(setSignedAvatarUrl);
+    } else {
+      setSignedAvatarUrl(null);
+    }
+  }, [profile]);
 
   // Calculate all metrics from real data
   const metrics = useMemo(() => {
@@ -176,10 +187,14 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
       {/* Profile Hero Card */}
       <div className={`profile-hero-card ${loading ? 'profile-hero-card--loading' : ''}`}>
         <div className="profile-hero-card__avatar">
-          <div className="profile-avatar" style={{ backgroundColor: profile?.avatar_color || '#A79277' }}>
-            <span className="profile-avatar-letters">
-              {profile?.display_name ? profile.display_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'DO'}
-            </span>
+          <div className="profile-avatar">
+            {signedAvatarUrl ? (
+              <img src={signedAvatarUrl} alt="Profile Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
+            ) : (
+              <span className="profile-avatar-letters">
+                {profile?.display_name ? profile.display_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'DO'}
+              </span>
+            )}
           </div>
         </div>
         <div className="profile-hero-card__identity">

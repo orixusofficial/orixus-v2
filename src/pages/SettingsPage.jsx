@@ -1,16 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useUserData } from '../hooks/useUserData';
 import { useAuth } from '../contexts/AuthContext';
 import { submitFeedback } from '../services/feedback';
+import { uploadAvatar, getAvatarSignedUrl } from '../services/avatar';
 import '../styles/dashboard.css';
-
-const AVATAR_COLORS = [
-  { name: 'Gold', value: '#A79277' },
-  { name: 'Blue', value: '#5B8FB9' },
-  { name: 'Purple', value: '#8B5FB9' },
-  { name: 'Green', value: '#5FB977' },
-  { name: 'Red', value: '#B95B5B' },
-];
 
 const JOURNAL_MOODS = [
   { value: 'FAILED', label: 'Failed', color: '#a85454' },
@@ -25,15 +18,6 @@ const SETTINGS_ICONS = {
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
       <circle cx="12" cy="7" r="4" />
-    </svg>
-  ),
-  palette: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="13.5" cy="6.5" r="0.5" fill="currentColor" />
-      <circle cx="17.5" cy="10.5" r="0.5" fill="currentColor" />
-      <circle cx="8.5" cy="7.5" r="0.5" fill="currentColor" />
-      <circle cx="6.5" cy="12.5" r="0.5" fill="currentColor" />
-      <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
     </svg>
   ),
   book: (
@@ -168,18 +152,6 @@ function EditModal({ isOpen, onClose, onSave, title, currentValue, type = 'text'
               </button>
             ))}
           </div>
-        ) : type === 'color' ? (
-          <div className="settings-modal-color-group">
-            {options.map((color) => (
-              <button
-                key={color.value}
-                className={`settings-modal-color-btn ${value === color.value ? 'settings-modal-color-btn--active' : ''}`}
-                style={{ backgroundColor: color.value }}
-                onClick={() => setValue(color.value)}
-                title={color.name}
-              />
-            ))}
-          </div>
         ) : (
           <input
             type="text"
@@ -202,6 +174,167 @@ function EditModal({ isOpen, onClose, onSave, title, currentValue, type = 'text'
   );
 }
 
+import { Upload, User, Edit3, Image as ImageIcon, X, Check, MessageSquare, UserRound } from 'lucide-react';
+
+function ProfileCardModal({ isOpen, onClose, profile, onUploadClick, onSaveUsername, uploadingAvatar }) {
+  const [view, setView] = useState('menu'); // 'menu' | 'upload' | 'username'
+  const [newUsername, setNewUsername] = useState(profile?.display_name || '');
+  const [signedAvatarUrl, setSignedAvatarUrl] = useState(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setView('menu');
+      setNewUsername(profile?.display_name || '');
+      // Refresh signed URL when modal opens
+      if (profile?.avatar_url) {
+        getAvatarSignedUrl(profile.avatar_url).then(setSignedAvatarUrl);
+      } else {
+        setSignedAvatarUrl(null);
+      }
+    }
+  }, [isOpen, profile]);
+
+  if (!isOpen) return null;
+
+  const getInitials = () => {
+    const name = profile?.display_name || '';
+    if (name) {
+      const parts = name.split(' ').filter(Boolean);
+      if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+      return name.slice(0, 2).toUpperCase();
+    }
+    return 'DO';
+  };
+
+  const handleUsernameSubmit = async (e) => {
+    e.preventDefault();
+    if (newUsername.trim()) {
+      await onSaveUsername(newUsername.trim());
+      onClose();
+    }
+  };
+
+  return (
+    <div className={`orixus-popover-backdrop ${isOpen ? 'orixus-popover-backdrop--visible' : ''}`} onClick={onClose}>
+      <div className="orixus-popover orixus-profile-popover" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="orixus-popover-header">
+          <span className="orixus-popover-title">
+            {view === 'menu' && 'Profile'}
+            {view === 'upload' && 'Upload Profile Picture'}
+            {view === 'username' && 'Edit Username'}
+          </span>
+          <button className="orixus-popover-close" onClick={onClose} aria-label="Close">
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* View 1: Main Menu */}
+        {view === 'menu' && (
+          <>
+            <div className="orixus-popover-profile-preview">
+              <div className="orixus-popover-avatar">
+                {signedAvatarUrl ? (
+                  <img src={signedAvatarUrl} alt="Profile" className="orixus-popover-avatar-img" />
+                ) : (
+                  <span className="orixus-popover-avatar-fallback">{getInitials()}</span>
+                )}
+              </div>
+              <div className="orixus-popover-user-info">
+                <span className="orixus-popover-username">{profile?.display_name || 'Dev Operator'}</span>
+                <span className="orixus-popover-user-rank">Initiate</span>
+              </div>
+            </div>
+
+            <div className="orixus-popover-divider" />
+
+            <div className="orixus-popover-actions">
+              <button className="orixus-popover-action" onClick={() => setView('upload')}>
+                <ImageIcon size={16} />
+                <span>Upload Profile Picture</span>
+              </button>
+              <button className="orixus-popover-action" onClick={() => setView('username')}>
+                <UserRound size={16} />
+                <span>Edit Username</span>
+              </button>
+              <button className="orixus-popover-action orixus-popover-action--cancel" onClick={onClose}>
+                <X size={16} />
+                <span>Cancel</span>
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* View 2: Upload Area */}
+        {view === 'upload' && (
+          <div className="orixus-upload-panel">
+            <div className="orixus-upload-preview">
+              {signedAvatarUrl ? (
+                <img src={signedAvatarUrl} alt="Preview" className="orixus-upload-preview-img" />
+              ) : (
+                <span className="orixus-popover-avatar-fallback">{getInitials()}</span>
+              )}
+            </div>
+
+            <button
+              className="orixus-upload-btn"
+              onClick={() => {
+                onUploadClick();
+                onClose();
+              }}
+              disabled={uploadingAvatar}
+            >
+              <Upload size={16} />
+              <span>{uploadingAvatar ? 'Uploading...' : 'Choose Image File'}</span>
+            </button>
+
+            <div className="orixus-upload-info">
+              <span>PNG • JPG • WEBP</span>
+              <span>Max 100 KB • 2000×2000 px</span>
+            </div>
+
+            <button className="orixus-popover-action orixus-popover-action--back" onClick={() => setView('menu')}>
+              <span>Back</span>
+            </button>
+          </div>
+        )}
+
+        {/* View 3: Username Form */}
+        {view === 'username' && (
+          <form onSubmit={handleUsernameSubmit} className="orixus-username-form">
+            <input
+              type="text"
+              className="orixus-username-input"
+              value={newUsername}
+              onChange={(e) => setNewUsername(e.target.value)}
+              placeholder="Enter new display name"
+              autoFocus
+            />
+
+            <div className="orixus-popover-actions orixus-popover-actions--form">
+              <button
+                type="button"
+                className="orixus-popover-action orixus-popover-action--back"
+                onClick={() => setView('menu')}
+              >
+                <span>Back</span>
+              </button>
+              <button
+                type="submit"
+                className="orixus-popover-action orixus-popover-action--primary"
+                disabled={!newUsername.trim()}
+              >
+                <Check size={16} />
+                <span>Save</span>
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function SettingsPage({ onLoggedOut, profile: profileProp, updateProfileSettings: updateProfileSettingsProp, refresh: refreshProp }) {
   const { signOut, user } = useAuth();
   const { resetAllHabits, resetStreak, deleteAllJournalEntries } = useUserData();
@@ -209,14 +342,18 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
   const updateProfileSettings = updateProfileSettingsProp;
   const refresh = refreshProp;
   const [username, setUsername] = useState(profile?.display_name || '');
-  const [selectedColor, setSelectedColor] = useState(profile?.avatar_color || '#A79277');
   const [journalMood, setJournalMood] = useState(profile?.default_discipline_state || 'NEUTRAL');
   const [firstDayOfWeek, setFirstDayOfWeek] = useState(profile?.first_day_of_week || 'monday');
   const [habitDisplayMode, setHabitDisplayMode] = useState(profile?.habit_display_mode || 'date');
   const [notification, setNotification] = useState(null);
   const [confirmAction, setConfirmAction] = useState(null);
   const [editModal, setEditModal] = useState(null);
+  const [profileCardModalOpen, setProfileCardModalOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [signedAvatarUrl, setSignedAvatarUrl] = useState(null);
+
+  const fileInputRef = useRef(null);
   
   // Feedback form state
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
@@ -228,17 +365,22 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
 
   const showNotification = (message, type = 'success') => {
     setNotification({ message, type });
-    setTimeout(() => setNotification(null), 2000);
+    setTimeout(() => setNotification(null), 3000);
   };
 
   // Sync local state with profile prop changes
   useEffect(() => {
     if (profile) {
       setUsername(profile.display_name || '');
-      setSelectedColor(profile.avatar_color || '#A79277');
       setJournalMood(profile.default_discipline_state || 'NEUTRAL');
       setFirstDayOfWeek(profile.first_day_of_week || 'monday');
       setHabitDisplayMode(profile.habit_display_mode || 'date');
+      // Generate signed URL for avatar
+      if (profile.avatar_url) {
+        getAvatarSignedUrl(profile.avatar_url).then(setSignedAvatarUrl);
+      } else {
+        setSignedAvatarUrl(null);
+      }
     }
   }, [profile]);
 
@@ -253,14 +395,23 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
     }
   };
 
-  const handleSaveAvatarColor = async (color) => {
+  const handleAvatarFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    setUploadingAvatar(true);
     try {
-      setSelectedColor(color);
-      await updateProfileSettings({ avatar_color: color });
+      const updatedProfile = await uploadAvatar(user.id, file);
+      if (updateProfileSettings) {
+        await updateProfileSettings({ avatar_url: updatedProfile.avatar_url });
+      }
       await refresh();
-      showNotification('Avatar color updated successfully');
+      showNotification('Avatar updated successfully');
     } catch (error) {
-      showNotification('Failed to update avatar color', 'error');
+      showNotification(error.message || 'Failed to upload avatar', 'error');
+    } finally {
+      setUploadingAvatar(false);
     }
   };
 
@@ -342,7 +493,6 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
   };
 
   const getRankLabel = () => {
-    // Simple rank calculation based on profile data
     return 'Initiate';
   };
 
@@ -408,6 +558,14 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
 
   return (
     <div className="settings-page">
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        accept="image/jpeg,image/png,image/webp"
+        onChange={handleAvatarFileChange}
+      />
+
       {notification && (
         <div className={`settings-notification settings-notification--${notification.type}`}>
           {notification.message}
@@ -415,14 +573,18 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
       )}
 
       {/* Profile Card */}
-      <div className="settings-profile-card" onClick={() => setEditModal({ type: 'username', title: 'Edit Username' })}>
+      <div className="settings-profile-card" onClick={() => setProfileCardModalOpen(true)}>
         <div className="settings-profile-card__left">
-          <div className="settings-profile-avatar" style={{ backgroundColor: selectedColor }}>
-            <span className="settings-profile-avatar__letters">{getInitials()}</span>
+          <div className="settings-profile-avatar">
+            {signedAvatarUrl ? (
+              <img src={signedAvatarUrl} alt="Profile Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
+            ) : (
+              <span className="settings-profile-avatar__letters">{getInitials()}</span>
+            )}
           </div>
           <div className="settings-profile-card__info">
             <span className="settings-profile-card__name">{profile?.display_name || 'Dev Operator'}</span>
-            <span className="settings-profile-card__rank">{getRankLabel()}</span>
+            <span className="settings-profile-card__rank">{uploadingAvatar ? 'Uploading avatar...' : getRankLabel()}</span>
           </div>
         </div>
         <div className="settings-profile-card__right">
@@ -432,20 +594,6 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
 
       {/* Settings List */}
       <div className="settings-list">
-        {/* Appearance Section */}
-        <div className="settings-list-section">
-          <h3 className="settings-list-section__title">Appearance</h3>
-          
-          <div className="settings-list-item" onClick={() => setEditModal({ type: 'color', title: 'Avatar Color' })}>
-            <div className="settings-list-item__icon">{SETTINGS_ICONS.palette}</div>
-            <span className="settings-list-item__label">Avatar Color</span>
-            <div className="settings-list-item__right">
-              <div className="settings-color-preview" style={{ backgroundColor: selectedColor }} />
-              {SETTINGS_ICONS.chevronRight}
-            </div>
-          </div>
-        </div>
-
         {/* Preferences Section */}
         <div className="settings-list-section">
           <h3 className="settings-list-section__title">Preferences</h3>
@@ -512,7 +660,7 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
           <h3 className="settings-list-section__title">Help & Feedback</h3>
           
           <div className="settings-feedback-card" onClick={() => setFeedbackModalOpen(true)}>
-            <div className="settings-feedback-card__icon">💬</div>
+            <div className="settings-feedback-card__icon"><MessageSquare size={20} /></div>
             <div className="settings-feedback-card__content">
               <h4 className="settings-feedback-card__title">Feedback</h4>
               <p className="settings-feedback-card__description">
@@ -537,28 +685,34 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
         </div>
       </div>
 
+      {/* Profile Card Modal */}
+      <ProfileCardModal
+        isOpen={profileCardModalOpen}
+        onClose={() => setProfileCardModalOpen(false)}
+        profile={profile}
+        onUploadClick={() => fileInputRef.current?.click()}
+        onSaveUsername={handleSaveUsername}
+        uploadingAvatar={uploadingAvatar}
+      />
+
       {/* Edit Modal */}
       <EditModal
         isOpen={!!editModal}
         onClose={() => setEditModal(null)}
         onSave={(value) => {
           if (editModal?.type === 'username') handleSaveUsername(value);
-          else if (editModal?.type === 'color') handleSaveAvatarColor(value);
           else if (editModal?.type === 'mood') handleSaveJournalMood(value);
           else if (editModal?.type === 'firstDay') handleSaveFirstDayOfWeek(value);
           else if (editModal?.type === 'displayMode') handleSaveHabitDisplayMode(value);
         }}
         title={editModal?.title || ''}
         currentValue={editModal?.type === 'username' ? username : 
-                     editModal?.type === 'color' ? selectedColor :
                      editModal?.type === 'mood' ? journalMood :
                      editModal?.type === 'firstDay' ? firstDayOfWeek :
                      editModal?.type === 'displayMode' ? habitDisplayMode : ''}
         type={editModal?.type === 'username' ? 'text' :
-              editModal?.type === 'color' ? 'color' :
               editModal?.type === 'mood' ? 'mood' : 'select'}
-        options={editModal?.type === 'color' ? AVATAR_COLORS :
-                editModal?.type === 'mood' ? JOURNAL_MOODS :
+        options={editModal?.type === 'mood' ? JOURNAL_MOODS :
                 editModal?.type === 'firstDay' ? [{ value: 'monday', label: 'Monday' }, { value: 'sunday', label: 'Sunday' }] :
                 editModal?.type === 'displayMode' ? [{ value: 'date', label: 'Date' }, { value: 'number', label: 'Number' }] : []}
       />
@@ -695,3 +849,4 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
     </div>
   );
 }
+

@@ -1,3 +1,4 @@
+import { PanelLeft } from 'lucide-react';
 import '../styles/topnav.css';
 
 function formatDate(date) {
@@ -7,26 +8,6 @@ function formatDate(date) {
     day: 'numeric',
     year: 'numeric',
   });
-}
-
-/**
- * Hamburger icon — three clean SVG bars.
- * Only shown on mobile to trigger the sidebar drawer.
- */
-function HamburgerIcon() {
-  return (
-    <svg
-      width="18"
-      height="14"
-      viewBox="0 0 18 14"
-      fill="none"
-      aria-hidden="true"
-    >
-      <rect x="0" y="0"  width="18" height="1.5" rx="1" fill="currentColor" />
-      <rect x="0" y="6"  width="12" height="1.5" rx="1" fill="currentColor" />
-      <rect x="0" y="12" width="18" height="1.5" rx="1" fill="currentColor" />
-    </svg>
-  );
 }
 
 export default function TopNav({ onMenuToggle, streak = 0 }) {
@@ -41,7 +22,7 @@ export default function TopNav({ onMenuToggle, streak = 0 }) {
           onClick={onMenuToggle}
           aria-label="Open menu"
         >
-          <HamburgerIcon />
+          <PanelLeft size={18} />
         </button>
 
         <div className="topnav__greeting">

@@ -1,3 +1,4 @@
+import { PanelLeft } from 'lucide-react';
 import '../styles/sidebar.css';
 
 /**
@@ -83,9 +84,7 @@ export default function Sidebar({
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           title={collapsed ? 'Expand' : 'Collapse'}
         >
-          <span className="sidebar__hamburger-bar" />
-          <span className="sidebar__hamburger-bar" />
-          <span className="sidebar__hamburger-bar" />
+          <PanelLeft size={18} />
         </button>
       </div>
 

@@ -111,22 +111,21 @@
   object-fit: contain;
 }
 
-/* ---- Hamburger/Collapse button — Bolder & Higher Contrast ---- */
+/* ---- Hamburger/Collapse button — PanelLeft Icon ---- */
 .sidebar__hamburger {
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 5px; /* Slightly increased gap for visibility */
-  width: 36px; /* Slightly larger hit area */
+  width: 36px;
   height: 36px;
   flex-shrink: 0;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all var(--transition-base);
   padding: 0;
-  background-color: rgba(255, 255, 255, 0.03); /* Subtle background for visibility */
+  background-color: rgba(255, 255, 255, 0.03);
   border: 1px solid transparent;
+  color: var(--color-text-primary);
 }
 
 .sidebar--collapsed .sidebar__hamburger {
@@ -136,35 +135,7 @@
 .sidebar__hamburger:hover {
   background-color: rgba(255, 255, 255, 0.08);
   border-color: var(--color-border);
-}
-
-.sidebar__hamburger-bar {
-  display: block;
-  width: 20px; /* Bolder width */
-  height: 2px;  /* Bolder height */
-  background-color: var(--color-text-primary); /* Higher contrast */
-  border-radius: 4px;
-  transition: all var(--transition-base);
-}
-
-/* Symmetrical Arrow Animation — Perfectly Centered */
-.sidebar:not(.sidebar--collapsed) .sidebar__hamburger-bar:nth-child(1) {
-  transform: translateY(2px) rotate(-45deg) scaleX(0.7);
-  transform-origin: center left;
-  width: 18px;
-}
-.sidebar:not(.sidebar--collapsed) .sidebar__hamburger-bar:nth-child(2) {
-  width: 20px;
-}
-.sidebar:not(.sidebar--collapsed) .sidebar__hamburger-bar:nth-child(3) {
-  transform: translateY(-2px) rotate(45deg) scaleX(0.7);
-  transform-origin: center left;
-  width: 18px;
-}
-
-.sidebar--collapsed .sidebar__hamburger-bar {
-  transform: none;
-  width: 18px;
+  color: var(--color-accent);
 }
 
 /* ----------------------------------------

@@ -417,8 +417,8 @@
 
 .matrix__cell--future .matrix__cell-inner {
   background-color: rgba(255, 255, 255, 0.003);
-  border: 1px solid rgba(255, 255, 255, 0.01);
-  opacity: 0.2;
+  border: 1px solid rgba(255, 242, 225, 0.25);
+  opacity: 0.3;
 }
 
 /* TODAY cell highlight — Subtle gold halo */

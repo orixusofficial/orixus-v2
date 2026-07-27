@@ -247,6 +247,39 @@ function DayLabels({ days, displayMode }) {
   );
 }
 
+/* ---- Per-habit day labels ---- */
+function HabitDayLabels({ habitStartDate, activeDaysCount, displayMode }) {
+  const habitDays = useMemo(() => {
+    const result = [];
+    for (let i = 0; i < activeDaysCount; i++) {
+      const d = new Date(habitStartDate);
+      d.setDate(habitStartDate.getDate() + i);
+      result.push(d);
+    }
+    return result;
+  }, [habitStartDate, activeDaysCount]);
+
+  const formatDate = (day, index) => {
+    if (displayMode === 'number') {
+      return `${index + 1}`;
+    }
+    return day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  return (
+    <div className="matrix__day-labels">
+      <div className="matrix__day-labels-spacer" />
+      <div className="matrix__day-labels-cells">
+        {habitDays.map((day, i) => (
+          <div className="matrix__day-label" key={i}>
+            {formatDate(day, i)}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ---- Main Component ---- */
 export default function DisciplineMatrix({
   habits,
@@ -400,6 +433,18 @@ export default function DisciplineMatrix({
           <div className="matrix__table">
             {habits.map((habit) => {
               const habitStartDate = getHabitStartDate(habit);
+              
+              // Generate habit-specific timeline based on habit start date
+              const habitDays = useMemo(() => {
+                const result = [];
+                for (let i = 0; i < activeDaysCount; i++) {
+                  const d = new Date(habitStartDate);
+                  d.setDate(habitStartDate.getDate() + i);
+                  result.push(d);
+                }
+                return result;
+              }, [habitStartDate, activeDaysCount]);
+              
               return (
                 <div className="matrix__row" key={habit.id}>
                   <div className="matrix__label-group">
@@ -415,27 +460,23 @@ export default function DisciplineMatrix({
                     </div>
                   </div>
                   <div className="matrix__cells">
-                    {cycleDays.map((day, i) => {
-                      const inactive = isBefore(day, habitStartDate);
+                    {habitDays.map((day, i) => {
                       const key = `${habit.id}:${dateKey(day)}`;
                       const done = !!completionData[key];
                       const today = isToday(day);
                       const future = isFuture(day);
-                      // Only today's checkbox is interactive; inactive and future are always locked
-                      const interactive = today && !inactive;
+                      // Only today's checkbox is interactive; future are always locked
+                      const interactive = today;
 
                       let cellClass = 'matrix__cell';
-                      if (inactive) cellClass += ' matrix__cell--inactive';
-                      else if (done) cellClass += ' matrix__cell--done';
+                      if (done) cellClass += ' matrix__cell--done';
                       else if (future) cellClass += ' matrix__cell--future';
                       else cellClass += ' matrix__cell--missed';
 
-                      if (today && !inactive) cellClass += ' matrix__cell--today';
+                      if (today) cellClass += ' matrix__cell--today';
 
                       // Day number label relative to this habit's own start date
-                      const habitDayNumber = Math.floor(
-                        (day - habitStartDate) / (1000 * 60 * 60 * 24)
-                      ) + 1;
+                      const habitDayNumber = i + 1;
 
                       const getCellLabel = () => {
                         if (!done) return null;
@@ -460,11 +501,9 @@ export default function DisciplineMatrix({
                           }}
                         >
                           <div className="matrix__cell-inner" />
-                          {done && !inactive && <div className="matrix__cell-label">{getCellLabel()}</div>}
+                          {done && <div className="matrix__cell-label">{getCellLabel()}</div>}
                           <div className="matrix__cell-tooltip">
-                            {inactive
-                              ? 'Pre-Habit'
-                              : future
+                            {future
                               ? `${habit.label} · Future Day`
                               : `${habit.label} · ${formatTooltipDate(day)}${today ? ' · Today' : ''}`}
                           </div>

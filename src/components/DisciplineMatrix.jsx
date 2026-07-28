@@ -74,15 +74,15 @@ function isBefore(dateA, dateB) {
 /**
  * STRICT ANALYTICS LOGIC — uses global cycle days, ignores pre-habit (inactive) cells.
  */
-function computeStats(habits, cycleDays, completionData) {
-  if (!habits.length || !cycleDays.length) return { totalDone: 0, rate: 0, streak: 0 };
+function computeStats(habits, fixedTimeline, completionData) {
+  if (!habits.length || !fixedTimeline.length) return { totalDone: 0, rate: 0, streak: 0 };
 
   let totalDone = 0;
   let totalActivePossible = 0;
 
   habits.forEach((habit) => {
     const habitStart = getHabitStartDate(habit);
-    cycleDays.forEach((day) => {
+    fixedTimeline.forEach((day) => {
       const inactive = isBefore(day, habitStart);
       const future = isFuture(day);
       if (!inactive && !future) {
@@ -224,41 +224,8 @@ function CustomDurationModal({ isOpen, onClose, onConfirm, initialValue }) {
   );
 }
 
-/* ---- Day column labels ---- */
-function DayLabels({ days, displayMode }) {
-  const formatDate = (day, index) => {
-    if (displayMode === 'number') {
-      return `${index + 1}`;
-    }
-    return day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
-
-  return (
-    <div className="matrix__day-labels">
-      <div className="matrix__day-labels-spacer" />
-      <div className="matrix__day-labels-cells">
-        {days.map((day, i) => (
-          <div className="matrix__day-label" key={i}>
-            {formatDate(day, i)}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 /* ---- Per-habit day labels ---- */
-function HabitDayLabels({ habitStartDate, activeDaysCount, displayMode }) {
-  const habitDays = useMemo(() => {
-    const result = [];
-    for (let i = 0; i < activeDaysCount; i++) {
-      const d = new Date(habitStartDate);
-      d.setDate(habitStartDate.getDate() + i);
-      result.push(d);
-    }
-    return result;
-  }, [habitStartDate, activeDaysCount]);
-
+function HabitDayLabels({ habitDays, displayMode }) {
   const formatDate = (day, index) => {
     if (displayMode === 'number') {
       return `${index + 1}`;
@@ -311,38 +278,25 @@ export default function DisciplineMatrix({
   }, [range, customDays]);
 
   /**
-   * cycleStart — loaded from localStorage once per userId.
-   * Written ONLY when the very first habit is created (in useUserData.addHabit).
-   * Never derived from habits array, never recalculated.
+   * fixedTimeline — generated from the first habit's creation date.
+   * This is the single source of truth for both header and checkbox grid.
+   * Never shifts, always based on habit.createdAt.
    */
-  const cycleStart = useMemo(() => {
-    const cycleKey = userId ? `orixus_cycle_start_${userId}` : null;
-    const saved = cycleKey ? localStorage.getItem(cycleKey) : null;
-    if (saved) {
-      // Parse YYYY-MM-DD at noon to avoid DST shifts
-      const [y, m, d] = saved.split('-').map(Number);
-      const date = new Date(y, m - 1, d, 12, 0, 0, 0);
-      return date;
-    }
-    // No cycle yet — fall back to today (displayed without persisting)
-    const today = new Date();
-    today.setHours(12, 0, 0, 0);
-    return today;
-  }, [userId]);
-
-  /**
-   * cycleDays — the global tracking window starting from cycleStart.
-   * All habits share this same column grid.
-   */
-  const cycleDays = useMemo(() => {
+  const fixedTimeline = useMemo(() => {
+    if (habits.length === 0) return [];
+    
+    // Use the first habit's creation date as the anchor
+    const firstHabit = habits[0];
+    const habitStartDate = getHabitStartDate(firstHabit);
+    
     const result = [];
     for (let i = 0; i < activeDaysCount; i++) {
-      const d = new Date(cycleStart);
-      d.setDate(cycleStart.getDate() + i);
+      const d = new Date(habitStartDate);
+      d.setDate(habitStartDate.getDate() + i);
       result.push(d);
     }
     return result;
-  }, [cycleStart, activeDaysCount]);
+  }, [habits, activeDaysCount]);
 
   const toggleCell = useCallback((habitId, date) => {
     const dk = dateKey(date);
@@ -366,8 +320,8 @@ export default function DisciplineMatrix({
   }, [completionData, onToggleCompletion, setCompletionData]);
 
   const stats = useMemo(
-    () => computeStats(habits, cycleDays, completionData),
-    [habits, cycleDays, completionData]
+    () => computeStats(habits, fixedTimeline, completionData),
+    [habits, fixedTimeline, completionData]
   );
 
   return (
@@ -428,23 +382,11 @@ export default function DisciplineMatrix({
       {/* Main Grid Wrapper */}
       <div className="matrix__grid-wrapper">
         <div className="matrix__scroll-container" ref={scrollContainerRef}>
-          <DayLabels days={cycleDays} displayMode={habitDisplayMode} />
+          {/* Single header row with dates */}
+          <HabitDayLabels habitDays={fixedTimeline} displayMode={habitDisplayMode} />
 
           <div className="matrix__table">
             {habits.map((habit) => {
-              const habitStartDate = getHabitStartDate(habit);
-              
-              // Generate habit-specific timeline based on habit start date
-              const habitDays = useMemo(() => {
-                const result = [];
-                for (let i = 0; i < activeDaysCount; i++) {
-                  const d = new Date(habitStartDate);
-                  d.setDate(habitStartDate.getDate() + i);
-                  result.push(d);
-                }
-                return result;
-              }, [habitStartDate, activeDaysCount]);
-              
               return (
                 <div className="matrix__row" key={habit.id}>
                   <div className="matrix__label-group">
@@ -460,31 +402,23 @@ export default function DisciplineMatrix({
                     </div>
                   </div>
                   <div className="matrix__cells">
-                    {habitDays.map((day, i) => {
+                    {fixedTimeline.map((day, i) => {
                       const key = `${habit.id}:${dateKey(day)}`;
                       const done = !!completionData[key];
                       const today = isToday(day);
                       const future = isFuture(day);
-                      // Only today's checkbox is interactive; future are always locked
-                      const interactive = today;
+                      const habitStart = getHabitStartDate(habit);
+                      const inactive = isBefore(day, habitStart);
+                      // Only today's checkbox is interactive; future and inactive are always locked
+                      const interactive = today && !inactive;
 
                       let cellClass = 'matrix__cell';
                       if (done) cellClass += ' matrix__cell--done';
                       else if (future) cellClass += ' matrix__cell--future';
+                      else if (inactive) cellClass += ' matrix__cell--inactive';
                       else cellClass += ' matrix__cell--missed';
 
                       if (today) cellClass += ' matrix__cell--today';
-
-                      // Day number label relative to this habit's own start date
-                      const habitDayNumber = i + 1;
-
-                      const getCellLabel = () => {
-                        if (!done) return null;
-                        if (habitDisplayMode === 'number') {
-                          return `${habitDayNumber}`;
-                        }
-                        return day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                      };
 
                       return (
                         <div
@@ -501,7 +435,6 @@ export default function DisciplineMatrix({
                           }}
                         >
                           <div className="matrix__cell-inner" />
-                          {done && <div className="matrix__cell-label">{getCellLabel()}</div>}
                           <div className="matrix__cell-tooltip">
                             {future
                               ? `${habit.label} · Future Day`

@@ -406,7 +406,7 @@
 
 .matrix__cell--inactive .matrix__cell-inner {
   background-color: transparent;
-  border: 1px dashed rgba(255, 255, 255, 0.06);
+  border: 1px dashed rgba(255, 242, 225, 0.3);
   opacity: 0.4;
 }
 
@@ -417,7 +417,7 @@
 
 .matrix__cell--future .matrix__cell-inner {
   background-color: rgba(255, 255, 255, 0.003);
-  border: 1px solid rgba(255, 242, 225, 0.25);
+  border: 1px solid rgba(255, 221, 221, 0.25);
   opacity: 0.3;
 }
 

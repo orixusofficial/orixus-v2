@@ -1,0 +1,21 @@
+{
+  "name": "Orixus",
+  "short_name": "Orixus",
+  "description": "Build discipline. Track growth. Become stronger.",
+  "theme_color": "#2B3038",
+  "background_color": "#2B3038",
+  "display": "standalone",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/android-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

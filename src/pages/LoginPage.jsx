@@ -14,7 +14,7 @@ const GoogleIcon = () => (
 function OrixusLogo({ className = '' }) {
   return (
     <div className={className}>
-      <img src="/RB logo.svg" alt="Orixus" />
+      <img src="/RB logo.svg" alt="Orixus" width="32" height="32" />
       <span style={{
         marginLeft: '10px',
         fontSize: '1.25rem',

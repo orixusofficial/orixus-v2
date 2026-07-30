@@ -1,0 +1,208 @@
+.not-found-page {
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: var(--space-xl);
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+}
+
+.not-found-page__background {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -52%);
+  color: var(--color-text-primary);
+  font-family: var(--font-heading);
+  font-size: clamp(12rem, 34vw, 32rem);
+  font-weight: 700;
+  line-height: 0.8;
+  letter-spacing: 0;
+  opacity: 0.035;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.not-found-page__content {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 680px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: notFoundFadeIn 520ms var(--ease-premium) both;
+}
+
+.not-found-page__logo {
+  width: 64px;
+  height: 64px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  animation: notFoundLogoFloat 4.8s var(--ease-premium) infinite;
+}
+
+.not-found-page__logo img {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
+
+.not-found-page__eyebrow {
+  margin: 0 0 var(--space-md);
+  color: var(--color-accent);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.not-found-page__title {
+  max-width: 620px;
+  margin: 0;
+  color: var(--color-text-primary);
+  font-family: var(--font-heading);
+  font-size: clamp(2.25rem, 7vw, 4.75rem);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.not-found-page__body {
+  margin-top: var(--space-xl);
+  color: var(--color-text-secondary);
+  font-size: var(--text-md);
+  line-height: 1.8;
+}
+
+.not-found-page__body p {
+  margin: 0;
+}
+
+.not-found-page__body p + p {
+  margin-top: var(--space-xs);
+}
+
+.not-found-page__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  width: 100%;
+  margin-top: var(--space-xl);
+}
+
+.not-found-page__button {
+  min-width: 148px;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-lg);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.not-found-page__button:hover {
+  transform: translateY(-1px);
+}
+
+.not-found-page__button--primary {
+  background: #C9A84C;
+  border: 1px solid rgba(201, 168, 76, 0.72);
+  color: #060709;
+}
+
+.not-found-page__button--primary:hover {
+  background: #D0B05B;
+  border-color: rgba(201, 168, 76, 0.86);
+}
+
+.not-found-page__button--secondary {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.not-found-page__button--secondary:hover {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+.not-found-page__motivation {
+  margin: var(--space-2xl) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+}
+
+@keyframes notFoundFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes notFoundLogoFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .not-found-page__content,
+  .not-found-page__logo {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .not-found-page {
+    padding: var(--space-lg);
+  }
+
+  .not-found-page__background {
+    font-size: clamp(9rem, 48vw, 16rem);
+  }
+
+  .not-found-page__body {
+    font-size: var(--text-base);
+  }
+
+  .not-found-page__actions {
+    flex-direction: column;
+  }
+
+  .not-found-page__button {
+    width: 100%;
+  }
+}

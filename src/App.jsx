@@ -10,6 +10,7 @@ import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
+import NotFoundPage from './pages/NotFoundPage';
 import './styles/dashboard.css';
 
 const AuthenticatedApp = lazy(() => import('./AuthenticatedApp'));
@@ -25,10 +26,12 @@ export default function App() {
 
   // Check if on auth page route
   const pathname = window.location.pathname;
+  const isHomeRoute = pathname === '/';
   const isAuthPage = pathname === '/login' || pathname === '/signup';
 
   // Check if on static page route
   const isStaticPage = pathname === '/about' || pathname === '/contact' || pathname === '/privacy' || pathname === '/terms';
+  const isKnownRoute = isHomeRoute || isAdminRoute || isAuthPage || isStaticPage;
 
   // Auth modal state
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -129,6 +132,15 @@ export default function App() {
   }
 
   // 5. No session — show Landing with auth modal wired
+  if (!isKnownRoute) {
+    return (
+      <>
+        <JsonLd />
+        <NotFoundPage />
+      </>
+    );
+  }
+
   if (!session) {
     return (
       <>

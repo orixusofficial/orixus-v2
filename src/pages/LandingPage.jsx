@@ -87,10 +87,10 @@ const FEATURES = [
 
 const RANKS = ['Initiate', 'Ascendant', 'Vanguard', 'Apex', 'Sovereign'];
 
-function OrixusLogo({ className = 'landing-logo', onClick }) {
+function OrixusLogo({ className = 'landing-logo', onClick, lazy = false }) {
   return (
     <button className={className} onClick={onClick} aria-label="Orixus home">
-      <img src="/RB logo.svg" alt="Orixus" width="32" height="32" />
+      <img src="/RB logo.svg" alt="Orixus" width="32" height="32" loading={lazy ? "lazy" : "eager"} decoding={lazy ? "async" : "auto"} />
       <span style={{
         marginLeft: '10px',
         fontSize: '1.25rem',
@@ -547,7 +547,7 @@ export default function LandingPage({ onOpenAuth }) {
 
           <div className="lp-mob-menu" role="dialog" aria-modal="true" aria-label="Navigation menu">
             <div className="lp-mob-menu__top">
-              <OrixusLogo className="landing-logo" onClick={() => setMobileMenuOpen(false)} />
+              <OrixusLogo className="landing-logo" onClick={() => setMobileMenuOpen(false)} lazy />
               <button
                 className="lp-mob-menu__close"
                 aria-label="Close navigation menu"
@@ -778,7 +778,7 @@ export default function LandingPage({ onOpenAuth }) {
       <footer className="landing-footer">
         <div className="landing-footer__main">
           <div>
-            <OrixusLogo className="landing-footer-logo" onClick={handleSignUp} />
+            <OrixusLogo className="landing-footer-logo" onClick={handleSignUp} lazy />
             <p>A personal evolution system for discipline, consistency, and growth.</p>
           </div>
           <div className="landing-footer__links">

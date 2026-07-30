@@ -51,11 +51,8 @@ export default function App() {
   };
 
   const handleNavigateToLogin = () => {
-    console.log('[App] handleNavigateToLogin called');
     setAuthModalOpen(false);
-    console.log('[App] Setting window.location.href to /login');
     window.location.href = '/login';
-    console.log('[App] Redirect initiated');
   };
 
   // 1. Loading — restore session from Supabase

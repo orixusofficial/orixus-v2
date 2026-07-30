@@ -50,6 +50,18 @@ const ICONS = {
       <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
     </svg>
   ),
+  target: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </svg>
+  ),
+  activity: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+    </svg>
+  ),
 };
 
 export default function ProfilePage({ habits = [], completionData = {}, journalEntries = [], profile = null }) {
@@ -101,11 +113,6 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
       }
     });
 
-    // Debug: Log raw data
-    console.log('ProfilePage - Raw completionData:', completionData);
-    console.log('ProfilePage - Completion dates:', Array.from(completionDates));
-    console.log('ProfilePage - Profile:', profile);
-
     // Calculate streak - go backwards from today/yesterday counting consecutive days with completions
     let streak = 0;
     const today = new Date();
@@ -146,18 +153,11 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
       // Calculate total days since first habit completion
       const daysSinceFirstCompletion = Math.ceil((today - firstCompletionDate) / (1000 * 60 * 60 * 24));
 
-      // Debug: Log consistency calculation
-      console.log('ProfilePage - First completion date:', firstCompletionDate);
-      console.log('ProfilePage - Days since first completion:', daysSinceFirstCompletion);
-      console.log('ProfilePage - Unique days with completions:', completionDates.size);
-
       // Calculate consistency percentage
       if (daysSinceFirstCompletion > 0) {
         consistency = Math.min(100, Math.round((completionDates.size / daysSinceFirstCompletion) * 100));
       }
     }
-
-    console.log('ProfilePage - Final consistency %:', consistency);
 
     // Use shared rank calculation
     const rankInfo = getRankInfo(streak, totalHabits);

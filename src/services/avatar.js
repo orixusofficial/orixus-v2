@@ -23,7 +23,6 @@ export async function getAvatarSignedUrl(avatarPath) {
     .createSignedUrl(avatarPath, SIGNED_URL_EXPIRY);
 
   if (error) {
-    console.error('Failed to create signed URL for avatar:', error);
     return null;
   }
 

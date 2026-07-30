@@ -133,7 +133,6 @@ function RemoveHabitModal({ isOpen, habit, onClose, onConfirm }) {
     try {
       await onConfirm(habit.id);
     } catch (err) {
-      console.error('🔴 useUserData loadAll error:', err);
       setError(err.message ?? 'Failed to load your data.');
     } finally {
       setRemoving(false);

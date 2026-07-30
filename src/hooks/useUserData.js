@@ -57,7 +57,6 @@ export function useUserData() {
       setJournalEntries(journalRows);
       setProfile(profileRow);
     } catch (err) {
-      console.error('🔴 useUserData loadAll error:', err);
       setError(err.message ?? 'Failed to load your data.');
     } finally {
       setLoading(false);

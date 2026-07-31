@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { Eye } from 'lucide-react';
 import { fetchAllFeedback, deleteFeedback } from '../services/feedback';
 import '../styles/admin-dashboard.css';
 
@@ -31,12 +32,115 @@ function Stars({ rating }) {
   );
 }
 
+function FeedbackModal({ isOpen, onClose, feedback }) {
+  const [toast, setToast] = useState(null);
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKey = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [isOpen, onClose]);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(feedback.message);
+      setToast('Message copied.');
+      setTimeout(() => setToast(null), 2000);
+    } catch (err) {
+      console.error('Copy failed:', err);
+    }
+  };
+
+  if (!isOpen || !feedback) return null;
+
+  return (
+    <>
+      <div className="admin-feedback-modal-overlay" onClick={onClose}>
+        <div 
+          className="admin-feedback-modal" 
+          onClick={(e) => e.stopPropagation()}
+          ref={modalRef}
+        >
+          <div className="admin-feedback-modal__header">
+            <h2 className="admin-feedback-modal__title">Feedback Details</h2>
+          </div>
+
+          <div className="admin-feedback-modal__content">
+            <div className="admin-feedback-modal__row">
+              <span className="admin-feedback-modal__label">Username</span>
+              <span className="admin-feedback-modal__value">
+                {feedback.display_name || '—'}
+              </span>
+            </div>
+
+            <div className="admin-feedback-modal__row">
+              <span className="admin-feedback-modal__label">Category</span>
+              <span className="admin-feedback-modal__value">{feedback.category}</span>
+            </div>
+
+            <div className="admin-feedback-modal__row">
+              <span className="admin-feedback-modal__label">Rating</span>
+              <div className="admin-feedback-modal__rating">
+                <Stars rating={feedback.rating} />
+              </div>
+            </div>
+
+            <div className="admin-feedback-modal__row">
+              <span className="admin-feedback-modal__label">Date</span>
+              <span className="admin-feedback-modal__value">
+                {new Date(feedback.created_at).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </span>
+            </div>
+
+            <div className="admin-feedback-modal__message-section">
+              <span className="admin-feedback-modal__label">Message</span>
+              <p className="admin-feedback-modal__message">{feedback.message}</p>
+            </div>
+          </div>
+
+          <div className="admin-feedback-modal__actions">
+            <button
+              className="admin-feedback-modal__btn admin-feedback-modal__btn--secondary"
+              onClick={handleCopy}
+            >
+              Copy Message
+            </button>
+            <button
+              className="admin-feedback-modal__btn admin-feedback-modal__btn--primary"
+              onClick={onClose}
+            >
+              Close
+            </button>
+          </div>
+
+          {toast && (
+            <div className="admin-feedback-modal__toast">
+              {toast}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
 export default function AdminFeedback() {
   const [feedback, setFeedback] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
   const [deletingId, setDeletingId] = useState(null);
+  const [viewingFeedback, setViewingFeedback] = useState(null);
 
   useEffect(() => {
     let mounted = true;
@@ -149,6 +253,14 @@ export default function AdminFeedback() {
                   </td>
                   <td className="admin-table__action-cell">
                     <button
+                      className="admin-view-btn"
+                      onClick={() => setViewingFeedback(item)}
+                      aria-label="View feedback"
+                      title="View"
+                    >
+                      <Eye size={14} />
+                    </button>
+                    <button
                       className="admin-delete-btn"
                       onClick={() => handleDelete(item.id)}
                       disabled={deletingId === item.id}
@@ -164,6 +276,12 @@ export default function AdminFeedback() {
           </table>
         </div>
       )}
+
+      <FeedbackModal
+        isOpen={!!viewingFeedback}
+        onClose={() => setViewingFeedback(null)}
+        feedback={viewingFeedback}
+      />
     </div>
   );
 }

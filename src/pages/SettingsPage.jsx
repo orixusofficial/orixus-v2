@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Eye, EyeOff, Lock, ShieldCheck } from 'lucide-react';
 import { useUserData } from '../hooks/useUserData';
 import { useAuth } from '../contexts/AuthContext';
 import { submitFeedback } from '../services/feedback';
@@ -80,6 +81,11 @@ const SETTINGS_ICONS = {
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </svg>
   ),
+  key: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+    </svg>
+  ),
 };
 
 function ConfirmationModal({ isOpen, onClose, onConfirm, title, message, confirmText = 'Confirm' }) {
@@ -107,6 +113,215 @@ function ConfirmationModal({ isOpen, onClose, onConfirm, title, message, confirm
             {confirmText}
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function PasswordModal({ 
+  isOpen, 
+  onClose, 
+  currentPassword, 
+  setCurrentPassword, 
+  newPassword, 
+  setNewPassword, 
+  confirmPassword, 
+  setConfirmPassword, 
+  showCurrentPassword, 
+  setShowCurrentPassword, 
+  showNewPassword, 
+  setShowNewPassword, 
+  showConfirmPassword, 
+  setShowConfirmPassword, 
+  passwordHealth, 
+  passwordError, 
+  passwordSuccess, 
+  updatingPassword, 
+  handlePasswordChange, 
+  lastPasswordUpdate 
+}) {
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKey = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="settings-password-modal-overlay" onClick={onClose}>
+      <div 
+        className="settings-password-modal" 
+        onClick={(e) => e.stopPropagation()}
+        ref={modalRef}
+      >
+        <div className="settings-password-modal__header">
+          <h2 className="settings-password-modal__title">Change Password</h2>
+          <p className="settings-password-modal__desc">Update your account password securely.</p>
+        </div>
+
+        <form onSubmit={handlePasswordChange}>
+          <div className="settings-password-modal__field">
+            <label className="settings-password-modal__label" htmlFor="current-password">
+              Current Password
+            </label>
+            <div className="settings-password-modal__input-wrapper">
+              <input
+                id="current-password"
+                type={showCurrentPassword ? 'text' : 'password'}
+                className="settings-password-modal__input"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                autoComplete="current-password"
+                disabled={updatingPassword}
+              />
+              <button
+                type="button"
+                className="settings-password-modal__toggle"
+                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                disabled={updatingPassword}
+              >
+                {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          <div className="settings-password-modal__field">
+            <label className="settings-password-modal__label" htmlFor="new-password">
+              New Password
+            </label>
+            <div className="settings-password-modal__input-wrapper">
+              <input
+                id="new-password"
+                type={showNewPassword ? 'text' : 'password'}
+                className="settings-password-modal__input"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                autoComplete="new-password"
+                disabled={updatingPassword}
+              />
+              <button
+                type="button"
+                className="settings-password-modal__toggle"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                disabled={updatingPassword}
+              >
+                {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+
+            {newPassword && (
+              <div className="settings-password-modal__health">
+                <div className="settings-password-modal__strength">
+                  <span className="settings-password-modal__strength-label">Strength:</span>
+                  <span className={`settings-password-modal__strength-value settings-password-modal__strength-value--${passwordHealth.strength.toLowerCase()}`}>
+                    {passwordHealth.strength}
+                  </span>
+                </div>
+                <div className="settings-password-modal__checks">
+                  <div className={`settings-password-modal__check ${passwordHealth.checks.length ? 'settings-password-modal__check--valid' : ''}`}>
+                    {passwordHealth.checks.length ? <ShieldCheck size={12} /> : <Lock size={12} />}
+                    <span>Minimum 8 characters</span>
+                  </div>
+                  <div className={`settings-password-modal__check ${passwordHealth.checks.uppercase ? 'settings-password-modal__check--valid' : ''}`}>
+                    {passwordHealth.checks.uppercase ? <ShieldCheck size={12} /> : <Lock size={12} />}
+                    <span>Uppercase letter</span>
+                  </div>
+                  <div className={`settings-password-modal__check ${passwordHealth.checks.lowercase ? 'settings-password-modal__check--valid' : ''}`}>
+                    {passwordHealth.checks.lowercase ? <ShieldCheck size={12} /> : <Lock size={12} />}
+                    <span>Lowercase letter</span>
+                  </div>
+                  <div className={`settings-password-modal__check ${passwordHealth.checks.number ? 'settings-password-modal__check--valid' : ''}`}>
+                    {passwordHealth.checks.number ? <ShieldCheck size={12} /> : <Lock size={12} />}
+                    <span>Number</span>
+                  </div>
+                  <div className={`settings-password-modal__check ${passwordHealth.checks.special ? 'settings-password-modal__check--valid' : ''}`}>
+                    {passwordHealth.checks.special ? <ShieldCheck size={12} /> : <Lock size={12} />}
+                    <span>Special character</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="settings-password-modal__field">
+            <label className="settings-password-modal__label" htmlFor="confirm-password">
+              Confirm New Password
+            </label>
+            <div className="settings-password-modal__input-wrapper">
+              <input
+                id="confirm-password"
+                type={showConfirmPassword ? 'text' : 'password'}
+                className="settings-password-modal__input"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
+                disabled={updatingPassword}
+              />
+              <button
+                type="button"
+                className="settings-password-modal__toggle"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                disabled={updatingPassword}
+              >
+                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+            {confirmPassword && newPassword !== confirmPassword && (
+              <span className="settings-password-modal__error">Passwords do not match</span>
+            )}
+          </div>
+
+          {passwordError && (
+            <div className="settings-password-modal__message settings-password-modal__message--error">
+              {passwordError}
+            </div>
+          )}
+
+          {passwordSuccess && (
+            <div className="settings-password-modal__message settings-password-modal__message--success">
+              {passwordSuccess}
+            </div>
+          )}
+
+          <div className="settings-password-modal__actions">
+            <button
+              type="button"
+              className="settings-password-modal__btn settings-password-modal__btn--secondary"
+              onClick={() => {
+                onClose();
+                setCurrentPassword('');
+                setNewPassword('');
+                setConfirmPassword('');
+                setPasswordError('');
+                setPasswordSuccess('');
+              }}
+              disabled={updatingPassword}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="settings-password-modal__btn settings-password-modal__btn--primary"
+              disabled={updatingPassword}
+            >
+              {updatingPassword ? 'Updating password...' : 'Update Password'}
+            </button>
+          </div>
+
+          {lastPasswordUpdate && (
+            <div className="settings-password-modal__last-update">
+              Last password update: {new Date(lastPasswordUpdate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </div>
+          )}
+        </form>
       </div>
     </div>
   );
@@ -336,7 +551,7 @@ function ProfileCardModal({ isOpen, onClose, profile, onUploadClick, onSaveUsern
 }
 
 export default function SettingsPage({ onLoggedOut, profile: profileProp, updateProfileSettings: updateProfileSettingsProp, refresh: refreshProp }) {
-  const { signOut, user } = useAuth();
+  const { signOut, user, reauthenticate, updatePassword } = useAuth();
   const { resetAllHabits, resetStreak, deleteAllJournalEntries } = useUserData();
   const profile = profileProp;
   const updateProfileSettings = updateProfileSettingsProp;
@@ -362,6 +577,19 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
 
+  // Password change form state
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [updatingPassword, setUpdatingPassword] = useState(false);
+  const [lastPasswordUpdate, setLastPasswordUpdate] = useState(profile?.password_updated_at || null);
+
   const showNotification = (message, type = 'success') => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 3000);
@@ -374,6 +602,7 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
       setJournalMood(profile.default_discipline_state || 'NEUTRAL');
       setFirstDayOfWeek(profile.first_day_of_week || 'monday');
       setHabitDisplayMode(profile.habit_display_mode || 'date');
+      setLastPasswordUpdate(profile.password_updated_at || null);
       // Generate signed URL for avatar
       if (profile.avatar_url) {
         getAvatarSignedUrl(profile.avatar_url).then(setSignedAvatarUrl);
@@ -382,6 +611,89 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
       }
     }
   }, [profile]);
+
+  // Check if user is using Google OAuth
+  const isGoogleUser = user?.app_metadata?.provider === 'google' || 
+                      user?.identities?.some(i => i.provider === 'google');
+
+  // Password health validation
+  const getPasswordHealth = (password) => {
+    const checks = {
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /[0-9]/.test(password),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+    };
+
+    const score = Object.values(checks).filter(Boolean).length;
+    let strength = 'Weak';
+    if (score >= 4) strength = 'Moderate';
+    if (score === 5) strength = 'Strong';
+
+    return { checks, strength };
+  };
+
+  const passwordHealth = getPasswordHealth(newPassword);
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    // Validation
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError('Please fill in all fields');
+      return;
+    }
+
+    if (newPassword === currentPassword) {
+      setPasswordError("You're already using this password. Choose a new one.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match');
+      return;
+    }
+
+    if (passwordHealth.strength === 'Weak') {
+      setPasswordError('Password does not meet security requirements');
+      return;
+    }
+
+    setUpdatingPassword(true);
+    try {
+      // Re-authenticate with current password
+      await reauthenticate(currentPassword);
+      
+      // Update password
+      await updatePassword(newPassword);
+      
+      // Update password_updated_at in profile
+      await updateProfileSettings({ password_updated_at: new Date().toISOString() });
+      setLastPasswordUpdate(new Date().toISOString());
+      
+      setPasswordSuccess('Password updated successfully. Your account is now protected with your new credentials.');
+      
+      // Reset form
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setShowPasswordForm(false);
+      
+      await refresh();
+    } catch (error) {
+      console.error('Password change error:', error);
+      if (error.message?.includes('Invalid login credentials')) {
+        setPasswordError('Current password is incorrect');
+      } else {
+        setPasswordError(error.message || 'Failed to update password');
+      }
+    } finally {
+      setUpdatingPassword(false);
+    }
+  };
 
   const handleSaveUsername = async (value) => {
     try {
@@ -591,6 +903,36 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
 
       {/* Settings List */}
       <div className="settings-list">
+        {/* Security Section */}
+        <div className="settings-list-section">
+          <h3 className="settings-list-section__title">Security</h3>
+          
+          {isGoogleUser ? (
+            <div className="settings-list-item settings-list-item--disabled">
+              <div className="settings-list-item__icon">{SETTINGS_ICONS.key}</div>
+              <div className="settings-list-item__content">
+                <span className="settings-list-item__label">Change Password</span>
+                <span className="settings-list-item__description">
+                  This account uses Google Sign-In. Manage your password through your Google account.
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="settings-list-item" onClick={() => setShowPasswordForm(true)}>
+              <div className="settings-list-item__icon">{SETTINGS_ICONS.key}</div>
+              <div className="settings-list-item__content">
+                <span className="settings-list-item__label">Change Password</span>
+                <span className="settings-list-item__description">
+                  Update your account password securely.
+                </span>
+              </div>
+              <div className="settings-list-item__right">
+                {SETTINGS_ICONS.chevronRight}
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Preferences Section */}
         <div className="settings-list-section">
           <h3 className="settings-list-section__title">Preferences</h3>
@@ -661,7 +1003,7 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
             <div className="settings-feedback-card__content">
               <h4 className="settings-feedback-card__title">Feedback</h4>
               <p className="settings-feedback-card__description">
-                Help improve Orixus by sharing bugs, ideas or suggestions.
+                Help improve Orixus.
               </p>
             </div>
             <div className="settings-feedback-card__button">
@@ -687,9 +1029,37 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
         isOpen={profileCardModalOpen}
         onClose={() => setProfileCardModalOpen(false)}
         profile={profile}
-        onUploadClick={() => fileInputRef.current?.click()}
-        onSaveUsername={handleSaveUsername}
-        uploadingAvatar={uploadingAvatar}
+      />
+
+      {/* Password Change Modal */}
+      <PasswordModal
+        isOpen={showPasswordForm}
+        onClose={() => {
+          setShowPasswordForm(false);
+          setCurrentPassword('');
+          setNewPassword('');
+          setConfirmPassword('');
+          setPasswordError('');
+          setPasswordSuccess('');
+        }}
+        currentPassword={currentPassword}
+        setCurrentPassword={setCurrentPassword}
+        newPassword={newPassword}
+        setNewPassword={setNewPassword}
+        confirmPassword={confirmPassword}
+        setConfirmPassword={setConfirmPassword}
+        showCurrentPassword={showCurrentPassword}
+        setShowCurrentPassword={setShowCurrentPassword}
+        showNewPassword={showNewPassword}
+        setShowNewPassword={setShowNewPassword}
+        showConfirmPassword={showConfirmPassword}
+        setShowConfirmPassword={setShowConfirmPassword}
+        passwordHealth={passwordHealth}
+        passwordError={passwordError}
+        passwordSuccess={passwordSuccess}
+        updatingPassword={updatingPassword}
+        handlePasswordChange={handlePasswordChange}
+        lastPasswordUpdate={lastPasswordUpdate}
       />
 
       {/* Edit Modal */}

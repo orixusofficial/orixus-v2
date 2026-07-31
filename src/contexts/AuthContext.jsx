@@ -138,6 +138,15 @@ export function AuthProvider({ children }) {
     return data;
   }, []);
 
+  const reauthenticate = useCallback(async (password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: session?.user?.email,
+      password,
+    });
+    if (error) throw error;
+    return data;
+  }, [session]);
+
   const value = useMemo(
     () => ({
       session,
@@ -151,10 +160,11 @@ export function AuthProvider({ children }) {
       resendSignupOtp,
       resetPassword,
       updatePassword,
+      reauthenticate,
       signOut,
       isConfigured: isSupabaseConfigured,
     }),
-    [session, loading, isRecovery, signUp, signIn, signInWithGoogle, verifyEmailOtp, resendSignupOtp, resetPassword, updatePassword, signOut],
+    [session, loading, isRecovery, signUp, signIn, signInWithGoogle, verifyEmailOtp, resendSignupOtp, resetPassword, updatePassword, reauthenticate, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

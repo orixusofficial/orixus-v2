@@ -360,7 +360,6 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
   const [feedbackRating, setFeedbackRating] = useState(0);
   const [feedbackCategory, setFeedbackCategory] = useState('');
   const [feedbackMessage, setFeedbackMessage] = useState('');
-  const [feedbackAllowContact, setFeedbackAllowContact] = useState(false);
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
 
   const showNotification = (message, type = 'success') => {
@@ -530,7 +529,6 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
         rating: feedbackRating,
         category: feedbackCategory,
         message: feedbackMessage.trim(),
-        allowContact: feedbackAllowContact,
       });
       
       setFeedbackSubmitting(false);
@@ -539,8 +537,8 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
       setFeedbackRating(0);
       setFeedbackCategory('');
       setFeedbackMessage('');
-      setFeedbackAllowContact(false);
     } catch (error) {
+      console.error('Feedback submission error:', error);
       showNotification('Failed to submit feedback', 'error');
       setFeedbackSubmitting(false);
     }
@@ -552,7 +550,6 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
       setFeedbackRating(0);
       setFeedbackCategory('');
       setFeedbackMessage('');
-      setFeedbackAllowContact(false);
     }
   };
 
@@ -807,18 +804,6 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
               <div className="settings-feedback-char-count">
                 {feedbackMessage.length}/250
               </div>
-            </div>
-
-            <div className="settings-feedback-checkbox">
-              <label className="settings-feedback-checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={feedbackAllowContact}
-                  onChange={(e) => setFeedbackAllowContact(e.target.checked)}
-                  disabled={feedbackSubmitting}
-                />
-                <span>Allow us to contact you regarding this feedback.</span>
-              </label>
             </div>
 
             <div className="dashboard-modal__actions">

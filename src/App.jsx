@@ -11,6 +11,8 @@ import ContactPage from './pages/ContactPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
 import NotFoundPage from './pages/NotFoundPage';
+import AdminUnauthorized from './admin/AdminUnauthorized';
+import { ADMIN_USER_ID } from './admin/config';
 import './styles/dashboard.css';
 
 const AuthenticatedApp = lazy(() => import('./AuthenticatedApp'));
@@ -131,7 +133,26 @@ export default function App() {
     );
   }
 
-  // 5. No session — show Landing with auth modal wired
+  // 5. Admin route — full access guard before any session-based routing
+  if (isAdminRoute) {
+    // Unauthenticated visitors go to login (not landing page)
+    if (!session) {
+      window.location.href = '/login';
+      return null;
+    }
+    // Authenticated but not admin — hard 403, no redirect, no data
+    if (session.user?.id !== ADMIN_USER_ID) {
+      return <AdminUnauthorized />;
+    }
+    // Only the authorized admin reaches this branch
+    return (
+      <Suspense fallback={null}>
+        <AdminApp />
+      </Suspense>
+    );
+  }
+
+  // 6. Unknown route — 404
   if (!isKnownRoute) {
     return (
       <>
@@ -158,14 +179,6 @@ export default function App() {
     );
   }
 
-  // 6. Admin route
-  if (isAdminRoute) {
-    return (
-      <Suspense fallback={null}>
-        <AdminApp />
-      </Suspense>
-    );
-  }
 
   return (
     <Suspense fallback={null}>

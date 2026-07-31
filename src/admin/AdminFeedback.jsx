@@ -1,144 +1,169 @@
 import { useState, useEffect } from 'react';
-import StatCard from './components/StatCard';
-import { fetchAllFeedback, fetchFeedbackStats } from '../services/feedback';
+import { fetchAllFeedback, deleteFeedback } from '../services/feedback';
 import '../styles/admin-dashboard.css';
 
-const ICONS = {
-  rating: (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+function SearchIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
     </svg>
-  ),
-  feedback: (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </svg>
-  ),
-  bug: (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="8" y="2" width="8" height="4" rx="1" />
-      <path d="M16 6h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-1" />
-      <path d="M8 6H7a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h1" />
-      <path d="M12 6v14" />
-      <path d="M12 18h-2" />
-      <path d="M12 18h2" />
-      <path d="M12 10h-2" />
-      <path d="M12 10h2" />
-    </svg>
-  ),
-  feature: (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="8" x2="12" y2="16" />
-      <line x1="8" y1="12" x2="16" y2="12" />
-    </svg>
-  ),
-};
+  );
+}
 
-const CATEGORY_COLORS = {
-  'Bug Report': '#B95B5B',
-  'Feature Request': '#5B8FB9',
-  'UI / UX': '#8B5FB9',
-  'General Feedback': '#5FB977',
-};
+function TrashIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+      <path d="M10 11v6M14 11v6" />
+      <path d="M9 6V4h6v2" />
+    </svg>
+  );
+}
+
+function Stars({ rating }) {
+  return (
+    <div className="admin-stars" aria-label={`${rating} out of 5 stars`}>
+      {[1, 2, 3, 4, 5].map((s) => (
+        <span key={s} className={`admin-star${s <= rating ? ' admin-star--filled' : ''}`}>★</span>
+      ))}
+    </div>
+  );
+}
 
 export default function AdminFeedback() {
-  const [stats, setStats] = useState({
-    averageRating: 0,
-    totalFeedback: 0,
-    bugReports: 0,
-    featureRequests: 0,
-  });
   const [feedback, setFeedback] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [search, setSearch] = useState('');
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
-    async function loadData() {
-      try {
-        const [statsData, feedbackData] = await Promise.all([
-          fetchFeedbackStats(),
-          fetchAllFeedback(),
-        ]);
-        setStats(statsData);
-        setFeedback(feedbackData);
-      } catch (error) {
-        console.error('Failed to fetch feedback:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
+    let mounted = true;
+    fetchAllFeedback()
+      .then((data) => { if (mounted) setFeedback(data); })
+      .catch((err) => { 
+        console.error('Fetch feedback error:', err);
+        if (mounted) setError(err.message); 
+      })
+      .finally(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
   }, []);
 
-  const renderStars = (rating) => {
-    return (
-      <div className="admin-feedback__stars">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <span
-            key={star}
-            className={`admin-feedback__star ${star <= rating ? 'admin-feedback__star--filled' : ''}`}
-          >
-            ★
-          </span>
-        ))}
-      </div>
-    );
-  };
+  const filtered = feedback.filter((item) => {
+    const q = search.trim().toLowerCase();
+    const name = (item.display_name || '').toLowerCase();
+    const msg = (item.message || '').toLowerCase();
+    return !q || name.includes(q) || msg.includes(q);
+  });
+
+  async function handleDelete(id) {
+    const ok = window.confirm('Delete this feedback entry? This cannot be undone.');
+    if (!ok) return;
+
+    setDeletingId(id);
+    try {
+      await deleteFeedback(id);
+      setFeedback((prev) => prev.filter((f) => f.id !== id));
+    } catch (err) {
+      console.error('Delete feedback error:', err);
+      alert('Delete failed: ' + err.message);
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   return (
     <div className="admin-page">
       <h1 className="admin-page__title">Feedback</h1>
 
-      {/* Stats Cards */}
-      <div className="admin-dashboard__stats">
-        <StatCard label="Average Rating" value={loading ? '...' : stats.averageRating} icon={ICONS.rating} />
-        <StatCard label="Total Feedback" value={loading ? '...' : stats.totalFeedback} icon={ICONS.feedback} />
-        <StatCard label="Bug Reports" value={loading ? '...' : stats.bugReports} icon={ICONS.bug} />
-        <StatCard label="Feature Requests" value={loading ? '...' : stats.featureRequests} icon={ICONS.feature} />
-      </div>
-
-      {/* Feedback List */}
-      <div className="admin-dashboard__section">
-        <h2 className="admin-dashboard__section-title">All Feedback</h2>
-        <div className="admin-dashboard__section-content">
-          {loading ? (
-            <div>Loading…</div>
-          ) : feedback.length > 0 ? (
-            <div className="admin-feedback__list">
-              {feedback.map((item) => (
-                <div key={item.id} className="admin-feedback__item">
-                  <div className="admin-feedback__header">
-                    <div className="admin-feedback__rating">
-                      {renderStars(item.rating)}
-                      <span className="admin-feedback__rating-number">{item.rating}/5</span>
-                    </div>
-                    <span
-                      className="admin-feedback__category"
-                      style={{ backgroundColor: CATEGORY_COLORS[item.category] || '#A79277' }}
-                    >
-                      {item.category}
-                    </span>
-                  </div>
-                  <p className="admin-feedback__message">{item.message}</p>
-                  <div className="admin-feedback__meta">
-                    <span className="admin-feedback__user-id">User ID: {item.user_id}</span>
-                    <span className="admin-feedback__date">
-                      {new Date(item.created_at).toLocaleString()}
-                    </span>
-                  </div>
-                  {item.allow_contact && (
-                    <div className="admin-feedback__contact">
-                      ✓ Contact allowed
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="admin-dashboard__no-data">No feedback received yet</div>
-          )}
+      <div className="admin-toolbar">
+        <div className="admin-toolbar__search">
+          <span className="admin-search-icon"><SearchIcon /></span>
+          <input
+            type="text"
+            className="admin-search-input"
+            placeholder="Search by username or message…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
       </div>
+
+      {!loading && !error && (
+        <p className="admin-result-count">
+          {filtered.length.toLocaleString()} {filtered.length === 1 ? 'entry' : 'entries'}
+        </p>
+      )}
+
+      {loading ? (
+        <div className="admin-empty-state">
+          <p className="admin-empty-state__title">Loading…</p>
+        </div>
+      ) : error ? (
+        <div className="admin-empty-state">
+          <p className="admin-empty-state__title">Failed to load feedback</p>
+          <p className="admin-empty-state__desc">{error}</p>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="admin-empty-state">
+          <p className="admin-empty-state__title">No feedback yet</p>
+          <p className="admin-empty-state__desc">Feedback submitted by users will appear here.</p>
+        </div>
+      ) : (
+        <div className="admin-table-wrapper">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Category</th>
+                <th>Rating</th>
+                <th>Message</th>
+                <th>Date</th>
+                <th aria-label="Actions"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((item) => (
+                <tr key={item.id}>
+                  <td>
+                    <span className="admin-username">
+                      {item.display_name ?? <span className="admin-muted">—</span>}
+                    </span>
+                  </td>
+                  <td>{item.category}</td>
+                  <td>
+                    <Stars rating={item.rating} />
+                  </td>
+                  <td>
+                    <span className="admin-table__message" title={item.message}>
+                      {item.message}
+                    </span>
+                  </td>
+                  <td className="admin-date">
+                    {new Date(item.created_at).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </td>
+                  <td className="admin-table__action-cell">
+                    <button
+                      className="admin-delete-btn"
+                      onClick={() => handleDelete(item.id)}
+                      disabled={deletingId === item.id}
+                      aria-label="Delete feedback"
+                      title="Delete"
+                    >
+                      {deletingId === item.id ? '…' : <TrashIcon />}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

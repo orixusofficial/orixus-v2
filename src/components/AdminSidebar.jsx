@@ -31,9 +31,7 @@ const ICONS = {
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: ICONS.dashboard },
   { id: 'users', label: 'Users', icon: ICONS.users },
-  { id: 'analytics', label: 'Analytics', icon: ICONS.analytics },
   { id: 'feedback', label: 'Feedback', icon: ICONS.feedback },
-  { id: 'settings', label: 'Settings', icon: ICONS.settings },
 ];
 
 export default function AdminSidebar({

@@ -1,74 +1,97 @@
 import { supabase } from '../lib/supabase';
 
-// Admin functions use the regular Supabase client with RLS policies
-// Service role keys must never be exposed to the frontend
-// Admin operations should be moved to a backend API with proper authentication
+// Admin service — uses the anon client with admin-specific RLS policies.
+// Requires: supabase/migrations/20260731000000_admin_rls_policies.sql
+
+// ─── Dashboard stats ─────────────────────────────────────────────────────────
 
 export async function fetchAdminStats() {
-  const [usersResult, habitsResult, journalResult, completionsResult] = await Promise.all([
-    // Total users from profiles table
+  const [usersResult, habitsResult, journalResult, feedbackResult] = await Promise.all([
     supabase.from('profiles').select('id', { count: 'exact', head: true }),
-    
-    // Total habits
     supabase.from('habits').select('id', { count: 'exact', head: true }),
-    
-    // Total journal entries
     supabase.from('journal_entries').select('id', { count: 'exact', head: true }),
-    
-    // Total check-ins (habit completions)
-    supabase.from('habit_completions').select('id', { count: 'exact', head: true }),
+    supabase.from('feedback').select('id', { count: 'exact', head: true }),
   ]);
 
-  const totalUsers = usersResult.count ?? 0;
-  const totalHabits = habitsResult.count ?? 0;
-  const totalJournalEntries = journalResult.count ?? 0;
-  const totalCheckIns = completionsResult.count ?? 0;
-
-  // Active users: users who have at least one habit
-  const { data: habitsData } = await supabase
-    .from('habits')
-    .select('user_id');
-  
-  const uniqueUserIds = new Set(habitsData?.map(h => h.user_id) ?? []);
-  const activeUsersCount = uniqueUserIds.size;
-
   return {
-    totalUsers,
-    activeUsers: activeUsersCount ?? 0,
-    totalHabits,
-    totalJournalEntries,
-    totalCheckIns,
+    totalUsers: usersResult.count ?? 0,
+    totalHabits: habitsResult.count ?? 0,
+    totalJournalEntries: journalResult.count ?? 0,
+    totalFeedback: feedbackResult.count ?? 0,
   };
 }
 
-export async function fetchUserGrowth() {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('created_at')
-    .order('created_at', { ascending: true });
-  
-  if (error) throw error;
-  return data ?? [];
+// ─── Users table ─────────────────────────────────────────────────────────────
+
+function calculateStreak(dates) {
+  if (!dates || dates.length === 0) return 0;
+
+  // Unique dates, sorted newest first
+  const sorted = [...new Set(dates)].sort().reverse();
+
+  const today = new Date().toISOString().split('T')[0];
+  const yesterday = new Date(Date.now() - 86_400_000).toISOString().split('T')[0];
+
+  // Streak must start from today or yesterday to be considered active
+  if (sorted[0] !== today && sorted[0] !== yesterday) return 0;
+
+  let streak = 0;
+  let expected = sorted[0];
+
+  for (const date of sorted) {
+    if (date === expected) {
+      streak++;
+      // Move expected back one day
+      const d = new Date(expected + 'T12:00:00Z');
+      d.setUTCDate(d.getUTCDate() - 1);
+      expected = d.toISOString().split('T')[0];
+    } else {
+      break;
+    }
+  }
+
+  return streak;
 }
 
-export async function fetchRecentSignups(limit = 10) {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('id, display_name, created_at')
-    .order('created_at', { ascending: false })
-    .limit(limit);
-  
-  if (error) throw error;
-  return data ?? [];
-}
+export async function fetchAdminUsers() {
+  const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split('T')[0];
 
-export async function fetchActivityOverview() {
-  const { data, error } = await supabase
-    .from('habit_completions')
-    .select('created_on')
-    .order('created_on', { ascending: false })
-    .limit(30);
-  
-  if (error) throw error;
-  return data ?? [];
+  const [profilesResult, habitsResult, completionsResult] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, display_name, created_at')
+      .order('created_at', { ascending: false }),
+    supabase.from('habits').select('user_id'),
+    supabase
+      .from('habit_completions')
+      .select('user_id, completed_on')
+      .gte('completed_on', ninetyDaysAgo),
+  ]);
+
+  const profiles = profilesResult.data ?? [];
+  const habits = habitsResult.data ?? [];
+  const completions = completionsResult.data ?? [];
+
+  // Habit count per user
+  const habitCounts = {};
+  habits.forEach((h) => {
+    habitCounts[h.user_id] = (habitCounts[h.user_id] || 0) + 1;
+  });
+
+  // Completion dates grouped per user
+  const completionsByUser = {};
+  completions.forEach((c) => {
+    if (!completionsByUser[c.user_id]) completionsByUser[c.user_id] = [];
+    completionsByUser[c.user_id].push(c.completed_on);
+  });
+
+  return profiles.map((p) => ({
+    id: p.id,
+    display_name: p.display_name,
+    created_at: p.created_at,
+    habitCount: habitCounts[p.id] || 0,
+    currentStreak: calculateStreak(completionsByUser[p.id]),
+  }));
 }

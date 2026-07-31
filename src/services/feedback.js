@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 
+// Submit feedback from Settings page
 export async function submitFeedback(feedbackData) {
   const { data, error } = await supabase
     .from('feedback')
@@ -8,44 +9,54 @@ export async function submitFeedback(feedbackData) {
       rating: feedbackData.rating,
       category: feedbackData.category,
       message: feedbackData.message,
-      allow_contact: feedbackData.allowContact,
     })
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    console.error('Feedback insert error:', error);
+    throw error;
+  }
   return data;
 }
 
+// Fetch all feedback for admin panel
 export async function fetchAllFeedback() {
-  const { data, error } = await supabase
+  const { data: feedbackData, error: feedbackError } = await supabase
     .from('feedback')
     .select('*')
     .order('created_at', { ascending: false });
 
-  if (error) throw error;
-  return data;
+  if (feedbackError) {
+    console.error('Fetch feedback error:', feedbackError);
+    throw feedbackError;
+  }
+
+  if (!feedbackData || feedbackData.length === 0) return [];
+
+  // Join with profiles to get usernames
+  const userIds = [...new Set(feedbackData.map((f) => f.user_id))];
+  const { data: profilesData } = await supabase
+    .from('profiles')
+    .select('id, display_name')
+    .in('id', userIds);
+
+  const profileMap = {};
+  (profilesData || []).forEach((p) => {
+    profileMap[p.id] = p.display_name || null;
+  });
+
+  return feedbackData.map((f) => ({
+    ...f,
+    display_name: profileMap[f.user_id] ?? null,
+  }));
 }
 
-export async function fetchFeedbackStats() {
-  const { data: feedbackData, error } = await supabase
-    .from('feedback')
-    .select('rating, category');
-
-  if (error) throw error;
-
-  const totalFeedback = feedbackData?.length || 0;
-  const bugReports = feedbackData?.filter(f => f.category === 'Bug Report').length || 0;
-  const featureRequests = feedbackData?.filter(f => f.category === 'Feature Request').length || 0;
-  
-  const averageRating = totalFeedback > 0
-    ? feedbackData.reduce((sum, f) => sum + f.rating, 0) / totalFeedback
-    : 0;
-
-  return {
-    averageRating: averageRating.toFixed(1),
-    totalFeedback,
-    bugReports,
-    featureRequests,
-  };
+// Delete feedback entry (admin only)
+export async function deleteFeedback(id) {
+  const { error } = await supabase.from('feedback').delete().eq('id', id);
+  if (error) {
+    console.error('Delete feedback error:', error);
+    throw error;
+  }
 }

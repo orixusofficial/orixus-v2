@@ -141,3 +141,343 @@
     font-size: 1.5rem;
   }
 }
+
+/* ========================================
+   Admin Table
+   ======================================== */
+
+.admin-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  font-family: var(--font-body);
+}
+
+.admin-table thead th {
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--color-border);
+  background-color: rgba(255, 255, 255, 0.015);
+  white-space: nowrap;
+}
+
+.admin-table thead th:last-child {
+  width: 48px;
+  text-align: center;
+}
+
+.admin-table tbody td {
+  padding: 12px var(--space-md);
+  border-bottom: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  vertical-align: middle;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tbody tr:hover td {
+  background-color: rgba(255, 255, 255, 0.015);
+}
+
+.admin-table__message {
+  display: block;
+  max-width: 280px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-text-secondary);
+}
+
+.admin-table__action-cell {
+  text-align: center;
+  width: 48px;
+}
+
+/* ========================================
+   Toolbar — search + filters
+   ======================================== */
+
+.admin-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.admin-toolbar__search {
+  flex: 1;
+  min-width: 220px;
+  position: relative;
+}
+
+.admin-search-icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+.admin-search-input {
+  width: 100%;
+  padding: 10px var(--space-md) 10px 34px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.admin-search-input:focus {
+  border-color: var(--color-accent);
+}
+
+.admin-search-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.admin-filter-select {
+  padding: 10px var(--space-md);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  font-family: var(--font-body);
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+  min-width: 148px;
+}
+
+.admin-filter-select:focus {
+  border-color: var(--color-accent);
+}
+
+.admin-filter-select option {
+  background-color: #1A1D24;
+  color: var(--color-text-primary);
+}
+
+/* ========================================
+   Result count
+   ======================================== */
+
+.admin-result-count {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-md);
+}
+
+/* ========================================
+   Category badge
+   ======================================== */
+
+.admin-category-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+/* ========================================
+   Star rating
+   ======================================== */
+
+.admin-stars {
+  display: flex;
+  gap: 1px;
+}
+
+.admin-star {
+  font-size: 13px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.12);
+}
+
+.admin-star--filled {
+  color: var(--color-accent);
+}
+
+/* ========================================
+   Delete button
+   ======================================== */
+
+.admin-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  border: 1px solid rgba(185, 91, 91, 0.25);
+  border-radius: var(--radius-sm);
+  color: #B95B5B;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.admin-delete-btn:hover:not(:disabled) {
+  background-color: rgba(185, 91, 91, 0.1);
+  border-color: rgba(185, 91, 91, 0.5);
+}
+
+.admin-delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   Empty state
+   ======================================== */
+
+.admin-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3xl) var(--space-xl);
+  text-align: center;
+}
+
+.admin-empty-state__icon {
+  width: 40px;
+  height: 40px;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-lg);
+  opacity: 0.4;
+}
+
+.admin-empty-state__title {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-xs);
+}
+
+.admin-empty-state__desc {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  max-width: 300px;
+}
+
+/* ========================================
+   Misc table cell helpers
+   ======================================== */
+
+.admin-username {
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.admin-date {
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  font-size: var(--text-xs);
+}
+
+.admin-muted {
+  color: var(--color-text-muted);
+}
+
+.admin-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 20px;
+  padding: 0 6px;
+  background-color: var(--color-accent-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.admin-streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+/* ========================================
+   Error banner
+   ======================================== */
+
+.admin-error-banner {
+  padding: var(--space-md) var(--space-lg);
+  background-color: rgba(185, 91, 91, 0.08);
+  border: 1px solid rgba(185, 91, 91, 0.2);
+  border-radius: var(--radius-md);
+  color: #B95B5B;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-xl);
+}
+
+/* ========================================
+   Loading fallback
+   ======================================== */
+
+.admin-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
+
+@media (max-width: 768px) {
+  .admin-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-toolbar__search {
+    min-width: unset;
+  }
+
+  .admin-filter-select {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .admin-table__message {
+    max-width: 160px;
+  }
+}
+

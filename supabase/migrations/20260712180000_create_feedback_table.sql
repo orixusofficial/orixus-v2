@@ -25,11 +25,17 @@ CREATE POLICY "Users can view their own feedback" ON feedback
   TO authenticated
   USING (auth.uid() = user_id);
 
--- Admin can view all feedback (assuming admin role exists)
+-- Admin can view all feedback
 CREATE POLICY "Admin can view all feedback" ON feedback
   FOR SELECT
   TO authenticated
-  USING (auth.jwt() ->> 'role' = 'admin');
+  USING (auth.uid() = '99786e31-0e01-4d81-b0ed-1ca74bf3c91a');
+
+-- Admin can delete feedback
+CREATE POLICY "Admin can delete feedback" ON feedback
+  FOR DELETE
+  TO authenticated
+  USING (auth.uid() = '99786e31-0e01-4d81-b0ed-1ca74bf3c91a');
 
 -- Create index for better query performance
 CREATE INDEX IF NOT EXISTS idx_feedback_user_id ON feedback(user_id);

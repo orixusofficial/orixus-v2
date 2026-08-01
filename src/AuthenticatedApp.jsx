@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import AppLayout from './layouts/AppLayout';
 import { useAuth } from './contexts/AuthContext';
 import { useUserData } from './hooks/useUserData';
@@ -6,14 +6,18 @@ import { useStreakCelebration } from './hooks/useStreakCelebration';
 import { useRankPromotion } from './hooks/useRankPromotion';
 import CelebrationOverlay from './components/CelebrationOverlay';
 import RankPromotionCeremony from './components/RankPromotionCeremony';
+import HabitsPage from './pages/HabitsPage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import JournalPage from './pages/JournalPage';
+import ProfilePage from './pages/ProfilePage';
+import SettingsPage from './pages/SettingsPage';
+import LogoutPage from './pages/LogoutPage';
+import HabitsSkeleton from './components/skeleton/HabitsSkeleton';
+import JournalSkeleton from './components/skeleton/JournalSkeleton';
+import ProfileSkeleton from './components/skeleton/ProfileSkeleton';
+import AnalyticsSkeleton from './components/skeleton/AnalyticsSkeleton';
+import SettingsSkeleton from './components/skeleton/SettingsSkeleton';
 import './styles/dashboard.css';
-
-const HabitsPage = lazy(() => import('./pages/HabitsPage'));
-const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
-const JournalPage = lazy(() => import('./pages/JournalPage'));
-const ProfilePage = lazy(() => import('./pages/ProfilePage'));
-const SettingsPage = lazy(() => import('./pages/SettingsPage'));
-const LogoutPage = lazy(() => import('./pages/LogoutPage'));
 
 function AddHabitModal({ isOpen, onClose, onAdd }) {
   const [label, setLabel] = useState('');
@@ -230,14 +234,6 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
   };
 
   const renderContent = () => {
-    if (loading) {
-      return (
-        <div className="dashboard-overview">
-          <p className="auth-shell__status">Loading your discipline data…</p>
-        </div>
-      );
-    }
-
     if (error) {
       console.log('🔴 Sync Error UI render – error object:', error);
       return (
@@ -253,6 +249,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
 
     switch (currentActiveItem) {
       case 'habits':
+        if (loading) return <HabitsSkeleton />;
         return (
           <HabitsPage
             habits={habits}
@@ -271,16 +268,21 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
           />
         );
       case 'analytics':
+        if (loading) return <AnalyticsSkeleton />;
         return <AnalyticsPage habits={habits} completionData={completionData} />;
       case 'journal':
+        if (loading) return <JournalSkeleton />;
         return <JournalPage entries={journalEntries} onAddEntry={addJournalEntry} defaultMood={profile?.default_discipline_state || 'focused'} />;
       case 'profile':
+        if (loading) return <ProfileSkeleton />;
         return <ProfilePage habits={habits} completionData={completionData} journalEntries={journalEntries} profile={profile} />;
       case 'settings':
+        if (loading) return <SettingsSkeleton />;
         return <SettingsPage onLoggedOut={onLoggedOut} profile={profile} updateProfileSettings={updateProfileSettings} refresh={refresh} />;
       case 'logout':
         return <LogoutPage onNavigate={handleNavigate} onLoggedOut={onLoggedOut} />;
       default:
+        if (loading) return <HabitsSkeleton />;
         return (
           <HabitsPage
             habits={habits}
@@ -303,9 +305,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
 
   return (
     <AppLayout activeItem={activeItem} onNavigate={handleNavigate} isAuthenticated streak={streak}>
-      <Suspense fallback={<p>Loading…</p>}>
-        {renderContent()}
-      </Suspense>
+      {renderContent()}
 
       <AddHabitModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} onAdd={addHabit} />
 

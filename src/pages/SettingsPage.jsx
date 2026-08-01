@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { Eye, EyeOff, Lock, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, Lock, ShieldCheck, Info, ExternalLink } from 'lucide-react';
 import { useUserData } from '../hooks/useUserData';
 import { useAuth } from '../contexts/AuthContext';
 import { submitFeedback } from '../services/feedback';
 import { uploadAvatar, getAvatarSignedUrl } from '../services/avatar';
 import '../styles/dashboard.css';
+
+const ORIXUS_VERSION = '1.0.0';
 
 const JOURNAL_MOODS = [
   { value: 'FAILED', label: 'Failed', color: '#a85454' },
@@ -84,6 +86,13 @@ const SETTINGS_ICONS = {
   key: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+    </svg>
+  ),
+  info: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 16v-4" />
+      <path d="M12 8h.01" />
     </svg>
   ),
 };
@@ -322,6 +331,82 @@ function PasswordModal({
             </div>
           )}
         </form>
+      </div>
+    </div>
+  );
+}
+
+function AboutModal({ isOpen, onClose }) {
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKey = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="settings-about-modal-overlay" onClick={onClose}>
+      <div 
+        className="settings-about-modal" 
+        onClick={(e) => e.stopPropagation()}
+        ref={modalRef}
+      >
+        <div className="settings-about-modal__header">
+          <h2 className="settings-about-modal__title">About Orixus</h2>
+        </div>
+
+        <div className="settings-about-modal__content">
+          <p className="settings-about-modal__description">
+            Orixus helps ambitious people build discipline through consistent daily action.
+          </p>
+
+          <div className="settings-about-modal__version">
+            <span className="settings-about-modal__version-label">Version</span>
+            <span className="settings-about-modal__version-value">v{ORIXUS_VERSION}</span>
+          </div>
+
+          <div className="settings-about-modal__links">
+            <a 
+              href="https://orixus.vercel.app" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="settings-about-modal__link"
+            >
+              <span>Website</span>
+              <ExternalLink size={14} />
+            </a>
+            <a 
+              href="https://orixus.vercel.app/privacy" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="settings-about-modal__link"
+            >
+              <span>Privacy Policy</span>
+              <ExternalLink size={14} />
+            </a>
+            <a 
+              href="https://orixus.vercel.app/terms" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="settings-about-modal__link"
+            >
+              <span>Terms of Service</span>
+              <ExternalLink size={14} />
+            </a>
+          </div>
+        </div>
+
+        <div className="settings-about-modal__footer">
+          <span>© 2026 Orixus</span>
+        </div>
       </div>
     </div>
   );
@@ -589,6 +674,9 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
   const [passwordSuccess, setPasswordSuccess] = useState('');
   const [updatingPassword, setUpdatingPassword] = useState(false);
   const [lastPasswordUpdate, setLastPasswordUpdate] = useState(profile?.password_updated_at || null);
+
+  // About modal state
+  const [showAboutModal, setShowAboutModal] = useState(false);
 
   const showNotification = (message, type = 'success') => {
     setNotification({ message, type });
@@ -1012,6 +1100,17 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
           </div>
         </div>
 
+        {/* About Section */}
+        <div className="settings-list-section">
+          <div className="settings-list-item" onClick={() => setShowAboutModal(true)}>
+            <div className="settings-list-item__icon">{SETTINGS_ICONS.info}</div>
+            <span className="settings-list-item__label">About</span>
+            <div className="settings-list-item__right">
+              {SETTINGS_ICONS.chevronRight}
+            </div>
+          </div>
+        </div>
+
         {/* Logout Section */}
         <div className="settings-list-section">
           <div className="settings-list-item settings-list-item--accent" onClick={handleLogout}>
@@ -1116,6 +1215,12 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
         title="Sign out?"
         message="Are you sure you want to sign out of your Orixus account?"
         confirmText="Sign Out"
+      />
+
+      {/* About Modal */}
+      <AboutModal
+        isOpen={showAboutModal}
+        onClose={() => setShowAboutModal(false)}
       />
 
       {/* Feedback Modal */}

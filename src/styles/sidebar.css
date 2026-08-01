@@ -63,7 +63,7 @@
   align-items: center;
   opacity: 1;
   max-width: 160px;
-  height: 32px;
+  height: 28px;
   transition: opacity 200ms ease, max-width var(--transition-slow);
 }
 
@@ -84,8 +84,8 @@
   left: 50%;
   transform: translateX(-50%) translateY(20px);
   opacity: 0;
-  height: 32px;
-  width: 32px;
+  height: 28px;
+  width: 28px;
   transition: opacity 200ms ease, transform var(--transition-slow);
 }
 
@@ -107,8 +107,14 @@
 
 .sidebar__logo img {
   width: auto;
-  height: 100%;
+  height: 24px;
   object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .sidebar__logo img {
+    height: 22px;
+  }
 }
 
 /* ---- Hamburger/Collapse button — PanelLeft Icon ---- */

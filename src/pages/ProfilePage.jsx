@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import '../styles/dashboard.css';
 import { getRankInfo, RANKS } from '../utils/analyticsHelpers';
 import { getAvatarSignedUrl } from '../services/avatar';
+import { useAuth } from '../contexts/AuthContext';
 
 const ACHIEVEMENTS_CONFIG = [
   { name: 'First Spark', description: 'Complete your first habit check-in', icon: 'flame', check: (data) => data.totalHabits >= 1 },
@@ -65,6 +66,8 @@ const ICONS = {
 };
 
 export default function ProfilePage({ habits = [], completionData = {}, journalEntries = [], profile = null }) {
+  const { user } = useAuth();
+  const isEmailVerified = Boolean(user?.email_confirmed_at);
   const [loading, setLoading] = useState(true);
   const [signedAvatarUrl, setSignedAvatarUrl] = useState(null);
 
@@ -196,6 +199,11 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
               </span>
             )}
           </div>
+          {!isEmailVerified && (
+            <span className="profile-verify-badge">
+              Verify Email
+            </span>
+          )}
         </div>
         <div className="profile-hero-card__identity">
           <h3 className="profile-hero-card__name">{profile?.display_name || 'Dev Operator'}</h3>

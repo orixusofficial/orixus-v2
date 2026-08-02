@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Eye, EyeOff, Lock, ShieldCheck, Info, ExternalLink } from 'lucide-react';
+import { Eye, EyeOff, Lock, ShieldCheck, Info, ExternalLink, User, Bell, Book, Layout, RefreshCw, Trash, LogOut, MessageSquare, ChevronRight, Check, X, Upload, Image as ImageIcon, UserRound, Shield, AlertCircle, Star } from 'lucide-react';
 import { useUserData } from '../hooks/useUserData';
 import { useAuth } from '../contexts/AuthContext';
 import { submitFeedback } from '../services/feedback';
@@ -16,86 +16,45 @@ const JOURNAL_MOODS = [
   { value: 'EXCELLENT', label: 'Excellent', color: '#B38E46' },
 ];
 
-const SETTINGS_ICONS = {
-  user: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  ),
-  book: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-    </svg>
-  ),
-  calendar: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-      <line x1="16" y1="2" x2="16" y2="6" />
-      <line x1="8" y1="2" x2="8" y2="6" />
-      <line x1="3" y1="10" x2="21" y2="10" />
-    </svg>
-  ),
-  layout: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-      <line x1="3" y1="9" x2="21" y2="9" />
-      <line x1="9" y1="21" x2="9" y2="9" />
-    </svg>
-  ),
-  chevronRight: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="9 18 15 12 9 6" />
-    </svg>
-  ),
-  shield: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    </svg>
-  ),
-  trash: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="3 6 5 6 21 6" />
-      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-    </svg>
-  ),
-  refresh: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M23 4v6h-6" />
-      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-    </svg>
-  ),
-  logout: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-      <polyline points="16 17 21 12 16 7" />
-      <line x1="21" y1="12" x2="9" y2="12" />
-    </svg>
-  ),
-  star: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  ),
-  starOutline: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  ),
-  key: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
-    </svg>
-  ),
-  info: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 16v-4" />
-      <path d="M12 8h.01" />
-    </svg>
-  ),
-};
+
+// Reusable SettingsRow component
+function SettingsRow({ icon, label, right, onClick, disabled = false, destructive = false }) {
+  return (
+    <button
+      className={`orixus-settings-row ${disabled ? 'orixus-settings-row--disabled' : ''} ${destructive ? 'orixus-settings-row--destructive' : ''}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      <div className="orixus-settings-row__icon">{icon}</div>
+      <span className="orixus-settings-row__label">{label}</span>
+      <div className="orixus-settings-row__right">{right}</div>
+    </button>
+  );
+}
+
+// Premium Toggle component
+function PremiumToggle({ enabled, onChange, disabled = false }) {
+  return (
+    <button
+      className={`orixus-toggle ${enabled ? 'orixus-toggle--active' : ''}`}
+      onClick={() => onChange(!enabled)}
+      disabled={disabled}
+      aria-label={enabled ? 'Disable' : 'Enable'}
+    >
+      <span className="orixus-toggle__thumb" />
+    </button>
+  );
+}
+
+// Status Pill component
+function StatusPill({ status }) {
+  const isVerified = status === 'verified';
+  return (
+    <span className={`orixus-status-pill ${isVerified ? 'orixus-status-pill--verified' : 'orixus-status-pill--pending'}`}>
+      {isVerified ? 'Verified' : 'Not Verified'}
+    </span>
+  );
+}
 
 function ConfirmationModal({ isOpen, onClose, onConfirm, title, message, confirmText = 'Confirm' }) {
   useEffect(() => {
@@ -110,15 +69,15 @@ function ConfirmationModal({ isOpen, onClose, onConfirm, title, message, confirm
   if (!isOpen) return null;
 
   return (
-    <div className={`dashboard-modal-overlay ${isOpen ? 'dashboard-modal-overlay--visible' : ''}`} onClick={onClose}>
-      <div className="dashboard-modal" onClick={(e) => e.stopPropagation()}>
-        <h3 className="dashboard-modal__title">{title}</h3>
-        <p className="dashboard-modal__desc">{message}</p>
-        <div className="dashboard-modal__actions">
-          <button className="dashboard-modal__btn dashboard-modal__btn--secondary" onClick={onClose}>
+    <div className={`orixus-modal-overlay ${isOpen ? 'orixus-modal-overlay--visible' : ''}`} onClick={onClose}>
+      <div className="orixus-modal" onClick={(e) => e.stopPropagation()}>
+        <h3 className="orixus-modal__title">{title}</h3>
+        <p className="orixus-modal__desc">{message}</p>
+        <div className="orixus-modal__actions">
+          <button className="orixus-modal__btn orixus-modal__btn--secondary" onClick={onClose}>
             Cancel
           </button>
-          <button className="dashboard-modal__btn dashboard-modal__btn--primary" onClick={onConfirm}>
+          <button className="orixus-modal__btn orixus-modal__btn--primary" onClick={onConfirm}>
             {confirmText}
           </button>
         </div>
@@ -165,27 +124,29 @@ function PasswordModal({
   if (!isOpen) return null;
 
   return (
-    <div className="settings-password-modal-overlay" onClick={onClose}>
+    <div className="orixus-modal-overlay" onClick={onClose}>
       <div 
-        className="settings-password-modal" 
+        className="orixus-modal orixus-modal--password" 
         onClick={(e) => e.stopPropagation()}
         ref={modalRef}
       >
-        <div className="settings-password-modal__header">
-          <h2 className="settings-password-modal__title">Change Password</h2>
-          <p className="settings-password-modal__desc">Update your account password securely.</p>
+        <div className="orixus-modal__header">
+          <h2 className="orixus-modal__title">Change Password</h2>
+          <button className="orixus-modal__close" onClick={onClose} aria-label="Close">
+            <X size={18} />
+          </button>
         </div>
 
         <form onSubmit={handlePasswordChange}>
-          <div className="settings-password-modal__field">
-            <label className="settings-password-modal__label" htmlFor="current-password">
+          <div className="orixus-modal__field">
+            <label className="orixus-modal__label" htmlFor="current-password">
               Current Password
             </label>
-            <div className="settings-password-modal__input-wrapper">
+            <div className="orixus-modal__input-wrapper">
               <input
                 id="current-password"
                 type={showCurrentPassword ? 'text' : 'password'}
-                className="settings-password-modal__input"
+                className="orixus-modal__input"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 autoComplete="current-password"
@@ -193,24 +154,25 @@ function PasswordModal({
               />
               <button
                 type="button"
-                className="settings-password-modal__toggle"
+                className="orixus-modal__toggle"
                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                 disabled={updatingPassword}
+                aria-label={showCurrentPassword ? 'Hide password' : 'Show password'}
               >
                 {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
           </div>
 
-          <div className="settings-password-modal__field">
-            <label className="settings-password-modal__label" htmlFor="new-password">
+          <div className="orixus-modal__field">
+            <label className="orixus-modal__label" htmlFor="new-password">
               New Password
             </label>
-            <div className="settings-password-modal__input-wrapper">
+            <div className="orixus-modal__input-wrapper">
               <input
                 id="new-password"
                 type={showNewPassword ? 'text' : 'password'}
-                className="settings-password-modal__input"
+                className="orixus-modal__input"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 autoComplete="new-password"
@@ -218,57 +180,58 @@ function PasswordModal({
               />
               <button
                 type="button"
-                className="settings-password-modal__toggle"
+                className="orixus-modal__toggle"
                 onClick={() => setShowNewPassword(!showNewPassword)}
                 disabled={updatingPassword}
+                aria-label={showNewPassword ? 'Hide password' : 'Show password'}
               >
                 {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
 
             {newPassword && (
-              <div className="settings-password-modal__health">
-                <div className="settings-password-modal__strength">
-                  <span className="settings-password-modal__strength-label">Strength:</span>
-                  <span className={`settings-password-modal__strength-value settings-password-modal__strength-value--${passwordHealth.strength.toLowerCase()}`}>
+              <div className="orixus-modal__health">
+                <div className="orixus-modal__strength">
+                  <span className="orixus-modal__strength-label">Strength:</span>
+                  <span className={`orixus-modal__strength-value orixus-modal__strength-value--${passwordHealth.strength.toLowerCase()}`}>
                     {passwordHealth.strength}
                   </span>
                 </div>
-                <div className="settings-password-modal__checks">
-                  <div className={`settings-password-modal__check ${passwordHealth.checks.length ? 'settings-password-modal__check--valid' : ''}`}>
+                <div className="orixus-modal__checks">
+                  <div className={`orixus-modal__check ${passwordHealth.checks.length ? 'orixus-modal__check--valid' : ''}`}>
                     {passwordHealth.checks.length ? <ShieldCheck size={12} /> : <Lock size={12} />}
-                    <span>Minimum 8 characters</span>
+                    <span>8+ characters</span>
                   </div>
-                  <div className={`settings-password-modal__check ${passwordHealth.checks.uppercase ? 'settings-password-modal__check--valid' : ''}`}>
+                  <div className={`orixus-modal__check ${passwordHealth.checks.uppercase ? 'orixus-modal__check--valid' : ''}`}>
                     {passwordHealth.checks.uppercase ? <ShieldCheck size={12} /> : <Lock size={12} />}
-                    <span>Uppercase letter</span>
+                    <span>Uppercase</span>
                   </div>
-                  <div className={`settings-password-modal__check ${passwordHealth.checks.lowercase ? 'settings-password-modal__check--valid' : ''}`}>
+                  <div className={`orixus-modal__check ${passwordHealth.checks.lowercase ? 'orixus-modal__check--valid' : ''}`}>
                     {passwordHealth.checks.lowercase ? <ShieldCheck size={12} /> : <Lock size={12} />}
-                    <span>Lowercase letter</span>
+                    <span>Lowercase</span>
                   </div>
-                  <div className={`settings-password-modal__check ${passwordHealth.checks.number ? 'settings-password-modal__check--valid' : ''}`}>
+                  <div className={`orixus-modal__check ${passwordHealth.checks.number ? 'orixus-modal__check--valid' : ''}`}>
                     {passwordHealth.checks.number ? <ShieldCheck size={12} /> : <Lock size={12} />}
                     <span>Number</span>
                   </div>
-                  <div className={`settings-password-modal__check ${passwordHealth.checks.special ? 'settings-password-modal__check--valid' : ''}`}>
+                  <div className={`orixus-modal__check ${passwordHealth.checks.special ? 'orixus-modal__check--valid' : ''}`}>
                     {passwordHealth.checks.special ? <ShieldCheck size={12} /> : <Lock size={12} />}
-                    <span>Special character</span>
+                    <span>Special</span>
                   </div>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="settings-password-modal__field">
-            <label className="settings-password-modal__label" htmlFor="confirm-password">
-              Confirm New Password
+          <div className="orixus-modal__field">
+            <label className="orixus-modal__label" htmlFor="confirm-password">
+              Confirm Password
             </label>
-            <div className="settings-password-modal__input-wrapper">
+            <div className="orixus-modal__input-wrapper">
               <input
                 id="confirm-password"
                 type={showConfirmPassword ? 'text' : 'password'}
-                className="settings-password-modal__input"
+                className="orixus-modal__input"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 autoComplete="new-password"
@@ -276,34 +239,35 @@ function PasswordModal({
               />
               <button
                 type="button"
-                className="settings-password-modal__toggle"
+                className="orixus-modal__toggle"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 disabled={updatingPassword}
+                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
               >
                 {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
             {confirmPassword && newPassword !== confirmPassword && (
-              <span className="settings-password-modal__error">Passwords do not match</span>
+              <span className="orixus-modal__error">Passwords do not match</span>
             )}
           </div>
 
           {passwordError && (
-            <div className="settings-password-modal__message settings-password-modal__message--error">
+            <div className="orixus-modal__message orixus-modal__message--error">
               {passwordError}
             </div>
           )}
 
           {passwordSuccess && (
-            <div className="settings-password-modal__message settings-password-modal__message--success">
+            <div className="orixus-modal__message orixus-modal__message--success">
               {passwordSuccess}
             </div>
           )}
 
-          <div className="settings-password-modal__actions">
+          <div className="orixus-modal__actions">
             <button
               type="button"
-              className="settings-password-modal__btn settings-password-modal__btn--secondary"
+              className="orixus-modal__btn orixus-modal__btn--secondary"
               onClick={() => {
                 onClose();
                 setCurrentPassword('');
@@ -318,16 +282,16 @@ function PasswordModal({
             </button>
             <button
               type="submit"
-              className="settings-password-modal__btn settings-password-modal__btn--primary"
+              className="orixus-modal__btn orixus-modal__btn--primary"
               disabled={updatingPassword}
             >
-              {updatingPassword ? 'Updating password...' : 'Update Password'}
+              {updatingPassword ? 'Updating...' : 'Update Password'}
             </button>
           </div>
 
           {lastPasswordUpdate && (
-            <div className="settings-password-modal__last-update">
-              Last password update: {new Date(lastPasswordUpdate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+            <div className="orixus-modal__last-update">
+              Last updated: {new Date(lastPasswordUpdate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
             </div>
           )}
         </form>
@@ -353,32 +317,35 @@ function AboutModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="settings-about-modal-overlay" onClick={onClose}>
+    <div className="orixus-modal-overlay" onClick={onClose}>
       <div 
-        className="settings-about-modal" 
+        className="orixus-modal orixus-modal--about" 
         onClick={(e) => e.stopPropagation()}
         ref={modalRef}
       >
-        <div className="settings-about-modal__header">
-          <h2 className="settings-about-modal__title">About Orixus</h2>
+        <div className="orixus-modal__header">
+          <h2 className="orixus-modal__title">About Orixus</h2>
+          <button className="orixus-modal__close" onClick={onClose} aria-label="Close">
+            <X size={18} />
+          </button>
         </div>
 
-        <div className="settings-about-modal__content">
-          <p className="settings-about-modal__description">
+        <div className="orixus-modal__content">
+          <p className="orixus-modal__description">
             Orixus helps ambitious people build discipline through consistent daily action.
           </p>
 
-          <div className="settings-about-modal__version">
-            <span className="settings-about-modal__version-label">Version</span>
-            <span className="settings-about-modal__version-value">v{ORIXUS_VERSION}</span>
+          <div className="orixus-modal__version">
+            <span className="orixus-modal__version-label">Version</span>
+            <span className="orixus-modal__version-value">v{ORIXUS_VERSION}</span>
           </div>
 
-          <div className="settings-about-modal__links">
+          <div className="orixus-modal__links">
             <a 
               href="https://orixus.vercel.app" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="settings-about-modal__link"
+              className="orixus-modal__link"
             >
               <span>Website</span>
               <ExternalLink size={14} />
@@ -387,7 +354,7 @@ function AboutModal({ isOpen, onClose }) {
               href="https://orixus.vercel.app/privacy" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="settings-about-modal__link"
+              className="orixus-modal__link"
             >
               <span>Privacy Policy</span>
               <ExternalLink size={14} />
@@ -396,7 +363,7 @@ function AboutModal({ isOpen, onClose }) {
               href="https://orixus.vercel.app/terms" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="settings-about-modal__link"
+              className="orixus-modal__link"
             >
               <span>Terms of Service</span>
               <ExternalLink size={14} />
@@ -404,7 +371,7 @@ function AboutModal({ isOpen, onClose }) {
           </div>
         </div>
 
-        <div className="settings-about-modal__footer">
+        <div className="orixus-modal__footer">
           <span>© 2026 Orixus</span>
         </div>
       </div>
@@ -423,15 +390,20 @@ function EditModal({ isOpen, onClose, onSave, title, currentValue, type = 'text'
   };
 
   return (
-    <div className={`dashboard-modal-overlay ${isOpen ? 'dashboard-modal-overlay--visible' : ''}`} onClick={onClose}>
-      <div className="dashboard-modal" onClick={(e) => e.stopPropagation()}>
-        <h3 className="dashboard-modal__title">{title}</h3>
+    <div className="orixus-modal-overlay" onClick={onClose}>
+      <div className="orixus-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="orixus-modal__header">
+          <h2 className="orixus-modal__title">{title}</h2>
+          <button className="orixus-modal__close" onClick={onClose} aria-label="Close">
+            <X size={18} />
+          </button>
+        </div>
         {type === 'select' ? (
-          <div className="settings-modal-select-group">
+          <div className="orixus-modal__select-group">
             {options.map((option) => (
               <button
                 key={option.value}
-                className={`settings-modal-select-btn ${value === option.value ? 'settings-modal-select-btn--active' : ''}`}
+                className={`orixus-modal__select-btn ${value === option.value ? 'orixus-modal__select-btn--active' : ''}`}
                 onClick={() => setValue(option.value)}
               >
                 {option.label}
@@ -439,12 +411,12 @@ function EditModal({ isOpen, onClose, onSave, title, currentValue, type = 'text'
             ))}
           </div>
         ) : type === 'mood' ? (
-          <div className="journal-discipline-selector">
+          <div className="orixus-modal__mood-group">
             {options.map((option) => (
               <button
                 key={option.value}
                 type="button"
-                className={`journal-discipline-pill ${value === option.value ? 'journal-discipline-pill--selected' : ''}`}
+                className={`orixus-modal__mood-btn ${value === option.value ? 'orixus-modal__mood-btn--selected' : ''}`}
                 style={{ '--mood-color': option.color }}
                 onClick={() => setValue(option.value)}
               >
@@ -455,17 +427,17 @@ function EditModal({ isOpen, onClose, onSave, title, currentValue, type = 'text'
         ) : (
           <input
             type="text"
-            className="dashboard-modal__input"
+            className="orixus-modal__input"
             value={value}
             onChange={(e) => setValue(e.target.value)}
             autoFocus
           />
         )}
-        <div className="dashboard-modal__actions">
-          <button className="dashboard-modal__btn dashboard-modal__btn--secondary" onClick={onClose}>
+        <div className="orixus-modal__actions">
+          <button className="orixus-modal__btn orixus-modal__btn--secondary" onClick={onClose}>
             Cancel
           </button>
-          <button className="dashboard-modal__btn dashboard-modal__btn--primary" onClick={handleSave}>
+          <button className="orixus-modal__btn orixus-modal__btn--primary" onClick={handleSave}>
             Save
           </button>
         </div>
@@ -474,10 +446,8 @@ function EditModal({ isOpen, onClose, onSave, title, currentValue, type = 'text'
   );
 }
 
-import { Upload, User, Edit3, Image as ImageIcon, X, Check, MessageSquare, UserRound } from 'lucide-react';
-
 function ProfileCardModal({ isOpen, onClose, profile, onUploadClick, onSaveUsername, uploadingAvatar }) {
-  const [view, setView] = useState('menu'); // 'menu' | 'upload' | 'username'
+  const [view, setView] = useState('menu');
   const [newUsername, setNewUsername] = useState(profile?.display_name || '');
   const [signedAvatarUrl, setSignedAvatarUrl] = useState(null);
 
@@ -485,7 +455,6 @@ function ProfileCardModal({ isOpen, onClose, profile, onUploadClick, onSaveUsern
     if (isOpen) {
       setView('menu');
       setNewUsername(profile?.display_name || '');
-      // Refresh signed URL when modal opens
       if (profile?.avatar_url) {
         getAvatarSignedUrl(profile.avatar_url).then(setSignedAvatarUrl);
       } else {
@@ -515,117 +484,104 @@ function ProfileCardModal({ isOpen, onClose, profile, onUploadClick, onSaveUsern
   };
 
   return (
-    <div className={`orixus-popover-backdrop ${isOpen ? 'orixus-popover-backdrop--visible' : ''}`} onClick={onClose}>
-      <div className="orixus-popover orixus-profile-popover" onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className="orixus-popover-header">
-          <span className="orixus-popover-title">
-            {view === 'menu' && 'Profile'}
-            {view === 'upload' && 'Upload Profile Picture'}
-            {view === 'username' && 'Edit Username'}
-          </span>
-          <button className="orixus-popover-close" onClick={onClose} aria-label="Close">
-            <X size={16} />
+    <div className="orixus-modal-overlay" onClick={onClose}>
+      <div className="orixus-modal orixus-modal--profile" onClick={(e) => e.stopPropagation()}>
+        <div className="orixus-modal__header">
+          <h2 className="orixus-modal__title">Profile</h2>
+          <button className="orixus-modal__close" onClick={onClose} aria-label="Close">
+            <X size={18} />
           </button>
         </div>
 
-        {/* View 1: Main Menu */}
         {view === 'menu' && (
           <>
-            <div className="orixus-popover-profile-preview">
-              <div className="orixus-popover-avatar">
+            <div className="orixus-modal__profile-preview">
+              <div className="orixus-modal__avatar">
                 {signedAvatarUrl ? (
-                  <img src={signedAvatarUrl} alt="Profile" className="orixus-popover-avatar-img" />
+                  <img src={signedAvatarUrl} alt="Profile" className="orixus-modal__avatar-img" />
                 ) : (
-                  <span className="orixus-popover-avatar-fallback">{getInitials()}</span>
+                  <span className="orixus-modal__avatar-fallback">{getInitials()}</span>
                 )}
               </div>
-              <div className="orixus-popover-user-info">
-                <span className="orixus-popover-username">{profile?.display_name || 'Dev Operator'}</span>
-                <span className="orixus-popover-user-rank">Initiate</span>
+              <div className="orixus-modal__user-info">
+                <span className="orixus-modal__username">{profile?.display_name || 'Dev Operator'}</span>
+                <span className="orixus-modal__rank">Initiate</span>
               </div>
             </div>
 
-            <div className="orixus-popover-divider" />
+            <div className="orixus-modal__divider" />
 
-            <div className="orixus-popover-actions">
-              <button className="orixus-popover-action" onClick={() => setView('upload')}>
-                <ImageIcon size={16} />
-                <span>Upload Profile Picture</span>
+            <div className="orixus-modal__actions">
+              <button className="orixus-modal__action" onClick={() => setView('upload')}>
+                <ImageIcon size={18} />
+                <span>Upload Avatar</span>
               </button>
-              <button className="orixus-popover-action" onClick={() => setView('username')}>
-                <UserRound size={16} />
+              <button className="orixus-modal__action" onClick={() => setView('username')}>
+                <UserRound size={18} />
                 <span>Edit Username</span>
-              </button>
-              <button className="orixus-popover-action orixus-popover-action--cancel" onClick={onClose}>
-                <X size={16} />
-                <span>Cancel</span>
               </button>
             </div>
           </>
         )}
 
-        {/* View 2: Upload Area */}
         {view === 'upload' && (
-          <div className="orixus-upload-panel">
-            <div className="orixus-upload-preview">
+          <>
+            <div className="orixus-modal__upload-preview">
               {signedAvatarUrl ? (
-                <img src={signedAvatarUrl} alt="Preview" className="orixus-upload-preview-img" />
+                <img src={signedAvatarUrl} alt="Preview" className="orixus-modal__avatar-img" />
               ) : (
-                <span className="orixus-popover-avatar-fallback">{getInitials()}</span>
+                <span className="orixus-modal__avatar-fallback">{getInitials()}</span>
               )}
             </div>
 
             <button
-              className="orixus-upload-btn"
+              className="orixus-modal__btn orixus-modal__btn--primary"
               onClick={() => {
                 onUploadClick();
                 onClose();
               }}
               disabled={uploadingAvatar}
             >
-              <Upload size={16} />
-              <span>{uploadingAvatar ? 'Uploading...' : 'Choose Image File'}</span>
+              <Upload size={18} />
+              <span>{uploadingAvatar ? 'Uploading...' : 'Choose Image'}</span>
             </button>
 
-            <div className="orixus-upload-info">
+            <div className="orixus-modal__upload-info">
               <span>PNG • JPG • WEBP</span>
-              <span>Max 100 KB • 2000×2000 px</span>
+              <span>Max 100 KB</span>
             </div>
 
-            <button className="orixus-popover-action orixus-popover-action--back" onClick={() => setView('menu')}>
-              <span>Back</span>
+            <button className="orixus-modal__btn orixus-modal__btn--secondary" onClick={() => setView('menu')}>
+              Back
             </button>
-          </div>
+          </>
         )}
 
-        {/* View 3: Username Form */}
         {view === 'username' && (
-          <form onSubmit={handleUsernameSubmit} className="orixus-username-form">
+          <form onSubmit={handleUsernameSubmit}>
             <input
               type="text"
-              className="orixus-username-input"
+              className="orixus-modal__input"
               value={newUsername}
               onChange={(e) => setNewUsername(e.target.value)}
-              placeholder="Enter new display name"
+              placeholder="Enter display name"
               autoFocus
             />
 
-            <div className="orixus-popover-actions orixus-popover-actions--form">
+            <div className="orixus-modal__actions">
               <button
                 type="button"
-                className="orixus-popover-action orixus-popover-action--back"
+                className="orixus-modal__btn orixus-modal__btn--secondary"
                 onClick={() => setView('menu')}
               >
-                <span>Back</span>
+                Back
               </button>
               <button
                 type="submit"
-                className="orixus-popover-action orixus-popover-action--primary"
+                className="orixus-modal__btn orixus-modal__btn--primary"
                 disabled={!newUsername.trim()}
               >
-                <Check size={16} />
-                <span>Save</span>
+                Save
               </button>
             </div>
           </form>
@@ -645,6 +601,7 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
   const [journalMood, setJournalMood] = useState(profile?.default_discipline_state || 'NEUTRAL');
   const [firstDayOfWeek, setFirstDayOfWeek] = useState(profile?.first_day_of_week || 'monday');
   const [habitDisplayMode, setHabitDisplayMode] = useState(profile?.habit_display_mode || 'date');
+  const [reminders, setReminders] = useState(profile?.reminders ?? true);
   const [notification, setNotification] = useState(null);
   const [confirmAction, setConfirmAction] = useState(null);
   const [editModal, setEditModal] = useState(null);
@@ -690,6 +647,7 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
       setJournalMood(profile.default_discipline_state || 'NEUTRAL');
       setFirstDayOfWeek(profile.first_day_of_week || 'monday');
       setHabitDisplayMode(profile.habit_display_mode || 'date');
+      setReminders(profile.reminders ?? true);
       setLastPasswordUpdate(profile.password_updated_at || null);
       // Generate signed URL for avatar
       if (profile.avatar_url) {
@@ -848,6 +806,17 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
     }
   };
 
+  const handleSaveReminders = async (value) => {
+    try {
+      setReminders(value);
+      await updateProfileSettings({ reminders: value });
+      await refresh();
+      showNotification('Reminders updated successfully');
+    } catch (error) {
+      showNotification('Failed to update reminders', 'error');
+    }
+  };
+
   const handleConfirmResetAllHabits = async () => {
     try {
       await resetAllHabits();
@@ -954,7 +923,7 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
   };
 
   return (
-    <div className="settings-page">
+    <div className="orixus-settings">
       <input
         type="file"
         ref={fileInputRef}
@@ -964,162 +933,138 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
       />
 
       {notification && (
-        <div className={`settings-notification settings-notification--${notification.type}`}>
+        <div className={`orixus-notification orixus-notification--${notification.type}`}>
           {notification.message}
         </div>
       )}
 
-      {/* Profile Card */}
-      <div className="settings-profile-card" onClick={() => setProfileCardModalOpen(true)}>
-        <div className="settings-profile-card__left">
-          <div className="settings-profile-avatar">
-            {signedAvatarUrl ? (
-              <img src={signedAvatarUrl} alt="Profile Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
-            ) : (
-              <span className="settings-profile-avatar__letters">{getInitials()}</span>
-            )}
-          </div>
-          <div className="settings-profile-card__info">
-            <span className="settings-profile-card__name">{profile?.display_name || 'Dev Operator'}</span>
-            <span className="settings-profile-card__rank">{uploadingAvatar ? 'Uploading avatar...' : getRankLabel()}</span>
-          </div>
-        </div>
-        <div className="settings-profile-card__right">
-          {SETTINGS_ICONS.chevronRight}
+      {/* Account Section */}
+      <div className="orixus-settings__section">
+        <div className="orixus-settings__section-title">Account</div>
+        <div className="orixus-settings__card">
+          <SettingsRow
+            icon={<User size={18} />}
+            label="Developer Profile"
+            right={<ChevronRight size={16} />}
+            onClick={() => setProfileCardModalOpen(true)}
+          />
         </div>
       </div>
 
-      {/* Settings List */}
-      <div className="settings-list">
-        {/* Security Section */}
-        <div className="settings-list-section">
-          <h3 className="settings-list-section__title">Security</h3>
-          
+      {/* Security Section */}
+      <div className="orixus-settings__section">
+        <div className="orixus-settings__section-title">Security</div>
+        <div className="orixus-settings__card">
+          <SettingsRow
+            icon={<Shield size={18} />}
+            label="Email Verification"
+            right={<StatusPill status={profile?.email_verified ? 'verified' : 'pending'} />}
+            disabled
+          />
           {isGoogleUser ? (
-            <div className="settings-list-item settings-list-item--disabled">
-              <div className="settings-list-item__icon">{SETTINGS_ICONS.key}</div>
-              <div className="settings-list-item__content">
-                <span className="settings-list-item__label">Change Password</span>
-                <span className="settings-list-item__description">
-                  This account uses Google Sign-In. Manage your password through your Google account.
-                </span>
-              </div>
-            </div>
+            <SettingsRow
+              icon={<Lock size={18} />}
+              label="Change Password"
+              right={<span className="orixus-settings-row__hint">Managed by Google</span>}
+              disabled
+            />
           ) : (
-            <div className="settings-list-item" onClick={() => setShowPasswordForm(true)}>
-              <div className="settings-list-item__icon">{SETTINGS_ICONS.key}</div>
-              <div className="settings-list-item__content">
-                <span className="settings-list-item__label">Change Password</span>
-                <span className="settings-list-item__description">
-                  Update your account password securely.
-                </span>
-              </div>
-              <div className="settings-list-item__right">
-                {SETTINGS_ICONS.chevronRight}
-              </div>
-            </div>
+            <SettingsRow
+              icon={<Lock size={18} />}
+              label="Change Password"
+              right={<ChevronRight size={16} />}
+              onClick={() => setShowPasswordForm(true)}
+            />
           )}
         </div>
+      </div>
 
-        {/* Preferences Section */}
-        <div className="settings-list-section">
-          <h3 className="settings-list-section__title">Preferences</h3>
-          
-          <div className="settings-list-item" onClick={() => setEditModal({ type: 'mood', title: 'Default Journal Mood' })}>
-            <div className="settings-list-item__icon">{SETTINGS_ICONS.book}</div>
-            <span className="settings-list-item__label">Default Journal Mood</span>
-            <div className="settings-list-item__right">
-              <span className="settings-list-item__value">{JOURNAL_MOODS.find(m => m.value === journalMood)?.label || 'Neutral'}</span>
-              {SETTINGS_ICONS.chevronRight}
-            </div>
-          </div>
-
-          <div className="settings-list-item" onClick={() => setEditModal({ type: 'firstDay', title: 'First Day of Week' })}>
-            <div className="settings-list-item__icon">{SETTINGS_ICONS.calendar}</div>
-            <span className="settings-list-item__label">First Day of Week</span>
-            <div className="settings-list-item__right">
-              <span className="settings-list-item__value">{firstDayOfWeek === 'monday' ? 'Monday' : 'Sunday'}</span>
-              {SETTINGS_ICONS.chevronRight}
-            </div>
-          </div>
-
-          <div className="settings-list-item" onClick={() => setEditModal({ type: 'displayMode', title: 'Habit Display Mode' })}>
-            <div className="settings-list-item__icon">{SETTINGS_ICONS.layout}</div>
-            <span className="settings-list-item__label">Habit Display Mode</span>
-            <div className="settings-list-item__right">
-              <span className="settings-list-item__value">{habitDisplayMode === 'date' ? 'Date' : 'Number'}</span>
-              {SETTINGS_ICONS.chevronRight}
-            </div>
-          </div>
+      {/* Preferences Section */}
+      <div className="orixus-settings__section">
+        <div className="orixus-settings__section-title">Preferences</div>
+        <div className="orixus-settings__card">
+          <SettingsRow
+            icon={<Bell size={18} />}
+            label="Reminders"
+            right={<PremiumToggle enabled={reminders} onChange={handleSaveReminders} />}
+          />
+          <SettingsRow
+            icon={<Book size={18} />}
+            label="Default Journal Mood"
+            right={
+              <>
+                <span className="orixus-settings-row__value">{JOURNAL_MOODS.find(m => m.value === journalMood)?.label || 'Neutral'}</span>
+                <ChevronRight size={16} />
+              </>
+            }
+            onClick={() => setEditModal({ type: 'mood', title: 'Default Journal Mood' })}
+          />
+          <SettingsRow
+            icon={<Layout size={18} />}
+            label="Habit Display Mode"
+            right={
+              <>
+                <span className="orixus-settings-row__value">{habitDisplayMode === 'date' ? 'Date' : 'Number'}</span>
+                <ChevronRight size={16} />
+              </>
+            }
+            onClick={() => setEditModal({ type: 'displayMode', title: 'Habit Display Mode' })}
+          />
         </div>
+      </div>
 
-        {/* Danger Zone Section */}
-        <div className="settings-list-section settings-list-section--danger">
-          <h3 className="settings-list-section__title">Danger Zone</h3>
-
-          <div className="settings-list-item" onClick={() => setConfirmAction('resetAllHabits')}>
-            <div className="settings-list-item__icon">{SETTINGS_ICONS.refresh}</div>
-            <span className="settings-list-item__label">Reset All Habits</span>
-            <div className="settings-list-item__right">
-              {SETTINGS_ICONS.chevronRight}
-            </div>
-          </div>
-
-          <div className="settings-list-item" onClick={() => setConfirmAction('resetStreak')}>
-            <div className="settings-list-item__icon">{SETTINGS_ICONS.refresh}</div>
-            <span className="settings-list-item__label">Reset Streak</span>
-            <div className="settings-list-item__right">
-              {SETTINGS_ICONS.chevronRight}
-            </div>
-          </div>
-
-          <div className="settings-list-item settings-list-item--destructive" onClick={() => setConfirmAction('deleteJournal')}>
-            <div className="settings-list-item__icon">{SETTINGS_ICONS.trash}</div>
-            <span className="settings-list-item__label">Delete All Journal Entries</span>
-            <div className="settings-list-item__right">
-              {SETTINGS_ICONS.chevronRight}
-            </div>
-          </div>
+      {/* Support Section */}
+      <div className="orixus-settings__section">
+        <div className="orixus-settings__section-title">Support</div>
+        <div className="orixus-settings__card">
+          <SettingsRow
+            icon={<MessageSquare size={18} />}
+            label="Feedback"
+            right={<ChevronRight size={16} />}
+            onClick={() => setFeedbackModalOpen(true)}
+          />
+          <SettingsRow
+            icon={<Info size={18} />}
+            label="About Orixus"
+            right={<ChevronRight size={16} />}
+            onClick={() => setShowAboutModal(true)}
+          />
         </div>
+      </div>
 
-        {/* Help & Feedback Section */}
-        <div className="settings-list-section">
-          <h3 className="settings-list-section__title">Help & Feedback</h3>
-          
-          <div className="settings-feedback-card" onClick={() => setFeedbackModalOpen(true)}>
-            <div className="settings-feedback-card__icon"><MessageSquare size={20} /></div>
-            <div className="settings-feedback-card__content">
-              <h4 className="settings-feedback-card__title">Feedback</h4>
-              <p className="settings-feedback-card__description">
-                Help improve Orixus.
-              </p>
-            </div>
-            <div className="settings-feedback-card__button">
-              Give Feedback
-            </div>
-          </div>
+      {/* Danger Zone Section */}
+      <div className="orixus-settings__section">
+        <div className="orixus-settings__section-title orixus-settings__section-title--danger">Danger Zone</div>
+        <div className="orixus-settings__card orixus-settings__card--danger">
+          <SettingsRow
+            icon={<RefreshCw size={18} />}
+            label="Reset Habits"
+            right={<ChevronRight size={16} />}
+            onClick={() => setConfirmAction('resetAllHabits')}
+          />
+          <SettingsRow
+            icon={<RefreshCw size={18} />}
+            label="Reset Journal"
+            right={<ChevronRight size={16} />}
+            onClick={() => setConfirmAction('deleteJournal')}
+          />
+          <SettingsRow
+            icon={<AlertCircle size={18} />}
+            label="Delete Account"
+            right={<ChevronRight size={16} />}
+            destructive
+            onClick={() => setConfirmAction('deleteAccount')}
+          />
         </div>
+      </div>
 
-        {/* About Section */}
-        <div className="settings-list-section">
-          <div className="settings-list-item" onClick={() => setShowAboutModal(true)}>
-            <div className="settings-list-item__icon">{SETTINGS_ICONS.info}</div>
-            <span className="settings-list-item__label">About</span>
-            <div className="settings-list-item__right">
-              {SETTINGS_ICONS.chevronRight}
-            </div>
-          </div>
-        </div>
-
-        {/* Logout Section */}
-        <div className="settings-list-section">
-          <div className="settings-list-item settings-list-item--accent" onClick={handleLogout}>
-            <div className="settings-list-item__icon">{SETTINGS_ICONS.logout}</div>
-            <span className="settings-list-item__label">Logout</span>
-            <div className="settings-list-item__right">
-              {SETTINGS_ICONS.chevronRight}
-            </div>
-          </div>
+      {/* Logout Button */}
+      <div className="orixus-settings__section">
+        <div className="orixus-settings__card">
+          <button className="orixus-logout-btn" onClick={handleLogout}>
+            <LogOut size={18} />
+            <span>Logout</span>
+          </button>
         </div>
       </div>
 
@@ -1128,6 +1073,9 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
         isOpen={profileCardModalOpen}
         onClose={() => setProfileCardModalOpen(false)}
         profile={profile}
+        onUploadClick={() => fileInputRef.current?.click()}
+        onSaveUsername={handleSaveUsername}
+        uploadingAvatar={uploadingAvatar}
       />
 
       {/* Password Change Modal */}
@@ -1224,33 +1172,39 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
       />
 
       {/* Feedback Modal */}
-      <div className={`dashboard-modal-overlay ${feedbackModalOpen ? 'dashboard-modal-overlay--visible' : ''}`} onClick={handleFeedbackModalClose}>
-        <div className="dashboard-modal dashboard-modal--feedback" onClick={(e) => e.stopPropagation()}>
-          <h3 className="dashboard-modal__title">Give Feedback</h3>
-          <form onSubmit={handleFeedbackSubmit} className="settings-feedback-form">
-            <div className="settings-feedback-rating">
-              <label className="settings-feedback-label">Rating</label>
-              <div className="settings-feedback-stars">
+      {feedbackModalOpen && (
+        <div className="orixus-modal-overlay" onClick={handleFeedbackModalClose}>
+          <div className="orixus-modal orixus-modal--feedback" onClick={(e) => e.stopPropagation()}>
+          <div className="orixus-modal__header">
+            <h2 className="orixus-modal__title">Feedback</h2>
+            <button className="orixus-modal__close" onClick={handleFeedbackModalClose} aria-label="Close">
+              <X size={18} />
+            </button>
+          </div>
+          <form onSubmit={handleFeedbackSubmit}>
+            <div className="orixus-modal__field">
+              <label className="orixus-modal__label">Rating</label>
+              <div className="orixus-modal__stars">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     key={star}
                     type="button"
-                    className={`settings-feedback-star ${star <= feedbackRating ? 'settings-feedback-star--active' : ''}`}
+                    className={`orixus-modal__star ${star <= feedbackRating ? 'orixus-modal__star--active' : ''}`}
                     onClick={() => setFeedbackRating(star)}
                     aria-label={`Rate ${star} stars`}
                     disabled={feedbackSubmitting}
                   >
-                    {star <= feedbackRating ? SETTINGS_ICONS.star : SETTINGS_ICONS.starOutline}
+                    <Star size={18} fill={star <= feedbackRating ? 'currentColor' : 'none'} />
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="settings-feedback-field">
-              <label className="settings-feedback-label" htmlFor="feedback-category">Category</label>
+            <div className="orixus-modal__field">
+              <label className="orixus-modal__label" htmlFor="feedback-category">Category</label>
               <select
                 id="feedback-category"
-                className="settings-feedback-select"
+                className="orixus-modal__select"
                 value={feedbackCategory}
                 onChange={(e) => setFeedbackCategory(e.target.value)}
                 required
@@ -1264,11 +1218,11 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
               </select>
             </div>
 
-            <div className="settings-feedback-field">
-              <label className="settings-feedback-label" htmlFor="feedback-message">Feedback</label>
+            <div className="orixus-modal__field">
+              <label className="orixus-modal__label" htmlFor="feedback-message">Feedback</label>
               <textarea
                 id="feedback-message"
-                className="settings-feedback-textarea"
+                className="orixus-modal__textarea"
                 value={feedbackMessage}
                 onChange={(e) => setFeedbackMessage(e.target.value)}
                 maxLength={250}
@@ -1276,15 +1230,15 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
                 required
                 disabled={feedbackSubmitting}
               />
-              <div className="settings-feedback-char-count">
+              <div className="orixus-modal__char-count">
                 {feedbackMessage.length}/250
               </div>
             </div>
 
-            <div className="dashboard-modal__actions">
+            <div className="orixus-modal__actions">
               <button
                 type="button"
-                className="dashboard-modal__btn dashboard-modal__btn--secondary"
+                className="orixus-modal__btn orixus-modal__btn--secondary"
                 onClick={handleFeedbackModalClose}
                 disabled={feedbackSubmitting}
               >
@@ -1292,20 +1246,16 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
               </button>
               <button
                 type="submit"
-                className="dashboard-modal__btn dashboard-modal__btn--primary"
+                className="orixus-modal__btn orixus-modal__btn--primary"
                 disabled={feedbackSubmitting}
               >
-                {feedbackSubmitting ? (
-                  <span className="feedback-submitting">
-                    <span className="feedback-spinner"></span>
-                    Submitting...
-                  </span>
-                ) : 'Submit Feedback'}
+                {feedbackSubmitting ? 'Submitting...' : 'Submit'}
               </button>
             </div>
           </form>
         </div>
       </div>
+      )}
     </div>
   );
 }

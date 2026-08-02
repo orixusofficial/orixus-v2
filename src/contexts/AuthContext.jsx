@@ -147,6 +147,17 @@ export function AuthProvider({ children }) {
     return data;
   }, [session]);
 
+  const resendVerificationEmail = useCallback(async (email) => {
+    const targetEmail = email || session?.user?.email;
+    if (!targetEmail) throw new Error('No email address found');
+    const { data, error } = await supabase.auth.resend({
+      type: 'signup',
+      email: targetEmail,
+    });
+    if (error) throw error;
+    return data;
+  }, [session]);
+
   const value = useMemo(
     () => ({
       session,
@@ -158,13 +169,14 @@ export function AuthProvider({ children }) {
       signInWithGoogle,
       verifyEmailOtp,
       resendSignupOtp,
+      resendVerificationEmail,
       resetPassword,
       updatePassword,
       reauthenticate,
       signOut,
       isConfigured: isSupabaseConfigured,
     }),
-    [session, loading, isRecovery, signUp, signIn, signInWithGoogle, verifyEmailOtp, resendSignupOtp, resetPassword, updatePassword, reauthenticate, signOut],
+    [session, loading, isRecovery, signUp, signIn, signInWithGoogle, verifyEmailOtp, resendSignupOtp, resendVerificationEmail, resetPassword, updatePassword, reauthenticate, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

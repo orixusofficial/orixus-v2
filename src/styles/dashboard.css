@@ -2473,8 +2473,21 @@
 
 @media (max-width: 768px) {
   .orixus-settings {
-    padding: var(--space-lg) var(--space-md);
-    gap: var(--space-xl);
+    padding: var(--space-md) var(--space-sm);
+    gap: var(--space-lg);
+  }
+
+  .orixus-settings__section {
+    gap: var(--space-sm);
+  }
+
+  .orixus-settings-row {
+    padding: var(--space-md) var(--space-lg);
+    min-height: 48px;
+  }
+
+  .orixus-settings__card {
+    border-radius: 12px;
   }
 }
 
@@ -2588,46 +2601,91 @@
 }
 
 /* Premium Toggle Component */
-.orixus-toggle {
-  width: 44px;
-  height: 24px;
-  background: #4B5058;
-  border-radius: 12px;
-  padding: 2px;
-  cursor: pointer;
-  transition: background 0.18s ease;
-  border: none;
+.orixus-toggle-container {
+  position: relative;
+  display: inline-block;
   flex-shrink: 0;
 }
 
-.orixus-toggle:hover {
-  background: #5a6068;
+.orixus-toggle-checkbox {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
 }
 
-.orixus-toggle--active {
-  background: #A79277;
+.orixus-toggle-switch {
+  display: block;
+  width: 48px;
+  height: 28px;
+  background: #2B3038;
+  border: 1px solid #3d424a;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  position: relative;
 }
 
-.orixus-toggle--active:hover {
-  background: #b89f82;
-}
-
-.orixus-toggle:focus-visible {
+.orixus-toggle-checkbox:focus-visible + .orixus-toggle-switch {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
-.orixus-toggle__thumb {
-  width: 20px;
-  height: 20px;
-  background: #FFF2E1;
-  border-radius: 10px;
-  transition: transform 0.18s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.orixus-toggle-checkbox:hover + .orixus-toggle-switch {
+  border-color: #4a5058;
 }
 
-.orixus-toggle--active .orixus-toggle__thumb {
+.orixus-toggle-checkbox:checked + .orixus-toggle-switch {
+  background: #A79277;
+  border-color: #A79277;
+}
+
+.orixus-toggle-checkbox:checked:hover + .orixus-toggle-switch {
+  background: #b89f82;
+  border-color: #b89f82;
+}
+
+.orixus-toggle-slider {
+  position: absolute;
+  content: "";
+  height: 24px;
+  width: 24px;
+  left: 2px;
+  bottom: 1px;
+  background: #FFF2E1;
+  border-radius: 12px;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.orixus-toggle-checkbox:checked + .orixus-toggle-switch .orixus-toggle-slider {
   transform: translateX(20px);
+}
+
+.orixus-toggle-checkbox:disabled + .orixus-toggle-switch {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .orixus-toggle-switch {
+    width: 44px;
+    height: 26px;
+    border-radius: 13px;
+  }
+
+  .orixus-toggle-slider {
+    height: 22px;
+    width: 22px;
+    left: 2px;
+    bottom: 1px;
+    border-radius: 11px;
+  }
+
+  .orixus-toggle-checkbox:checked + .orixus-toggle-switch .orixus-toggle-slider {
+    transform: translateX(18px);
+  }
 }
 
 /* Status Pill Component */

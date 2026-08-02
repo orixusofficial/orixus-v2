@@ -34,15 +34,28 @@ function SettingsRow({ icon, label, right, onClick, disabled = false, destructiv
 
 // Premium Toggle component
 function PremiumToggle({ enabled, onChange, disabled = false }) {
+  const toggleId = useRef(`orixus-toggle-${Math.random().toString(36).substr(2, 9)}`).current;
+
+  const handleChange = (e) => {
+    const newValue = e.target.checked;
+    onChange(newValue);
+  };
+
   return (
-    <button
-      className={`orixus-toggle ${enabled ? 'orixus-toggle--active' : ''}`}
-      onClick={() => onChange(!enabled)}
-      disabled={disabled}
-      aria-label={enabled ? 'Disable' : 'Enable'}
-    >
-      <span className="orixus-toggle__thumb" />
-    </button>
+    <div className="orixus-toggle-container">
+      <input
+        id={toggleId}
+        type="checkbox"
+        className="orixus-toggle-checkbox"
+        checked={enabled}
+        onChange={handleChange}
+        disabled={disabled}
+        aria-label={enabled ? 'Disable reminders' : 'Enable reminders'}
+      />
+      <label htmlFor={toggleId} className="orixus-toggle-switch">
+        <span className="orixus-toggle-slider" />
+      </label>
+    </div>
   );
 }
 
@@ -647,7 +660,6 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
       setJournalMood(profile.default_discipline_state || 'NEUTRAL');
       setFirstDayOfWeek(profile.first_day_of_week || 'monday');
       setHabitDisplayMode(profile.habit_display_mode || 'date');
-      setReminders(profile.reminders ?? true);
       setLastPasswordUpdate(profile.password_updated_at || null);
       // Generate signed URL for avatar
       if (profile.avatar_url) {
@@ -657,6 +669,15 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
       }
     }
   }, [profile]);
+
+  // Initialize reminders from profile on mount only
+  const remindersInitialized = useRef(false);
+  useEffect(() => {
+    if (!remindersInitialized.current && profile && profile.reminders !== undefined) {
+      setReminders(profile.reminders);
+      remindersInitialized.current = true;
+    }
+  }, [profile?.reminders]);
 
   // Check if user is using Google OAuth
   const isGoogleUser = user?.app_metadata?.provider === 'google' || 
@@ -807,13 +828,13 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
   };
 
   const handleSaveReminders = async (value) => {
+    const previousValue = reminders;
     try {
       setReminders(value);
       await updateProfileSettings({ reminders: value });
-      await refresh();
-      showNotification('Reminders updated successfully');
     } catch (error) {
-      showNotification('Failed to update reminders', 'error');
+      setReminders(previousValue);
+      showNotification("Couldn't update reminders.", 'error');
     }
   };
 
@@ -944,7 +965,7 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
         <div className="orixus-settings__card">
           <SettingsRow
             icon={<User size={18} />}
-            label="Developer Profile"
+            label="Your Profile"
             right={<ChevronRight size={16} />}
             onClick={() => setProfileCardModalOpen(true)}
           />
@@ -958,7 +979,7 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
           <SettingsRow
             icon={<Shield size={18} />}
             label="Email Verification"
-            right={<StatusPill status={profile?.email_verified ? 'verified' : 'pending'} />}
+            right={<StatusPill status={user?.email_confirmed_at ? 'verified' : 'pending'} />}
             disabled
           />
           {isGoogleUser ? (
@@ -1047,13 +1068,6 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
             label="Reset Journal"
             right={<ChevronRight size={16} />}
             onClick={() => setConfirmAction('deleteJournal')}
-          />
-          <SettingsRow
-            icon={<AlertCircle size={18} />}
-            label="Delete Account"
-            right={<ChevronRight size={16} />}
-            destructive
-            onClick={() => setConfirmAction('deleteAccount')}
           />
         </div>
       </div>

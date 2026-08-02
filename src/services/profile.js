@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 export async function fetchProfile(userId) {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, display_name, created_at, avatar_url, default_discipline_state, first_day_of_week, habit_display_mode')
+    .select('id, display_name, created_at, avatar_url, default_discipline_state, first_day_of_week, habit_display_mode, reminders')
     .eq('id', userId)
     .maybeSingle();
 
@@ -26,9 +26,10 @@ export async function ensureProfile(user) {
       display_name: fullName,
       default_discipline_state: 'focused',
       first_day_of_week: 'monday',
-      habit_display_mode: 'date'
+      habit_display_mode: 'date',
+      reminders: true
     })
-    .select('id, display_name, created_at, avatar_url, default_discipline_state, first_day_of_week, habit_display_mode')
+    .select('id, display_name, created_at, avatar_url, default_discipline_state, first_day_of_week, habit_display_mode, reminders')
     .single();
 
   if (error) throw error;
@@ -40,7 +41,7 @@ export async function updateProfile(userId, updates) {
     .from('profiles')
     .update(updates)
     .eq('id', userId)
-    .select('id, display_name, created_at, avatar_url, default_discipline_state, first_day_of_week, habit_display_mode')
+    .select('id, display_name, created_at, avatar_url, default_discipline_state, first_day_of_week, habit_display_mode, reminders')
     .single();
 
   if (error) throw error;

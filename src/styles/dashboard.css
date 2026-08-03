@@ -2474,16 +2474,22 @@
 @media (max-width: 768px) {
   .orixus-settings {
     padding: var(--space-md) var(--space-sm);
-    gap: var(--space-lg);
+    gap: var(--space-md);
   }
 
   .orixus-settings__section {
-    gap: var(--space-sm);
+    gap: var(--space-xs);
   }
 
   .orixus-settings-row {
-    padding: var(--space-md) var(--space-lg);
-    min-height: 48px;
+    padding: 16px;
+    min-height: 56px;
+    max-height: 60px;
+  }
+
+  .orixus-settings-row__icon {
+    width: 18px;
+    height: 18px;
   }
 
   .orixus-settings__card {
@@ -2970,7 +2976,6 @@
 }
 
 .orixus-modal__input,
-.orixus-modal__select,
 .orixus-modal__textarea {
   width: 100%;
   background: rgba(255, 255, 255, 0.03);
@@ -2985,10 +2990,63 @@
 }
 
 .orixus-modal__input:focus,
-.orixus-modal__select:focus,
 .orixus-modal__textarea:focus {
   border-color: var(--color-accent);
   background: rgba(255, 255, 255, 0.05);
+}
+
+.orixus-modal__select {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  color: #FFF2E1;
+  padding: var(--space-md) var(--space-lg);
+  font-size: 14px;
+  font-family: var(--font-body);
+  transition: all 0.18s ease;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  position: relative;
+  padding-right: 40px;
+}
+
+.orixus-modal__select:focus {
+  border-color: var(--color-accent);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.orixus-modal__select-wrapper {
+  position: relative;
+}
+
+.orixus-modal__select-arrow {
+  position: absolute;
+  right: var(--space-md);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--color-text-muted);
+  transition: color 0.18s ease;
+}
+
+.orixus-modal__select:focus + .orixus-modal__select-arrow,
+.orixus-modal__select-wrapper:focus-within .orixus-modal__select-arrow {
+  color: var(--color-accent);
+}
+
+.orixus-modal__select option {
+  background: #2B3038;
+  color: #FFF2E1;
+  padding: var(--space-md);
+}
+
+.orixus-modal__select option:hover,
+.orixus-modal__select option:focus {
+  background: rgba(167, 146, 119, 0.1);
 }
 
 .orixus-modal__textarea {

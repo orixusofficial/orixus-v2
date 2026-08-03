@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Eye, EyeOff, Lock, ShieldCheck, Info, ExternalLink, User, Bell, Book, Layout, RefreshCw, Trash, LogOut, MessageSquare, ChevronRight, Check, X, Upload, Image as ImageIcon, UserRound, Shield, AlertCircle, Star } from 'lucide-react';
+import { Eye, EyeOff, Lock, ShieldCheck, Info, ExternalLink, User, Bell, Book, Layout, RefreshCw, Trash, LogOut, MessageSquare, ChevronRight, ChevronDown, Check, X, Upload, Image as ImageIcon, UserRound, Shield, AlertCircle, Star } from 'lucide-react';
 import { useUserData } from '../hooks/useUserData';
 import { useAuth } from '../contexts/AuthContext';
 import { submitFeedback } from '../services/feedback';
@@ -1011,25 +1011,25 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
           />
           <SettingsRow
             icon={<Book size={18} />}
-            label="Default Journal Mood"
+            label="Default Journal"
             right={
               <>
                 <span className="orixus-settings-row__value">{JOURNAL_MOODS.find(m => m.value === journalMood)?.label || 'Neutral'}</span>
                 <ChevronRight size={16} />
               </>
             }
-            onClick={() => setEditModal({ type: 'mood', title: 'Default Journal Mood' })}
+            onClick={() => setEditModal({ type: 'mood', title: 'Default Journal' })}
           />
           <SettingsRow
             icon={<Layout size={18} />}
-            label="Habit Display Mode"
+            label="Habit Display"
             right={
               <>
                 <span className="orixus-settings-row__value">{habitDisplayMode === 'date' ? 'Date' : 'Number'}</span>
                 <ChevronRight size={16} />
               </>
             }
-            onClick={() => setEditModal({ type: 'displayMode', title: 'Habit Display Mode' })}
+            onClick={() => setEditModal({ type: 'displayMode', title: 'Habit Display' })}
           />
         </div>
       </div>
@@ -1216,20 +1216,23 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
 
             <div className="orixus-modal__field">
               <label className="orixus-modal__label" htmlFor="feedback-category">Category</label>
-              <select
-                id="feedback-category"
-                className="orixus-modal__select"
-                value={feedbackCategory}
-                onChange={(e) => setFeedbackCategory(e.target.value)}
-                required
-                disabled={feedbackSubmitting}
-              >
-                <option value="">Select category</option>
-                <option value="Bug Report">Bug Report</option>
-                <option value="Feature Request">Feature Request</option>
-                <option value="UI / UX">UI / UX</option>
-                <option value="General Feedback">General Feedback</option>
-              </select>
+              <div className="orixus-modal__select-wrapper">
+                <select
+                  id="feedback-category"
+                  className="orixus-modal__select"
+                  value={feedbackCategory}
+                  onChange={(e) => setFeedbackCategory(e.target.value)}
+                  required
+                  disabled={feedbackSubmitting}
+                >
+                  <option value="">Select category</option>
+                  <option value="Bug Report">Bug Report</option>
+                  <option value="Feature Request">Feature Request</option>
+                  <option value="UI / UX">UI / UX</option>
+                  <option value="General Feedback">General Feedback</option>
+                </select>
+                <ChevronDown size={16} className="orixus-modal__select-arrow" />
+              </div>
             </div>
 
             <div className="orixus-modal__field">

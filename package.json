@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@microsoft/clarity": "^1.0.2",
     "@supabase/supabase-js": "^2.106.1",
     "gsap": "^3.15.0",
     "lucide-react": "^1.21.0",

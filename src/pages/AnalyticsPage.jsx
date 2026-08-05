@@ -282,18 +282,18 @@ export default function AnalyticsPage({ habits, completionData }) {
 
       {/* Top: Summary Stats Cards */}
       <div className="analytics-top-grid">
-        {/* Card 1: Discipline Score */}
-        <div className="analytics-summary-card">
+        {/* Card 1: Habits Completed */}
+        <div className="analytics-summary-card analytics-summary-card--habits">
           <div className="analytics-card-meta">
-            <span className="analytics-card-label">Habits Completed</span>
-            <span className="analytics-card-desc">Total check-ins</span>
+            <span className="analytics-card-label analytics-card-label--no-wrap">Habits Completed</span>
+            <span className="analytics-card-desc">Check-ins</span>
           </div>
           <span className="analytics-card-value">{totalHabits}</span>
-          <span className="analytics-card-detail">Total habits completed</span>
+          <span className="analytics-card-detail analytics-card-detail--hide-mobile">Total habits completed</span>
         </div>
 
         {/* Card 2: Current Rank */}
-        <div className="analytics-summary-card">
+        <div className="analytics-summary-card analytics-summary-card--rank">
           <div className="analytics-card-meta">
             <span className="analytics-card-label">Current Rank</span>
             <span className="analytics-card-desc">Level {rankInfo.level}</span>
@@ -313,20 +313,20 @@ export default function AnalyticsPage({ habits, completionData }) {
           )}
         </div>
 
-        {/* Card 3: Streak */}
-        <div className="analytics-summary-card">
+        {/* Card 3: Active Streak */}
+        <div className="analytics-summary-card analytics-summary-card--streak">
           <div className="analytics-card-meta">
             <span className="analytics-card-label">Active Streak</span>
-            <span className="analytics-card-desc">Consecutive perfect days</span>
+            <span className="analytics-card-desc">Current</span>
           </div>
-          <span className="analytics-card-value">
+          <span className="analytics-card-value analytics-card-value--large">
             {currentStreak} <span className="analytics-card-unit">Days</span>
           </span>
-          <span className="analytics-card-detail">Best streak: {bestStreak} days</span>
+          <span className="analytics-card-detail analytics-card-detail--hide-mobile">Best streak: {bestStreak} days</span>
         </div>
 
         {/* Card 4: Consistency % */}
-        <div className="analytics-summary-card">
+        <div className="analytics-summary-card analytics-summary-card--consistency">
           <div className="analytics-card-meta">
             <span className="analytics-card-label">Consistency</span>
             <span className="analytics-card-desc">30-day completion rate</span>

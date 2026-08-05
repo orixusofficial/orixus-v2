@@ -4,7 +4,8 @@
 
 .app-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* ---- Main content area ---- */
@@ -15,6 +16,9 @@
   /* Smooth expansion when sidebar collapses */
   transition: margin-left var(--transition-slow);
   min-width: 0; /* prevents flex overflow */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* When sidebar is collapsed, content fills the reclaimed space */
@@ -45,6 +49,9 @@
   max-width: 1280px;
   margin: 0 auto;
   padding: var(--space-lg) var(--space-xl) var(--space-2xl);
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 /* ----------------------------------------
@@ -61,5 +68,14 @@
 
   .page-container {
     padding: var(--space-base) var(--space-base) var(--space-xl);
+  }
+}
+
+/* Journal desktop: page fills viewport, history list owns scroll */
+@media (min-width: 1024px) {
+  .page-container:has(.journal-page) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 }

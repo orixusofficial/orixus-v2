@@ -918,8 +918,28 @@
 
 @media (max-width: 768px) {
   .analytics-top-grid {
-    grid-template-columns: 1fr;
-    gap: var(--space-md);
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "habits streak"
+      "rank rank"
+      "consistency consistency";
+    gap: var(--space-sm);
+  }
+
+  .analytics-summary-card--habits {
+    grid-area: habits;
+  }
+
+  .analytics-summary-card--streak {
+    grid-area: streak;
+  }
+
+  .analytics-summary-card--rank {
+    grid-area: rank;
+  }
+
+  .analytics-summary-card--consistency {
+    grid-area: consistency;
   }
 }
 
@@ -1416,11 +1436,68 @@
 
 /* Mobile responsive adjustments */
 @media (max-width: 768px) {
+  .analytics-summary-card--habits,
+  .analytics-summary-card--streak {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100px;
+    text-align: center;
+  }
+
+  .analytics-summary-card--streak {
+    justify-content: center;
+  }
+
+  .analytics-card-detail--hide-mobile {
+    display: none;
+  }
+
+  .analytics-card-label--no-wrap {
+    white-space: nowrap;
+    font-size: 9px;
+  }
+
+  .analytics-card-value--large {
+    font-size: 32px;
+  }
+
+  .analytics-summary-card--habits .analytics-card-meta,
+  .analytics-summary-card--streak .analytics-card-meta {
+    align-items: center;
+    text-align: center;
+  }
 
   .analytics-summary-card,
   .analytics-card,
   .insight-card {
-    padding: var(--space-base);
+    padding: 16px;
+  }
+
+  .analytics-middle-layout {
+    gap: var(--space-md);
+  }
+
+  .analytics-charts-column {
+    gap: var(--space-md);
+  }
+
+  .analytics-card {
+    gap: var(--space-sm);
+  }
+
+  .analytics-bottom-section {
+    gap: var(--space-sm);
+  }
+
+  .analytics-insights-grid {
+    gap: var(--space-sm);
+  }
+
+  .insight-card {
+    gap: var(--space-sm);
+    padding: 16px;
   }
 
   .insight-icon {
@@ -1431,6 +1508,74 @@
   .insight-svg {
     width: 14px;
     height: 14px;
+  }
+
+  .insight-content {
+    gap: 2px;
+  }
+
+  .insight-description {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  .analytics-breakdown-list {
+    gap: var(--space-sm);
+  }
+
+  .analytics-breakdown-item {
+    gap: 4px;
+  }
+
+  .analytics-progress-wrapper {
+    height: 4px;
+  }
+
+  .chart-subtext,
+  .heatmap-subtext {
+    display: none;
+  }
+
+  .heatmap-grid-scroll-container {
+    margin-top: var(--space-xs);
+  }
+
+  .heatmap-cell {
+    width: 12px;
+    height: 12px;
+  }
+
+  .heatmap-legend .heatmap-cell {
+    width: 8px;
+    height: 8px;
+  }
+
+  .analytics-card-header {
+    gap: var(--space-sm);
+  }
+
+  .analytics-summary-card {
+    gap: var(--space-xs);
+  }
+
+  .analytics-card-meta {
+    gap: 1px;
+  }
+
+  .analytics-card-desc {
+    font-size: 10px;
+  }
+
+  .analytics-card-detail {
+    font-size: 10px;
+  }
+
+  .analytics-card-value {
+    font-size: 28px;
+  }
+
+  .analytics-card-unit {
+    font-size: 12px;
   }
 }
 
@@ -1455,11 +1600,79 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-xl);
+  align-items: start;
 }
 
 @media (max-width: 900px) {
   .journal-layout {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile: wrapper is layout-transparent so existing flow is unchanged */
+.journal-entries-scroll {
+  display: contents;
+}
+
+/* Desktop split-view — flex/grid height chain, no viewport hacks */
+@media (min-width: 1024px) {
+  .journal-page {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .journal-page .page-header {
+    flex-shrink: 0;
+  }
+
+  .journal-layout {
+    grid-template-columns: 1fr 1fr;
+    flex: 1;
+    min-height: 0;
+    align-items: stretch;
+  }
+
+  .journal-entries-list {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .journal-entries-list > h3 {
+    flex-shrink: 0;
+  }
+
+  .journal-entries-scroll {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    gap: var(--space-lg);
+    padding-right: var(--space-sm);
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: #2B2F34 transparent;
+  }
+
+  .journal-entries-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .journal-entries-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .journal-entries-scroll::-webkit-scrollbar-thumb {
+    background: #2B2F34;
+    border-radius: 999px;
+  }
+
+  .journal-entries-scroll::-webkit-scrollbar-thumb:hover {
+    background: #A79277;
   }
 }
 

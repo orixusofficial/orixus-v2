@@ -99,25 +99,27 @@ export default function JournalPage({ entries = [], onAddEntry, defaultMood = 'n
 
         <div className="journal-entries-list">
           <h3 className="section-title journal-section-title">Historical Logs</h3>
-          {entries.length === 0 ? (
-            <p className="auth-shell__hint">No entries yet. Log your first reflection above.</p>
-          ) : (
-            entries.map((entry) => {
-              const moodOption = MOOD_OPTIONS.find(m => m.value === (entry.mood || 'neutral').toLowerCase()) || MOOD_OPTIONS[2];
-              return (
-                <div key={entry.id} className="journal-entry-card" style={{ '--card-border-color': moodOption.color }}>
-                  <div className="journal-entry-header">
-                    <span className="journal-entry-date">{entry.date}</span>
-                    <span className="journal-entry-mood journal-entry-mood--prominent" style={{ '--mood-bg': moodOption.color, '--mood-color': moodOption.color }}>
-                      {entry.mood}
-                    </span>
+          <div className="journal-entries-scroll">
+            {entries.length === 0 ? (
+              <p className="auth-shell__hint">No entries yet. Log your first reflection above.</p>
+            ) : (
+              entries.map((entry) => {
+                const moodOption = MOOD_OPTIONS.find(m => m.value === (entry.mood || 'neutral').toLowerCase()) || MOOD_OPTIONS[2];
+                return (
+                  <div key={entry.id} className="journal-entry-card" style={{ '--card-border-color': moodOption.color }}>
+                    <div className="journal-entry-header">
+                      <span className="journal-entry-date">{entry.date}</span>
+                      <span className="journal-entry-mood journal-entry-mood--prominent" style={{ '--mood-bg': moodOption.color, '--mood-color': moodOption.color }}>
+                        {entry.mood}
+                      </span>
+                    </div>
+                    <h4 className="journal-entry-title">{entry.title}</h4>
+                    <p className="journal-entry-content">{entry.content}</p>
                   </div>
-                  <h4 className="journal-entry-title">{entry.title}</h4>
-                  <p className="journal-entry-content">{entry.content}</p>
-                </div>
-              );
-            })
-          )}
+                );
+              })
+            )}
+          </div>
         </div>
       </div>
     </div>

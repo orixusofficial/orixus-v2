@@ -463,11 +463,13 @@ function ProfileCardModal({ isOpen, onClose, profile, onUploadClick, onSaveUsern
   const [view, setView] = useState('menu');
   const [newUsername, setNewUsername] = useState(profile?.display_name || '');
   const [signedAvatarUrl, setSignedAvatarUrl] = useState(null);
+  const [usernameError, setUsernameError] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
       setView('menu');
       setNewUsername(profile?.display_name || '');
+      setUsernameError(null);
       if (profile?.avatar_url) {
         getAvatarSignedUrl(profile.avatar_url).then(setSignedAvatarUrl);
       } else {
@@ -488,12 +490,38 @@ function ProfileCardModal({ isOpen, onClose, profile, onUploadClick, onSaveUsern
     return 'DO';
   };
 
+  const validateUsername = (value) => {
+    // Trim and collapse multiple spaces
+    const trimmed = value.trim();
+    const collapsed = trimmed.replace(/\s+/g, ' ');
+    
+    // Check length
+    if (collapsed.length < 3 || collapsed.length > 20) {
+      return 'Username must be between 3 and 20 characters.';
+    }
+    
+    // Check allowed characters (letters, numbers, spaces, underscore, hyphen)
+    const allowedPattern = /^[a-zA-Z0-9 _-]+$/;
+    if (!allowedPattern.test(collapsed)) {
+      return 'Only letters, numbers, spaces, _ and - are allowed.';
+    }
+    
+    return null;
+  };
+
   const handleUsernameSubmit = async (e) => {
     e.preventDefault();
-    if (newUsername.trim()) {
-      await onSaveUsername(newUsername.trim());
-      onClose();
+    setUsernameError(null);
+    
+    const error = validateUsername(newUsername);
+    if (error) {
+      setUsernameError(error);
+      return;
     }
+    
+    const trimmed = newUsername.trim().replace(/\s+/g, ' ');
+    await onSaveUsername(trimmed);
+    onClose();
   };
 
   return (
@@ -580,6 +608,9 @@ function ProfileCardModal({ isOpen, onClose, profile, onUploadClick, onSaveUsern
               placeholder="Enter display name"
               autoFocus
             />
+            {usernameError && (
+              <span className="orixus-modal__error">{usernameError}</span>
+            )}
 
             <div className="orixus-modal__actions">
               <button
@@ -592,7 +623,6 @@ function ProfileCardModal({ isOpen, onClose, profile, onUploadClick, onSaveUsern
               <button
                 type="submit"
                 className="orixus-modal__btn orixus-modal__btn--primary"
-                disabled={!newUsername.trim()}
               >
                 Save
               </button>

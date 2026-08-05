@@ -192,6 +192,8 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
     calculateStreak,
   } = useUserData();
 
+  const username = profile?.display_name || null;
+
   const currentActiveItem = activeItem;
 
   const [customDays, setCustomDays] = useState(() => {
@@ -304,7 +306,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
   };
 
   return (
-    <AppLayout activeItem={activeItem} onNavigate={handleNavigate} isAuthenticated streak={streak}>
+    <AppLayout activeItem={activeItem} onNavigate={handleNavigate} isAuthenticated streak={streak} username={username}>
       {renderContent()}
 
       <AddHabitModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} onAdd={addHabit} />

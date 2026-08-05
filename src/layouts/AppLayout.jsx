@@ -3,7 +3,7 @@ import Sidebar from '../components/Sidebar';
 import TopNav from '../components/TopNav';
 import '../styles/layout.css';
 
-export default function AppLayout({ children, activeItem, onNavigate, isAuthenticated = false, streak = 0 }) {
+export default function AppLayout({ children, activeItem, onNavigate, isAuthenticated = false, streak = 0, username = null }) {
   const [sidebarOpen, setSidebarOpen]         = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -60,7 +60,7 @@ export default function AppLayout({ children, activeItem, onNavigate, isAuthenti
         onClick={closeSidebar}
       />
 
-      <TopNav onMenuToggle={handleMenuToggle} sidebarCollapsed={sidebarCollapsed} streak={streak} />
+      <TopNav onMenuToggle={handleMenuToggle} sidebarCollapsed={sidebarCollapsed} streak={streak} username={username} />
 
       <main className="app-layout__content">
         <div className="page-container">

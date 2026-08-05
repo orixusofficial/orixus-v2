@@ -10,8 +10,10 @@ function formatDate(date) {
   });
 }
 
-export default function TopNav({ onMenuToggle, streak = 0 }) {
+export default function TopNav({ onMenuToggle, streak = 0, username = null }) {
   const today = new Date();
+  const displayName = username ? username.trim() : null;
+  const greeting = displayName ? `Welcome, ${displayName}` : 'Welcome';
 
   return (
     <header className="topnav">
@@ -26,7 +28,7 @@ export default function TopNav({ onMenuToggle, streak = 0 }) {
         </button>
 
         <div className="topnav__greeting">
-          <span className="topnav__welcome">Welcome back</span>
+          <span className="topnav__welcome">{greeting}</span>
           <span className="topnav__date">{formatDate(today)}</span>
         </div>
       </div>

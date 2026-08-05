@@ -2,26 +2,26 @@
    Orixus — Design Tokens
    ======================================== */
 :root {
-  /* Background — Deeper, layered, tactical luxury darks */
-  --color-bg: #060709;             /* matte black primary background */
-  --color-surface: #0C0E11;        /* rich charcoal secondary surface */
-  --color-surface-hover: #12151B;  /* dark graphite for active cards and hovers */
-  --color-surface-raised: #1A1D24; /* soft dark gray for elevated modals */
+  /* Background — Apple-inspired dark theme */
+  --color-bg: #000000;             /* pure black primary background */
+  --color-surface: #1C1C1E;        /* cards and panels */
+  --color-surface-hover: #1C1C1E;  /* hover state for cards */
+  --color-surface-raised: #2C2C2E; /* elevated surfaces (modals, dialogs) */
 
-  /* Text — Soft Ivory and Tactical Grays */
-  --color-text-primary: #E1E3E6;   /* soft luxurious ivory */
-  --color-text-secondary: #A0A5AD; /* muted steel gray — boosted for readability */
-  --color-text-muted: #6E7380;     /* tactical gray — boosted for accessibility */
+  /* Text — Apple HIG-inspired */
+  --color-text-primary: #FFFFFF;   /* pure white primary text */
+  --color-text-secondary: rgba(235,235,245,0.60); /* secondary text */
+  --color-text-muted: rgba(235,235,245,0.40);     /* muted text */
 
-  /* Accent — Premium Soft Warm Champagne Gold */
-  --color-accent: #B38E46;         /* rich, scarce warm gold */
-  --color-accent-hover: #C29F57;   /* soft amber hover gold */
-  --color-accent-subtle: rgba(179, 142, 70, 0.08); /* scarce gold overlay — boosted for visibility */
-  --color-accent-strong: #CEAA62;  /* champagne gold highlight */
+  /* Accent — Premium Gold */
+  --color-accent: #C9A84C;         /* primary accent */
+  --color-accent-hover: #E8C96E;   /* hover accent */
+  --color-accent-subtle: rgba(201, 168, 76, 0.08); /* subtle accent overlay */
+  --color-accent-strong: #E8C96E;  /* strong accent */
 
-  /* Borders — Minimal, soft, physical borders */
-  --color-border: rgba(255, 255, 255, 0.06);
-  --color-border-subtle: rgba(255, 255, 255, 0.04);
+  /* Borders — Apple HIG-inspired */
+  --color-border: #38383A;         /* borders and dividers */
+  --color-border-subtle: rgba(56, 56, 58, 0.5);
 
   /* Typography */
   --font-heading: 'Barlow Condensed', sans-serif;

@@ -3863,3 +3863,15 @@
   margin-top: var(--space-xs);
 }
 
+/* ========================================
+   Achievement Progress
+   ======================================== */
+
+.profile-achievement-item__progress {
+  display: block;
+  margin-top: var(--space-xs);
+  font-size: 11px;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+

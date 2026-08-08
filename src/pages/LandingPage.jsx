@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { FaInstagram, FaYoutube, FaDiscord, FaTwitter } from 'react-icons/fa';
+import { FaInstagram, FaYoutube, FaDiscord, FaTwitter, FaDownload } from 'react-icons/fa';
 import { FaThreads } from 'react-icons/fa6';
 
 import '../styles/landing.css';
 import ScrollReveal from '../components/ScrollReveal';
 import FaqAccordion from '../components/FaqAccordion';
+import InstallModal from '../components/InstallModal';
 const NAV_LINKS = [
   { label: 'Why Orixus', target: 'why-orixus' },
   { label: 'How It Works', target: 'how-it-works' },
@@ -222,6 +223,21 @@ function ProductArea({ area }) {
 export default function LandingPage({ onOpenAuth }) {
   const scrollRef = useRef(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+  const [showInstallModal, setShowInstallModal] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  // Detect iOS Safari
+  const isIOS = () => {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  };
+
+  // Check if app is already installed (standalone mode)
+  const checkInstalled = () => {
+    return window.matchMedia('(display-mode: standalone)').matches || 
+           window.navigator.standalone === true;
+  };
 
   const scrollCarousel = (amount) => {
     if (!scrollRef.current) return;
@@ -229,19 +245,67 @@ export default function LandingPage({ onOpenAuth }) {
   };
 
   useEffect(() => {
+    // Check if already installed
+    setIsInstalled(checkInstalled());
+
+    // Handle beforeinstallprompt for Chrome/Android
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    };
+
+    // Handle appinstalled event
+    const handleAppInstalled = () => {
+      setIsInstalled(true);
+      setIsInstallable(false);
+      setDeferredPrompt(null);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (isIOS()) {
+      // Show iOS instructions modal
+      setShowInstallModal(true);
+    } else if (deferredPrompt) {
+      // Trigger Chrome/Android install prompt
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setIsInstalled(true);
+        setIsInstallable(false);
+      }
+      setDeferredPrompt(null);
+    }
+  };
+
+  const handleCloseInstallModal = () => {
+    setShowInstallModal(false);
+  };
+
+  useEffect(() => {
     // Close mobile menu on Escape key press
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         setMobileMenuOpen(false);
+        setShowInstallModal(false);
       }
     };
-    if (mobileMenuOpen) {
+    if (mobileMenuOpen || showInstallModal) {
       window.addEventListener('keydown', handleKeyDown);
     }
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [mobileMenuOpen]);
+  }, [mobileMenuOpen, showInstallModal]);
 
   useEffect(() => {
     // 1. Navigation scroll listener
@@ -534,6 +598,12 @@ export default function LandingPage({ onOpenAuth }) {
               {link.label}
             </a>
           ))}
+          {(isInstallable || isIOS()) && !isInstalled && (
+            <button className="landing-install-button" onClick={handleInstallClick}>
+              <FaDownload />
+              Install Orixus
+            </button>
+          )}
           <button className="landing-btn-login" onClick={handleLogIn}>Login</button>
           <button className="landing-btn-start" onClick={handleSignUp}>Start Free</button>
         </div>
@@ -820,6 +890,10 @@ export default function LandingPage({ onOpenAuth }) {
         </div>
       </footer>
     </div>
+    
+    {showInstallModal && (
+      <InstallModal onClose={handleCloseInstallModal} />
+    )}
     </>
   );
 }

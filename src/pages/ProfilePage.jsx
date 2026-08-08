@@ -3,13 +3,7 @@ import '../styles/dashboard.css';
 import { getRankInfo, RANKS } from '../utils/analyticsHelpers';
 import { getAvatarSignedUrl } from '../services/avatar';
 import { useAuth } from '../contexts/AuthContext';
-
-const ACHIEVEMENTS_CONFIG = [
-  { name: 'First Spark', description: 'Complete your first habit check-in', icon: 'flame', check: (data) => data.totalHabits >= 1 },
-  { name: '7-Day Streak', description: 'Maintain a 7-day streak', icon: 'calendar', check: (data) => data.streak >= 7 },
-  { name: 'First Log', description: 'Write your first journal entry', icon: 'notebook', check: (data) => data.journalCount >= 1 },
-  { name: 'Century', description: 'Complete 100 habits', icon: 'trophy', check: (data) => data.totalHabits >= 100 },
-];
+import { ACHIEVEMENTS_CONFIG, calculateAchievementData } from '../utils/achievements';
 
 const ICONS = {
   diamond: (
@@ -63,6 +57,29 @@ const ICONS = {
       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
     </svg>
   ),
+  star: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  ),
+  moon: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  ),
+  sun: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="5" />
+      <line x1="12" y1="1" x2="12" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="23" />
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+      <line x1="1" y1="12" x2="3" y2="12" />
+      <line x1="21" y1="12" x2="23" y2="12" />
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+    </svg>
+  ),
 };
 
 export default function ProfilePage({ habits = [], completionData = {}, journalEntries = [], profile = null }) {
@@ -88,26 +105,10 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
 
   // Calculate all metrics from real data
   const metrics = useMemo(() => {
-    const totalHabits = Object.values(completionData).filter(v => v).length;
-    const journalCount = journalEntries.length;
-
-    // Calculate day streak
-    const dateKeyStr = (date) => {
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, '0');
-      const d = String(date.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    };
-
-    const isBefore = (dateA, dateB) => {
-      const a = new Date(dateA);
-      const b = new Date(dateB);
-      a.setHours(0, 0, 0, 0);
-      b.setHours(0, 0, 0, 0);
-      return a < b;
-    };
-
-    // Get unique dates with completions
+    const achievementData = calculateAchievementData(habits, completionData, journalEntries, profile, user);
+    
+    // Calculate consistency - use first habit completion date, not account creation date
+    let consistency = 0;
     const completionDates = new Set();
     Object.keys(completionData).forEach(key => {
       if (completionData[key]) {
@@ -115,43 +116,15 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
         completionDates.add(dateStr);
       }
     });
-
-    // Calculate streak - go backwards from today/yesterday counting consecutive days with completions
-    let streak = 0;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const checkDate = (date) => {
-      const dateStr = dateKeyStr(date);
-      return Array.from(completionDates).some(d => d === dateStr);
-    };
-
-    // If no habits have ever been completed, streak = 0
-    if (completionDates.size === 0) {
-      streak = 0;
-    } else {
-      // Start checking from today
-      let checkDateObj = new Date(today);
-
-      // If today has no completions, start from yesterday
-      if (!checkDate(checkDateObj)) {
-        checkDateObj.setDate(today.getDate() - 1);
-      }
-
-      // Count consecutive days backwards until a day with no completions is found
-      while (checkDate(checkDateObj)) {
-        streak++;
-        checkDateObj.setDate(checkDateObj.getDate() - 1);
-      }
-    }
-
-    // Calculate consistency - use first habit completion date, not account creation date
-    let consistency = 0;
+    
     if (completionDates.size > 0) {
       // Find the first habit completion date
       const sortedDates = Array.from(completionDates).sort();
       const firstCompletionDate = new Date(sortedDates[0]);
       firstCompletionDate.setHours(0, 0, 0, 0);
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
       // Calculate total days since first habit completion
       const daysSinceFirstCompletion = Math.ceil((today - firstCompletionDate) / (1000 * 60 * 60 * 24));
@@ -163,24 +136,35 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
     }
 
     // Use shared rank calculation
-    const rankInfo = getRankInfo(streak, totalHabits);
+    const rankInfo = getRankInfo(achievementData.streak, achievementData.totalHabits);
 
     return {
-      totalHabits,
-      streak,
-      checkIns: totalHabits,
+      ...achievementData,
+      checkIns: achievementData.totalHabits,
       consistency,
-      journalCount,
       rankInfo,
     };
-  }, [completionData, journalEntries, profile]);
+  }, [completionData, journalEntries, profile, user, habits]);
 
   // Calculate achievements
   const achievements = useMemo(() => {
-    return ACHIEVEMENTS_CONFIG.map(achievement => ({
-      ...achievement,
-      unlocked: achievement.check(metrics),
-    }));
+    if (!metrics || !ACHIEVEMENTS_CONFIG || ACHIEVEMENTS_CONFIG.length === 0) {
+      return [];
+    }
+    return ACHIEVEMENTS_CONFIG.map(achievement => {
+      try {
+        return {
+          ...achievement,
+          unlocked: achievement.check(metrics),
+        };
+      } catch (error) {
+        console.error(`Error checking achievement ${achievement.id}:`, error);
+        return {
+          ...achievement,
+          unlocked: false,
+        };
+      }
+    });
   }, [metrics]);
 
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -273,13 +257,29 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
           <h3 className="profile-section-card__title">ACHIEVEMENTS</h3>
           <div className="profile-achievement-list">
             {achievements.map((achievement) => (
-              <div key={achievement.name} className={`profile-achievement-item ${achievement.unlocked ? 'profile-achievement-item--unlocked' : 'profile-achievement-item--locked'}`}>
+              <div key={achievement.id} className={`profile-achievement-item ${achievement.unlocked ? 'profile-achievement-item--unlocked' : 'profile-achievement-item--locked'}`}>
                 <div className="profile-achievement-item__icon">
-                  {ICONS[achievement.icon]}
+                  {achievement.secret && !achievement.unlocked ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  ) : (
+                    ICONS[achievement.icon] || ICONS.diamond
+                  )}
                 </div>
                 <div className="profile-achievement-item__content">
-                  <span className="profile-achievement-item__name">{achievement.name}</span>
-                  <span className="profile-achievement-item__description">{achievement.description}</span>
+                  <span className="profile-achievement-item__name">
+                    {achievement.secret && !achievement.unlocked ? '???' : achievement.name}
+                  </span>
+                  <span className="profile-achievement-item__description">
+                    {achievement.secret && !achievement.unlocked ? 'Complete the requirement to reveal' : achievement.description}
+                  </span>
+                  {achievement.progress && !achievement.unlocked && (
+                    <span className="profile-achievement-item__progress">
+                      {achievement.progress(metrics).current} / {achievement.progress(metrics).target}
+                    </span>
+                  )}
                 </div>
               </div>
             ))}

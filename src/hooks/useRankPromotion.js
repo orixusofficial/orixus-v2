@@ -7,24 +7,30 @@ export function useRankPromotion(streak) {
   const [newRank, setNewRank] = useState(null);
   const previousStreakRef = useRef(0);
   const previousRankRef = useRef(null);
-  const celebratedRanksRef = useRef(new Set());
+  const initialRankSetRef = useRef(false);
+  const sessionCelebratedRanksRef = useRef(new Set());
 
-  const checkRankPromotion = useCallback((currentStreak, previousStreak) => {
-    if (currentStreak <= previousStreak) return null;
-
+  const checkRankPromotion = useCallback((currentStreak) => {
     const currentRank = getRankForStreak(currentStreak);
-    const previousRank = getRankForStreak(previousStreak);
     
-    if (currentRank.name !== previousRank.name) {
+    // On first load, set the initial rank without triggering ceremony
+    if (!initialRankSetRef.current) {
+      previousRankRef.current = currentRank.name;
+      initialRankSetRef.current = true;
+      return null;
+    }
+    
+    // Only check for promotion if current rank differs from previous rank
+    if (currentRank.name !== previousRankRef.current) {
       const currentRankIndex = getRankIndex(currentRank.name);
-      const previousRankIndex = getRankIndex(previousRank.name);
+      const previousRankIndex = getRankIndex(previousRankRef.current);
       
       // Only trigger if moving to a higher rank
       if (currentRankIndex > previousRankIndex) {
-        // Check if this rank promotion has already been celebrated
-        if (!celebratedRanksRef.current.has(currentRank.name)) {
+        // Check if this rank has already been celebrated in the current session
+        if (!sessionCelebratedRanksRef.current.has(currentRank.name)) {
           return {
-            old: previousRank.name,
+            old: previousRankRef.current,
             new: currentRank.name
           };
         }
@@ -38,7 +44,7 @@ export function useRankPromotion(streak) {
     setOldRank(promotion.old);
     setNewRank(promotion.new);
     setShowCeremony(true);
-    celebratedRanksRef.current.add(promotion.new);
+    sessionCelebratedRanksRef.current.add(promotion.new);
   }, []);
 
   const handleClose = useCallback(() => {
@@ -55,19 +61,25 @@ export function useRankPromotion(streak) {
   useEffect(() => {
     if (streak === previousStreakRef.current) return;
 
-    const promotion = checkRankPromotion(streak, previousStreakRef.current);
+    const promotion = checkRankPromotion(streak);
     
     if (promotion) {
       triggerCeremony(promotion);
     }
 
     previousStreakRef.current = streak;
+    const currentRank = getRankForStreak(streak).name;
+    if (currentRank !== previousRankRef.current) {
+      previousRankRef.current = currentRank;
+    }
   }, [streak, checkRankPromotion, triggerCeremony]);
 
-  // Reset celebrated ranks when streak drops significantly (e.g., user resets)
+  // Reset session state when streak drops to 0 (user resets)
   useEffect(() => {
     if (streak === 0) {
-      celebratedRanksRef.current.clear();
+      sessionCelebratedRanksRef.current.clear();
+      previousRankRef.current = null;
+      initialRankSetRef.current = false;
     }
   }, [streak]);
 

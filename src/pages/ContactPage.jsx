@@ -10,10 +10,10 @@ const backArrow = (
 
 export default function ContactPage() {
   useEffect(() => {
-    document.title = 'Contact | Orixus';
+    document.title = 'Contact Orixus — Support & Feedback';
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Contact Orixus support for bug reports, feature requests, or general questions.');
+      metaDescription.setAttribute('content', 'Contact Orixus for support, bug reports, feature requests, privacy questions, and general questions about the platform.');
     }
   }, []);
 
@@ -48,23 +48,34 @@ export default function ContactPage() {
           <div className="static-page__help-grid">
             <div className="static-page__help-item">
               <h3>Bug Reports</h3>
-              <p>Found something not working correctly? Let us know the details and we'll investigate.</p>
+              <p>Tell us what happened, what you expected to happen, and any relevant steps to reproduce the issue.</p>
             </div>
             <div className="static-page__help-item">
               <h3>Feature Requests</h3>
-              <p>Have an idea for improving Orixus? We're always listening to thoughtful suggestions.</p>
+              <p>Tell us what you would like Orixus to improve and why it would be useful.</p>
             </div>
             <div className="static-page__help-item">
               <h3>General Questions</h3>
-              <p>Need help understanding how to use Orixus effectively? We're here to assist.</p>
+              <p>Questions about using Orixus, account functionality, or available features.</p>
+            </div>
+            <div className="static-page__help-item">
+              <h3>Privacy Requests</h3>
+              <p>For account deletion, privacy questions, or personal-data requests, contact <a href="mailto:orixusofficial@gmail.com" className="static-page__email">orixusofficial@gmail.com</a>.</p>
             </div>
           </div>
         </section>
 
         <section className="static-page__section">
+          <h2 className="static-page__section-title">Security Note</h2>
+          <p>
+            For your security, please do not send passwords, authentication codes, payment credentials, or other highly sensitive information by email.
+          </p>
+        </section>
+
+        <section className="static-page__section">
           <h2 className="static-page__section-title">Response Time</h2>
           <p>
-            We typically respond to all inquiries within 48 hours. For urgent matters, please include detailed information in your email to help us address your issue faster.
+            We aim to respond to support inquiries as soon as reasonably possible. Response times may vary depending on the nature and volume of requests.
           </p>
         </section>
       </div>

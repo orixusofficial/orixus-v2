@@ -43,6 +43,12 @@
   margin: 0;
 }
 
+.static-page__effective-date {
+  color: rgba(255, 242, 225, 0.6);
+  font-size: 0.9375rem;
+  margin-top: 1rem;
+}
+
 .static-page__section {
   margin-bottom: 3.5rem;
 }
@@ -59,6 +65,17 @@
   letter-spacing: 0;
   line-height: 1.1;
   margin: 0 0 1.25rem;
+  text-transform: uppercase;
+}
+
+.static-page__subsection-title {
+  color: #A79277;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.2;
+  margin: 2rem 0 0.75rem;
   text-transform: uppercase;
 }
 
@@ -185,6 +202,93 @@
   margin: 0;
 }
 
+.static-page__disclaimer {
+  color: rgba(255, 242, 225, 0.6);
+  font-size: 0.875rem;
+  font-style: italic;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Philosophy grid */
+.static-page__philosophy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.static-page__philosophy-item h3 {
+  color: #A79277;
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+}
+
+.static-page__philosophy-item p {
+  color: rgba(255, 242, 225, 0.78);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Help grid */
+.static-page__help-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.static-page__help-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+}
+
+.static-page__help-item h3 {
+  color: #FFF2E1;
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  margin: 0 0 0.75rem;
+  text-transform: uppercase;
+}
+
+.static-page__help-item p {
+  color: rgba(255, 242, 225, 0.78);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Contact card */
+.static-page__contact-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  text-align: center;
+}
+
+.static-page__email-link {
+  color: #A79277;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.static-page__email-link:hover {
+  color: #C4AA8A;
+  text-decoration: underline;
+}
+
 /* Responsive */
 @media (max-width: 767px) {
   .static-page__container {
@@ -206,5 +310,11 @@
 
   .static-page__section {
     margin-bottom: 2.5rem;
+  }
+
+  .static-page__philosophy-grid,
+  .static-page__help-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 }

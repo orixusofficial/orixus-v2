@@ -2,32 +2,38 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://orixus.vercel.app/</loc>
-    <lastmod>2026-07-21</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
   </url>
   <url>
     <loc>https://orixus.vercel.app/about</loc>
-    <lastmod>2026-07-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://orixus.vercel.app/contact</loc>
-    <lastmod>2026-07-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://orixus.vercel.app/faq</loc>
+  </url>
+  <url>
+    <loc>https://orixus.vercel.app/guides</loc>
+  </url>
+  <url>
+    <loc>https://orixus.vercel.app/guides/how-to-build-discipline</loc>
+  </url>
+  <url>
+    <loc>https://orixus.vercel.app/guides/how-to-stay-consistent-with-your-habits</loc>
+  </url>
+  <url>
+    <loc>https://orixus.vercel.app/guides/how-to-build-habits-that-actually-stick</loc>
+  </url>
+  <url>
+    <loc>https://orixus.vercel.app/guides/how-to-make-real-progress-in-personal-growth</loc>
+  </url>
+  <url>
+    <loc>https://orixus.vercel.app/guides/how-to-build-a-routine-that-actually-works</loc>
   </url>
   <url>
     <loc>https://orixus.vercel.app/privacy</loc>
-    <lastmod>2026-07-21</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
   </url>
   <url>
     <loc>https://orixus.vercel.app/terms</loc>
-    <lastmod>2026-07-21</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
   </url>
 </urlset>

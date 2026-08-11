@@ -1,8 +1,4 @@
 User-agent: *
-
 Allow: /
-
-Disallow: /login
-Disallow: /signup
 
 Sitemap: https://orixus.vercel.app/v3-sitemap.xml

@@ -14,6 +14,40 @@
   width: 100%;
 }
 
+.faq-page__container {
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Back Button */
+.faq-page__back {
+  align-items: center;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-2xl);
+  padding: var(--space-sm) var(--space-lg);
+  transition: background var(--transition-base) var(--ease-premium), border-color var(--transition-base) var(--ease-premium);
+}
+
+.faq-page__back:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.faq-page__back svg {
+  flex-shrink: 0;
+}
+
 /* Header */
 .faq-page__header {
   text-align: center;

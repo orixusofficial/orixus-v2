@@ -6,6 +6,38 @@ import '../styles/landing.css';
 import ScrollReveal from '../components/ScrollReveal';
 import FaqAccordion from '../components/FaqAccordion';
 import InstallModal from '../components/InstallModal';
+const GUIDE_CATEGORIES = [
+  { id: 'discipline', label: 'Discipline' },
+  { id: 'consistency', label: 'Consistency' },
+  { id: 'habits', label: 'Habits' },
+  { id: 'personal-growth', label: 'Personal Growth' },
+  { id: 'routines', label: 'Routines' },
+];
+
+const FEATURED_GUIDES = [
+  {
+    slug: 'how-to-build-discipline',
+    title: 'How to Build Discipline When Motivation Fades',
+    category: 'discipline',
+    description: 'Learn how to build discipline when motivation fades by using clear commitments, practical systems, environmental design, and consistent daily action.',
+    readingTime: '8 min read',
+  },
+  {
+    slug: 'how-to-build-habits-that-actually-stick',
+    title: 'How to Build Habits That Actually Stick',
+    category: 'habits',
+    description: 'Learn how to build habits that actually stick by designing realistic behaviors, reliable triggers, low-friction environments, and practical recovery plans.',
+    readingTime: '10 min read',
+  },
+  {
+    slug: 'how-to-make-real-progress-in-personal-growth',
+    title: 'How to Make Real Progress in Personal Growth',
+    category: 'personal-growth',
+    description: 'Learn how to make real progress in personal growth by identifying weaknesses, choosing meaningful priorities, taking action, measuring evidence, and reviewing your system.',
+    readingTime: '11 min read',
+  },
+];
+
 const NAV_LINKS = [
   { label: 'Why Orixus', target: 'why-orixus' },
   { label: 'How It Works', target: 'how-it-works' },
@@ -830,6 +862,37 @@ export default function LandingPage({ onOpenAuth }) {
         <section className="landing-section landing-faq" id="faq">
           <SectionHeader eyebrow="FAQ" title="Common questions about Orixus" />
           <FaqAccordion />
+        </section>
+
+        <section className="landing-section landing-guides">
+          <SectionHeader
+            eyebrow="Build Yourself, One Step at a Time"
+            title="Practical guides on discipline, consistency, habits, routines, and personal growth."
+          />
+          <div className="landing-guides-grid">
+            {FEATURED_GUIDES.map((guide) => (
+              <a
+                key={guide.slug}
+                href={`/guides/${guide.slug}`}
+                className="landing-guide-card"
+              >
+                <div className="landing-guide-card__header">
+                  <span className="landing-guide-card__category">
+                    {GUIDE_CATEGORIES.find((cat) => cat.id === guide.category)?.label}
+                  </span>
+                  <span className="landing-guide-card__reading-time">{guide.readingTime}</span>
+                </div>
+                <h3 className="landing-guide-card__title">{guide.title}</h3>
+                <p className="landing-guide-card__description">{guide.description}</p>
+                <span className="landing-guide-card__link">Read guide →</span>
+              </a>
+            ))}
+          </div>
+          <div className="landing-guides-view-all">
+            <a href="/guides" className="landing-guides-view-all__link">
+              View all guides →
+            </a>
+          </div>
         </section>
 
         <section className="landing-final-cta">

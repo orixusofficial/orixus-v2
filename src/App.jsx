@@ -11,6 +11,12 @@ import ContactPage from './pages/ContactPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
 import FaqPage from './pages/FaqPage';
+import GuidesPage from './pages/GuidesPage';
+import GuideArticlePage from './pages/GuideArticlePage';
+import GuideConsistencyPage from './pages/GuideConsistencyPage';
+import GuideHabitsPage from './pages/GuideHabitsPage';
+import GuidePersonalGrowthPage from './pages/GuidePersonalGrowthPage';
+import GuideRoutinesPage from './pages/GuideRoutinesPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AdminUnauthorized from './admin/AdminUnauthorized';
 import { ADMIN_USER_ID } from './admin/config';
@@ -33,7 +39,7 @@ export default function App() {
   const isAuthPage = pathname === '/login' || pathname === '/signup';
 
   // Check if on static page route
-  const isStaticPage = pathname === '/about' || pathname === '/contact' || pathname === '/privacy' || pathname === '/terms' || pathname === '/faq';
+  const isStaticPage = pathname === '/about' || pathname === '/contact' || pathname === '/privacy' || pathname === '/terms' || pathname === '/faq' || pathname === '/guides' || pathname.startsWith('/guides/');
   const isKnownRoute = isHomeRoute || isAdminRoute || isAuthPage || isStaticPage;
 
   // Auth modal state
@@ -121,6 +127,18 @@ export default function App() {
           return <TermsOfServicePage />;
         case '/faq':
           return <FaqPage />;
+        case '/guides':
+          return <GuidesPage />;
+        case '/guides/how-to-build-discipline':
+          return <GuideArticlePage />;
+        case '/guides/how-to-stay-consistent-with-your-habits':
+          return <GuideConsistencyPage />;
+        case '/guides/how-to-build-habits-that-actually-stick':
+          return <GuideHabitsPage />;
+        case '/guides/how-to-make-real-progress-in-personal-growth':
+          return <GuidePersonalGrowthPage />;
+        case '/guides/how-to-build-a-routine-that-actually-works':
+          return <GuideRoutinesPage />;
         default:
           return <LandingPage onOpenAuth={openAuth} />;
       }

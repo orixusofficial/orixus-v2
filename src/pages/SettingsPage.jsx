@@ -1083,6 +1083,31 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
         </div>
       </div>
 
+      {/* Resources Section */}
+      <div className="orixus-settings__section">
+        <div className="orixus-settings__section-title">Resources</div>
+        <div className="orixus-settings__card">
+          <SettingsRow
+            icon={<Book size={18} />}
+            label="Guides"
+            right={<ChevronRight size={16} />}
+            onClick={() => window.location.href = '/guides'}
+          />
+          <SettingsRow
+            icon={<Info size={18} />}
+            label="FAQ"
+            right={<ChevronRight size={16} />}
+            onClick={() => window.location.href = '/faq'}
+          />
+          <SettingsRow
+            icon={<MessageSquare size={18} />}
+            label="Contact Support"
+            right={<ChevronRight size={16} />}
+            onClick={() => window.location.href = '/contact'}
+          />
+        </div>
+      </div>
+
       {/* Danger Zone Section */}
       <div className="orixus-settings__section">
         <div className="orixus-settings__section-title orixus-settings__section-title--danger">Danger Zone</div>

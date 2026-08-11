@@ -3,6 +3,13 @@ import { ChevronDown } from 'lucide-react';
 import JsonLd from '../components/JsonLd';
 import '../styles/faq-page.css';
 
+const backArrow = (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12" />
+    <polyline points="12 19 5 12 12 5" />
+  </svg>
+);
+
 const FAQ_CATEGORIES = [
   {
     id: 'getting-started',
@@ -307,6 +314,10 @@ export default function FaqPage() {
     }
   };
 
+  const handleBack = () => {
+    window.history.length > 1 ? window.history.back() : window.location.href = '/';
+  };
+
   // Set page metadata
   useEffect(() => {
     document.title = 'Orixus FAQ — Questions About Habits, Discipline & Progress';
@@ -342,12 +353,19 @@ export default function FaqPage() {
     <>
       <JsonLd data={structuredData} />
       <div className="faq-page">
-        <header className="faq-page__header">
-          <h1 className="faq-page__title">Questions, answered.</h1>
-          <p className="faq-page__subtitle">
-            Everything you need to know about Orixus, from habits and consistency to progress, ranks, achievements, and journaling.
-          </p>
-        </header>
+        <div className="faq-page__container">
+          <button className="faq-page__back" onClick={handleBack}>
+            {backArrow}
+            Back
+          </button>
+
+          <header className="faq-page__header">
+            <h1 className="faq-page__title">Questions, answered.</h1>
+            <p className="faq-page__subtitle">
+              Everything you need to know about Orixus, from habits and consistency to progress, ranks, achievements, and journaling.
+            </p>
+          </header>
+        </div>
 
         <main className="faq-page__content">
           {FAQ_CATEGORIES.map((category) => (

@@ -10,6 +10,7 @@ import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
+import FaqPage from './pages/FaqPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AdminUnauthorized from './admin/AdminUnauthorized';
 import { ADMIN_USER_ID } from './admin/config';
@@ -32,7 +33,7 @@ export default function App() {
   const isAuthPage = pathname === '/login' || pathname === '/signup';
 
   // Check if on static page route
-  const isStaticPage = pathname === '/about' || pathname === '/contact' || pathname === '/privacy' || pathname === '/terms';
+  const isStaticPage = pathname === '/about' || pathname === '/contact' || pathname === '/privacy' || pathname === '/terms' || pathname === '/faq';
   const isKnownRoute = isHomeRoute || isAdminRoute || isAuthPage || isStaticPage;
 
   // Auth modal state
@@ -118,6 +119,8 @@ export default function App() {
           return <PrivacyPolicyPage />;
         case '/terms':
           return <TermsOfServicePage />;
+        case '/faq':
+          return <FaqPage />;
         default:
           return <LandingPage onOpenAuth={openAuth} />;
       }

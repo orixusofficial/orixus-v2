@@ -124,7 +124,7 @@ export default function OnboardingModal({ onClose, onHabitsCreated, range, onRan
     setLoading(true);
     try {
       const habitPromises = filledRows.map((row) =>
-        createHabit(user.id, row.name.trim(), row.duration)
+        createHabit(user.id, row.name.trim(), row.duration, null)
       );
       const results = await Promise.all(habitPromises);
       console.log('Supabase response - data:', results, 'error:', null);

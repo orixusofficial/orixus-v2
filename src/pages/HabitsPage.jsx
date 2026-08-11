@@ -20,8 +20,11 @@ export default function HabitsPage({
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
+    // Show onboarding only if there are no habits
     if (habits.length === 0) {
       setShowOnboarding(true);
+    } else {
+      setShowOnboarding(false);
     }
   }, [habits.length]);
 

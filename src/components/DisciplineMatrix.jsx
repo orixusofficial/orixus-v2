@@ -17,6 +17,16 @@ function getHabitStartDate(habit) {
 }
 
 /**
+ * Calculate a habit's end date based on its individual duration.
+ */
+function getHabitEndDate(habit) {
+  const startDate = getHabitStartDate(habit);
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + (habit.duration || 30));
+  return endDate;
+}
+
+/**
  * Turn a Date into a stable string key: "YYYY-MM-DD"
  */
 function dateKey(date) {
@@ -72,7 +82,7 @@ function isBefore(dateA, dateB) {
 }
 
 /**
- * STRICT ANALYTICS LOGIC — uses global cycle days, ignores pre-habit (inactive) cells.
+ * STRICT ANALYTICS LOGIC — uses global timeline, respects individual habit durations.
  */
 function computeStats(habits, fixedTimeline, completionData) {
   if (!habits.length || !fixedTimeline.length) return { totalDone: 0, rate: 0, streak: 0 };
@@ -82,8 +92,9 @@ function computeStats(habits, fixedTimeline, completionData) {
 
   habits.forEach((habit) => {
     const habitStart = getHabitStartDate(habit);
+    const habitEnd = getHabitEndDate(habit);
     fixedTimeline.forEach((day) => {
-      const inactive = isBefore(day, habitStart);
+      const inactive = isBefore(day, habitStart) || !isBefore(day, habitEnd);
       const future = isFuture(day);
       if (!inactive && !future) {
         totalActivePossible++;
@@ -102,7 +113,11 @@ function computeStats(habits, fixedTimeline, completionData) {
 
   const isDayFullyCompleted = (date) => {
     const dateStr = dateKey(date);
-    const activeHabits = habits.filter(h => !isBefore(date, getHabitStartDate(h)));
+    const activeHabits = habits.filter(h => {
+      const habitStart = getHabitStartDate(h);
+      const habitEnd = getHabitEndDate(h);
+      return !isBefore(date, habitStart) && isBefore(date, habitEnd);
+    });
     if (activeHabits.length === 0) return false;
     return activeHabits.every(h => completionData[`${h.id}:${dateStr}`]);
   };
@@ -278,9 +293,9 @@ export default function DisciplineMatrix({
   }, [range, customDays]);
 
   /**
-   * fixedTimeline — generated from the first habit's creation date.
+   * fixedTimeline — generated from first habit's creation date.
    * This is the single source of truth for both header and checkbox grid.
-   * Never shifts, always based on habit.createdAt.
+   * Each habit uses its own duration for inactive calculation.
    */
   const fixedTimeline = useMemo(() => {
     if (habits.length === 0) return [];
@@ -327,8 +342,8 @@ export default function DisciplineMatrix({
   return (
     <section className="matrix">
       <div className="matrix__header">
-        <div className="matrix__header-left">
-          <h2 className="matrix__title">Discipline Matrix</h2>
+        <div className="matrix__header-left" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+          <h2 className="matrix__title" style={{ margin: 0 }}>Discipline Matrix</h2>
           <button
             className="matrix__add-btn"
             onClick={onOpenAddHabit}
@@ -337,6 +352,7 @@ export default function DisciplineMatrix({
             + Add Habit
           </button>
         </div>
+
 
         <div className="matrix__range">
           {STATIC_RANGES.map((r) => (
@@ -408,7 +424,9 @@ export default function DisciplineMatrix({
                       const today = isToday(day);
                       const future = isFuture(day);
                       const habitStart = getHabitStartDate(habit);
-                      const inactive = isBefore(day, habitStart);
+                      const habitEnd = getHabitEndDate(habit);
+                      // Inactive if date is before habit start OR after habit end
+                      const inactive = isBefore(day, habitStart) || !isBefore(day, habitEnd);
                       // Only today's checkbox is interactive; future and inactive are always locked
                       const interactive = today && !inactive;
 

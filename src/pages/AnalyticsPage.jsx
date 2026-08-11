@@ -185,7 +185,6 @@ export default function AnalyticsPage({ habits, completionData }) {
     };
   }, [habits, completionData]);
 
-  // Construct chart coordinates
   const chartPointsWeekly = useMemo(() => {
     if (!stats) return [];
     return getChartPoints(stats.chartDataWeekly);
@@ -660,6 +659,7 @@ export default function AnalyticsPage({ habits, completionData }) {
           </div>
         </div>
       </div>
+
     </div>
   );
 }

@@ -36,7 +36,12 @@ export function useUserData() {
           localStorage.getItem('orixus_profile') || '{"display_name": "Dev Operator"}'
         );
 
-        setHabits(habitsRows);
+        const mappedHabits = habitsRows.map(h => ({
+          ...h,
+          createdAt: new Date(h.createdAt),
+        }));
+
+        setHabits(mappedHabits);
         setCompletionData(completionMap);
         setJournalEntries(journalRows);
         setProfile(profileRow);
@@ -49,13 +54,14 @@ export function useUserData() {
         habitsService.fetchHabits(user.id),
         completionsService.fetchCompletions(user.id),
         journalService.fetchJournalEntries(user.id),
-        fetchProfile(user.id),
+        fetchProfile(user.id)
       ]);
 
       setHabits(habitsRows);
       setCompletionData(completionMap);
       setJournalEntries(journalRows);
       setProfile(profileRow);
+      setLoading(false);
     } catch (err) {
       setError(err.message ?? 'Failed to load your data.');
     } finally {
@@ -70,17 +76,6 @@ export function useUserData() {
   const addHabit = useCallback(
     async (label) => {
       if (!user) return;
-
-      // Initialize cycleStart the FIRST time a habit is ever created for this user.
-      // Never recalculate it afterwards.
-      const cycleKey = `orixus_cycle_start_${user.id}`;
-      if (!localStorage.getItem(cycleKey)) {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
-        localStorage.setItem(cycleKey, `${yyyy}-${mm}-${dd}`);
-      }
 
       if (user.isMock) {
         const createdAt = new Date();
@@ -97,7 +92,7 @@ export function useUserData() {
         });
         return;
       }
-      const created = await habitsService.createHabit(user.id, label);
+      const created = await habitsService.createHabit(user.id, label, 30);
       setHabits((prev) => [...prev, created]);
     },
     [user],
@@ -140,6 +135,22 @@ export function useUserData() {
     async (habitId, newDuration) => {
       if (!user) return;
 
+      // Calculate current day for validation (same logic as DisciplineMatrix)
+      const habit = habits.find(h => h.id === habitId);
+      if (habit) {
+        const habitStart = new Date(habit.createdAt);
+        habitStart.setHours(12, 0, 0, 0);
+        const today = new Date();
+        today.setHours(12, 0, 0, 0);
+        
+        const diffTime = today - habitStart;
+        const currentDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        
+        if (newDuration < currentDay) {
+          throw new Error(`You're currently on Day ${currentDay}. Duration cannot be less than ${currentDay} days.`);
+        }
+      }
+
       if (user.isMock) {
         setHabits((prev) => {
           const next = prev.map((h) => (h.id === habitId ? { ...h, duration: newDuration } : h));
@@ -149,12 +160,12 @@ export function useUserData() {
         return;
       }
 
-      await habitsService.updateHabitDuration(user.id, habitId, newDuration);
+      await habitsService.updateHabitDuration(user.id, habitId, newDuration, habits);
       setHabits((prev) =>
         prev.map((h) => (h.id === habitId ? { ...h, duration: newDuration } : h))
       );
     },
-    [user],
+    [user, habits],
   );
 
   const setCompletionDataPersisted = useCallback((updater) => {
@@ -251,6 +262,7 @@ export function useUserData() {
 
   const resetAllHabits = useCallback(async () => {
     if (!user) return;
+    
     if (user.isMock) {
       setHabits([]);
       setCompletionData({});
@@ -301,6 +313,19 @@ export function useUserData() {
       return `${y}-${m}-${d}`;
     };
 
+    const getActiveHabitsForDate = (date) => {
+      return habits.filter(h => {
+        const habitStart = new Date(h.createdAt);
+        habitStart.setHours(0, 0, 0, 0);
+        const habitEnd = new Date(habitStart);
+        habitEnd.setDate(habitStart.getDate() + (h.duration || 30) - 1);
+        habitEnd.setHours(0, 0, 0, 0);
+        const checkDate = new Date(date);
+        checkDate.setHours(0, 0, 0, 0);
+        return checkDate >= habitStart && checkDate <= habitEnd;
+      });
+    };
+
     const dateKeys = new Set();
     Object.keys(completionData).forEach(key => {
       const dateKeyStr = key.split(':')[1];
@@ -346,7 +371,13 @@ export function useUserData() {
         }
       });
 
-      if (completedHabitIds.size === habits.length) {
+      const activeHabitsForDay = getActiveHabitsForDate(checkDate);
+      if (activeHabitsForDay.length === 0) {
+        break;
+      }
+
+      const allCompleted = activeHabitsForDay.every(h => completedHabitIds.has(h.id));
+      if (allCompleted) {
         streak++;
       } else {
         break;

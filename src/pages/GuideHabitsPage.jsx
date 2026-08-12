@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import '../styles/guide-article-page.css';
+import JsonLd from '../components/JsonLd';
 
 const ARTICLE = {
   title: 'How to Build Habits That Actually Stick',
@@ -54,8 +55,6 @@ export default function GuideHabitsPage() {
       '@type': 'Article',
       headline: ARTICLE.title,
       description: ARTICLE.description,
-      datePublished: ARTICLE.publishedDate,
-      dateModified: ARTICLE.updatedDate,
       author: {
         '@type': 'Organization',
         name: 'Orixus'
@@ -63,11 +62,11 @@ export default function GuideHabitsPage() {
       publisher: {
         '@type': 'Organization',
         name: 'Orixus',
-        url: 'https://orixus.com'
+        url: 'https://orixus.vercel.app'
       },
       mainEntityOfPage: {
         '@type': 'WebPage',
-        '@id': `https://orixus.com/guides/${ARTICLE.slug}`
+        '@id': `https://orixus.vercel.app/guides/${ARTICLE.slug}`
       }
     });
     document.head.appendChild(script);
@@ -83,6 +82,15 @@ export default function GuideHabitsPage() {
 
   return (
     <article className="guide-article-page">
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://orixus.vercel.app/' },
+          { '@type': 'ListItem', position: 2, name: 'Guides', item: 'https://orixus.vercel.app/guides' },
+          { '@type': 'ListItem', position: 3, name: ARTICLE.title, item: `https://orixus.vercel.app/guides/${ARTICLE.slug}` }
+        ]
+      }} />
       <div className="guide-article-page__container">
         <button className="guide-article-page__back" onClick={handleBack}>
           ← Back to Guides

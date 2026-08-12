@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import JsonLd from '../components/JsonLd';
 import '../styles/dashboard.css';
 
 export default function JournalPage({ entries = [], onAddEntry, defaultMood = 'neutral' }) {
@@ -56,6 +57,14 @@ export default function JournalPage({ entries = [], onAddEntry, defaultMood = 'n
 
   return (
     <div className="journal-page">
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://orixus.vercel.app/' },
+          { '@type': 'ListItem', position: 2, name: 'Journal', item: 'https://orixus.vercel.app/journal' }
+        ]
+      }} />
       <div className="page-header">
         <h1 className="page-title">Tactical Journal</h1>
         <p className="page-quote">"Write to clear the fog. Reflect to reinforce standard behaviors."</p>

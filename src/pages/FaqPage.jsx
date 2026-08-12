@@ -334,7 +334,7 @@ export default function FaqPage() {
   }, []);
 
   // Generate JSON-LD structured data
-  const structuredData = {
+  const faqStructuredData = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
     mainEntity: FAQ_CATEGORIES.flatMap(category =>
@@ -349,9 +349,19 @@ export default function FaqPage() {
     )
   };
 
+  const faqBreadcrumb = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://orixus.vercel.app/' },
+      { '@type': 'ListItem', position: 2, name: 'FAQ', item: 'https://orixus.vercel.app/faq' }
+    ]
+  };
+
   return (
     <>
-      <JsonLd data={structuredData} />
+      <JsonLd data={faqBreadcrumb} />
+      <JsonLd data={faqStructuredData} />
       <div className="faq-page">
         <div className="faq-page__container">
           <button className="faq-page__back" onClick={handleBack}>

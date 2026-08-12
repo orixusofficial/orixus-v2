@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import JsonLd from '../components/JsonLd';
 import DisciplineMatrix from '../components/DisciplineMatrix';
 import OnboardingModal from '../components/OnboardingModal';
 
@@ -38,6 +39,14 @@ export default function HabitsPage({
 
   return (
     <div className="habits-page">
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://orixus.vercel.app/' },
+          { '@type': 'ListItem', position: 2, name: 'Habits', item: 'https://orixus.vercel.app/habits' }
+        ]
+      }} />
       {showOnboarding && (
         <OnboardingModal
           onClose={handleCloseOnboarding}

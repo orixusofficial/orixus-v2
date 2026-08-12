@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import AuthLoading from './components/AuthLoading';
 import LandingPage from './pages/LandingPage';
@@ -41,6 +41,63 @@ export default function App() {
   // Check if on static page route
   const isStaticPage = pathname === '/about' || pathname === '/contact' || pathname === '/privacy' || pathname === '/terms' || pathname === '/faq' || pathname === '/guides' || pathname.startsWith('/guides/');
   const isKnownRoute = isHomeRoute || isAdminRoute || isAuthPage || isStaticPage;
+
+  // Ensure a single canonical exists and points to the production domain for static public pages.
+  useEffect(() => {
+    if (!isStaticPage) return;
+    try {
+      const canonicalEl = document.querySelector('link[rel="canonical"]');
+      const production = 'https://orixus.vercel.app';
+      const canonicalHref = pathname === '/' ? `${production}/` : `${production}${pathname}`;
+      if (canonicalEl) {
+        canonicalEl.setAttribute('href', canonicalHref);
+      }
+    } catch (e) {
+      // silent fail — do not interrupt the app
+    }
+  }, [isStaticPage, pathname]);
+
+  // Update Open Graph and Twitter meta tags to match the current page's title/description
+  useEffect(() => {
+    if (!isStaticPage) return;
+    try {
+      const production = 'https://orixus.vercel.app';
+      const title = document.title || '';
+      const descEl = document.querySelector('meta[name="description"]');
+      const description = descEl ? descEl.getAttribute('content') || '' : '';
+      const url = pathname === '/' ? `${production}/` : `${production}${pathname}`;
+
+      // OG
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      const ogDesc = document.querySelector('meta[property="og:description"]');
+      const ogType = document.querySelector('meta[property="og:type"]');
+      const ogUrl = document.querySelector('meta[property="og:url"]');
+      const ogImage = document.querySelector('meta[property="og:image"]');
+
+      if (ogTitle) ogTitle.setAttribute('content', title);
+      if (ogDesc) ogDesc.setAttribute('content', description);
+
+      // Use 'article' for individual guide articles (paths under /guides/ but not /guides)
+      const isArticle = pathname.startsWith('/guides/') && pathname !== '/guides';
+      if (ogType) ogType.setAttribute('content', isArticle ? 'article' : 'website');
+
+      if (ogUrl) ogUrl.setAttribute('content', url);
+      if (ogImage) ogImage.setAttribute('content', `${production}/og-image.png`);
+
+      // Twitter
+      const twCard = document.querySelector('meta[name="twitter:card"]');
+      const twTitle = document.querySelector('meta[name="twitter:title"]');
+      const twDesc = document.querySelector('meta[name="twitter:description"]');
+      const twImage = document.querySelector('meta[name="twitter:image"]');
+
+      if (twCard) twCard.setAttribute('content', 'summary_large_image');
+      if (twTitle) twTitle.setAttribute('content', title);
+      if (twDesc) twDesc.setAttribute('content', description);
+      if (twImage) twImage.setAttribute('content', `${production}/og-image.png`);
+    } catch (err) {
+      // do not throw in production
+    }
+  }, [isStaticPage, pathname]);
 
   // Auth modal state
   const [authModalOpen, setAuthModalOpen] = useState(false);

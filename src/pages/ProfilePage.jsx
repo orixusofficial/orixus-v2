@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
+import JsonLd from '../components/JsonLd';
 import '../styles/dashboard.css';
 import { getRankInfo, RANKS } from '../utils/analyticsHelpers';
 import { getAvatarSignedUrl } from '../services/avatar';
@@ -171,6 +172,14 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
 
   return (
     <div className="profile-page">
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://orixus.vercel.app/' },
+          { '@type': 'ListItem', position: 2, name: 'Profile', item: 'https://orixus.vercel.app/profile' }
+        ]
+      }} />
       {/* Profile Hero Card */}
       <div className={`profile-hero-card ${loading ? 'profile-hero-card--loading' : ''}`}>
         <div className="profile-hero-card__avatar">

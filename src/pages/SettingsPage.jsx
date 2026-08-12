@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import JsonLd from '../components/JsonLd';
 import { Eye, EyeOff, Lock, ShieldCheck, Info, ExternalLink, User, Bell, Book, Layout, RefreshCw, Trash, LogOut, MessageSquare, ChevronRight, ChevronDown, Check, X, Upload, Image as ImageIcon, UserRound, Shield, AlertCircle, Star } from 'lucide-react';
 import { useUserData } from '../hooks/useUserData';
 import { useAuth } from '../contexts/AuthContext';
@@ -975,6 +976,14 @@ export default function SettingsPage({ onLoggedOut, profile: profileProp, update
 
   return (
     <div className="orixus-settings">
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://orixus.vercel.app/' },
+          { '@type': 'ListItem', position: 2, name: 'Settings', item: 'https://orixus.vercel.app/settings' }
+        ]
+      }} />
       <input
         type="file"
         ref={fileInputRef}

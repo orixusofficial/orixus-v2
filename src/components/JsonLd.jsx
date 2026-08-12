@@ -22,15 +22,10 @@ const JSON_LD = {
       name: 'Orixus',
       url: 'https://orixus.vercel.app',
       description: 'A personal evolution system for building discipline, tracking habits, and creating measurable personal growth through identity-based progression.',
-      applicationCategory: 'LifestyleApplication',
+      applicationCategory: 'ProductivityApplication',
       operatingSystem: 'Web',
       browserRequirements: 'Requires JavaScript enabled',
-      offers: {
-        '@type': 'Offer',
-        price: '0',
-        priceCurrency: 'USD',
-        description: 'Core functionality is free for personal use'
-      },
+      // offers removed: do not assert pricing in structured data
       featureList: [
         'Habit tracking with visual discipline matrix',
         'Discipline and consistency tracking',
@@ -53,11 +48,23 @@ const JSON_LD = {
   ]
 };
 
-export default function JsonLd() {
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
-    />
-  );
+export default function JsonLd({ data }) {
+  const payload = data ?? JSON_LD;
+  try {
+    const json = JSON.stringify(payload);
+    return (
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: json }}
+      />
+    );
+  } catch (err) {
+    // If serialization fails, fall back to the default site JSON-LD
+    return (
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+      />
+    );
+  }
 }

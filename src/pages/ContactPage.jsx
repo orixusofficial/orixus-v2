@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import JsonLd from '../components/JsonLd';
 import '../styles/static-pages.css';
 
 const backArrow = (
@@ -23,6 +24,14 @@ export default function ContactPage() {
 
   return (
     <div className="static-page">
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://orixus.vercel.app/' },
+          { '@type': 'ListItem', position: 2, name: 'Contact', item: 'https://orixus.vercel.app/contact' }
+        ]
+      }} />
       <div className="static-page__container">
         <button className="static-page__back" onClick={handleBack}>
           {backArrow}

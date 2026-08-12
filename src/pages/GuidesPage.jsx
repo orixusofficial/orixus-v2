@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import JsonLd from '../components/JsonLd';
 import '../styles/guides-page.css';
 
 const backArrow = (
@@ -79,6 +80,14 @@ export default function GuidesPage() {
 
   return (
     <div className="guides-page">
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://orixus.vercel.app/' },
+          { '@type': 'ListItem', position: 2, name: 'Guides', item: 'https://orixus.vercel.app/guides' }
+        ]
+      }} />
       <div className="guides-page__container">
         <button className="guides-page__back" onClick={handleBack}>
           {backArrow}

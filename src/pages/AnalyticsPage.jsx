@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import JsonLd from '../components/JsonLd';
 import '../styles/dashboard.css';
 import {
   getDaysRange,
@@ -239,6 +240,14 @@ export default function AnalyticsPage({ habits, completionData }) {
   if (habits.length === 0) {
     return (
       <div className="analytics-page">
+        <JsonLd data={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://orixus.vercel.app/' },
+            { '@type': 'ListItem', position: 2, name: 'Analytics', item: 'https://orixus.vercel.app/analytics' }
+          ]
+        }} />
         <div className="page-header">
           <h1 className="page-title">Analytics</h1>
           <p className="page-quote">“Measure to refine. Numbers don't lie, actions don't cheat.”</p>
@@ -274,6 +283,14 @@ export default function AnalyticsPage({ habits, completionData }) {
 
   return (
     <div className="analytics-page">
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://orixus.vercel.app/' },
+          { '@type': 'ListItem', position: 2, name: 'Analytics', item: 'https://orixus.vercel.app/analytics' }
+        ]
+      }} />
       <div className="page-header">
         <h1 className="page-title">Discipline Analytics</h1>
         <p className="page-quote">“Identity is built by proof. We measure to conquer.”</p>

@@ -39,7 +39,7 @@ export default function ContactPage() {
         </button>
 
         <header className="static-page__header">
-          <h1 className="static-page__title">Contact</h1>
+          <h1 className="static-page__title">Contact Orixus</h1>
           <p className="static-page__subtitle">Need help, found a bug, or have an idea? We'd love to hear from you.</p>
         </header>
 

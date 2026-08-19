@@ -4,6 +4,7 @@ import * as habitsService from '../services/habits';
 import * as completionsService from '../services/completions';
 import * as journalService from '../services/journal';
 import { ensureProfile, fetchProfile, updateProfile } from '../services/profile';
+import * as cyclesService from '../services/cycles';
 
 export function useUserData() {
   const { user } = useAuth();
@@ -13,6 +14,8 @@ export function useUserData() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentCycle, setCurrentCycle] = useState(null);
+  const [completedCycles, setCompletedCycles] = useState([]);
 
   const loadAll = useCallback(async () => {
     if (!user) {
@@ -20,6 +23,8 @@ export function useUserData() {
       setCompletionData({});
       setJournalEntries([]);
       setProfile(null);
+      setCurrentCycle(null);
+      setCompletedCycles([]);
       setLoading(false);
       return;
     }
@@ -35,6 +40,8 @@ export function useUserData() {
         const profileRow = JSON.parse(
           localStorage.getItem('orixus_profile') || '{"display_name": "Dev Operator"}'
         );
+        const currentCycleData = JSON.parse(localStorage.getItem('orixus_current_cycle') || 'null');
+        const completedCyclesData = JSON.parse(localStorage.getItem('orixus_completed_cycles') || '[]');
 
         const mappedHabits = habitsRows.map(h => ({
           ...h,
@@ -45,22 +52,28 @@ export function useUserData() {
         setCompletionData(completionMap);
         setJournalEntries(journalRows);
         setProfile(profileRow);
+        setCurrentCycle(currentCycleData);
+        setCompletedCycles(completedCyclesData);
         setLoading(false);
         return;
       }
 
       await ensureProfile(user);
-      const [habitsRows, completionMap, journalRows, profileRow] = await Promise.all([
+      const [habitsRows, completionMap, journalRows, profileRow, currentCycleData, completedCyclesData] = await Promise.all([
         habitsService.fetchHabits(user.id),
         completionsService.fetchCompletions(user.id),
         journalService.fetchJournalEntries(user.id),
-        fetchProfile(user.id)
+        fetchProfile(user.id),
+        cyclesService.fetchCurrentCycle(user.id),
+        cyclesService.fetchCycleHistory(user.id)
       ]);
 
       setHabits(habitsRows);
       setCompletionData(completionMap);
       setJournalEntries(journalRows);
       setProfile(profileRow);
+      setCurrentCycle(currentCycleData);
+      setCompletedCycles(completedCyclesData);
       setLoading(false);
     } catch (err) {
       setError(err.message ?? 'Failed to load your data.');
@@ -135,34 +148,41 @@ export function useUserData() {
     async (habitId, newDuration) => {
       if (!user) return;
 
-      // Calculate current day for validation (same logic as DisciplineMatrix)
       const habit = habits.find(h => h.id === habitId);
+      const parsedDuration = Number(newDuration);
+      
+      // Validation BEFORE any state or database update
       if (habit) {
         const habitStart = new Date(habit.createdAt);
-        habitStart.setHours(12, 0, 0, 0);
+        habitStart.setHours(0, 0, 0, 0);
         const today = new Date();
-        today.setHours(12, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
         
-        const diffTime = today - habitStart;
+        const diffTime = today.getTime() - habitStart.getTime();
         const currentDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
         
-        if (newDuration < currentDay) {
+        if (Number.isNaN(parsedDuration) || parsedDuration < currentDay) {
           throw new Error(`You're currently on Day ${currentDay}. Duration cannot be less than ${currentDay} days.`);
+        }
+      } else {
+        if (Number.isNaN(parsedDuration) || parsedDuration < 1) {
+          throw new Error('Invalid duration');
         }
       }
 
+      // Only proceed with updates if validation passed
       if (user.isMock) {
         setHabits((prev) => {
-          const next = prev.map((h) => (h.id === habitId ? { ...h, duration: newDuration } : h));
+          const next = prev.map((h) => (h.id === habitId ? { ...h, duration: parsedDuration } : h));
           localStorage.setItem('orixus_habits', JSON.stringify(next));
           return next;
         });
         return;
       }
 
-      await habitsService.updateHabitDuration(user.id, habitId, newDuration, habits);
+      await habitsService.updateHabitDuration(user.id, habitId, parsedDuration, habits);
       setHabits((prev) =>
-        prev.map((h) => (h.id === habitId ? { ...h, duration: newDuration } : h))
+        prev.map((h) => (h.id === habitId ? { ...h, duration: parsedDuration } : h))
       );
     },
     [user, habits],
@@ -387,6 +407,124 @@ export function useUserData() {
     return streak;
   }, [completionData, habits]);
 
+  const createCycle = useCallback(
+    async (duration) => {
+      if (!user) return;
+
+      if (user.isMock) {
+        const startDate = new Date();
+        startDate.setHours(0, 0, 0, 0);
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + duration);
+        
+        const newCycle = {
+          id: `cycle-${Date.now()}`,
+          duration,
+          start_date: startDate.toISOString().split('T')[0],
+          end_date: endDate.toISOString().split('T')[0],
+          status: 'active',
+          current_rank: 'Initiate',
+          final_rank: null,
+          completion_percentage: 0,
+          completion_result: null,
+          ended_at: null,
+          created_at: new Date().toISOString()
+        };
+        
+        setCurrentCycle(newCycle);
+        localStorage.setItem('orixus_current_cycle', JSON.stringify(newCycle));
+        return newCycle;
+      }
+
+      const newCycle = await cyclesService.createCycle(user.id, duration);
+      setCurrentCycle(newCycle);
+      return newCycle;
+    },
+    [user],
+  );
+
+  const completeCycle = useCallback(
+    async () => {
+      if (!user || !currentCycle) return;
+
+      if (user.isMock) {
+        const startDate = new Date(currentCycle.start_date);
+        const endDate = new Date(currentCycle.end_date);
+        const actualDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+        const totalHabits = habits.length;
+        const totalCheckIns = Object.values(completionData).filter(v => v).length;
+        const completionPercentage = totalHabits > 0 && actualDays > 0 
+          ? Math.round((totalCheckIns / (totalHabits * actualDays)) * 100) 
+          : 0;
+
+        const completionResult = cyclesService.calculateCompletionResult(completionPercentage);
+        const finalRank = currentCycle.current_rank || currentCycle.rank || 'Initiate';
+
+        const completedCycle = {
+          ...currentCycle,
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          ended_at: new Date().toISOString(),
+          current_rank: finalRank,
+          final_rank: finalRank,
+          completion_percentage: completionPercentage,
+          completion_result: completionResult
+        };
+        
+        setCompletedCycles(prev => [completedCycle, ...prev]);
+        setCurrentCycle(null);
+        localStorage.removeItem('orixus_current_cycle');
+        localStorage.setItem('orixus_completed_cycles', JSON.stringify([completedCycle, ...completedCycles]));
+        return completedCycle;
+      }
+
+      const startDate = new Date(currentCycle.start_date);
+      const endDate = new Date(currentCycle.end_date);
+      const actualDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+      const totalHabits = habits.length;
+      const totalCheckIns = Object.values(completionData).filter(v => v).length;
+      const completionPercentage = totalHabits > 0 && actualDays > 0 
+        ? Math.round((totalCheckIns / (totalHabits * actualDays)) * 100) 
+        : 0;
+
+      const completionResult = cyclesService.calculateCompletionResult(completionPercentage);
+      const finalRank = currentCycle.current_rank || currentCycle.rank || 'Initiate';
+
+      const completedCycle = await cyclesService.completeCycle(
+        currentCycle.id, 
+        user.id, 
+        finalRank,
+        completionPercentage,
+        completionResult
+      );
+      setCompletedCycles(prev => [completedCycle, ...prev]);
+      setCurrentCycle(null);
+      return completedCycle;
+    },
+    [user, currentCycle, completedCycles, habits, completionData],
+  );
+
+  const updateCycleRank = useCallback(
+    async (rank) => {
+      if (!user || !currentCycle) return;
+
+      if (user.isMock) {
+        const updatedCycle = {
+          ...currentCycle,
+          current_rank: rank
+        };
+        setCurrentCycle(updatedCycle);
+        localStorage.setItem('orixus_current_cycle', JSON.stringify(updatedCycle));
+        return updatedCycle;
+      }
+
+      const updatedCycle = await cyclesService.updateCycleRank(currentCycle.id, user.id, rank);
+      setCurrentCycle(updatedCycle);
+      return updatedCycle;
+    },
+    [user, currentCycle],
+  );
+
   return {
     habits,
     completionData,
@@ -406,6 +544,11 @@ export function useUserData() {
     resetStreak,
     deleteAllJournalEntries,
     calculateStreak,
+    currentCycle,
+    completedCycles,
+    createCycle,
+    completeCycle,
+    updateCycleRank,
   };
 }
 

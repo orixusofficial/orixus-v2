@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import JsonLd from '../components/JsonLd';
 import '../styles/dashboard.css';
+import '../styles/cycle-analytics.css';
 import {
   getDaysRange,
   getOverallConsistency,
@@ -41,10 +42,11 @@ function getChartPoints(data, width = 600, height = 120, paddingLeft = 45, paddi
   });
 }
 
-export default function AnalyticsPage({ habits, completionData }) {
+export default function AnalyticsPage({ habits, completionData, currentCycle, completedCycles }) {
   const [hoveredCell, setHoveredCell] = useState(null);
   const [hoveredPointWeekly, setHoveredPointWeekly] = useState(null);
   const [hoveredPointMonthly, setHoveredPointMonthly] = useState(null);
+  const [showAllCycles, setShowAllCycles] = useState(false);
 
   // Compute all analytics metrics dynamically from the database
   const stats = useMemo(() => {
@@ -293,7 +295,7 @@ export default function AnalyticsPage({ habits, completionData }) {
       }} />
       <div className="page-header">
         <h1 className="page-title">Discipline Analytics</h1>
-        <p className="page-quote">“Identity is built by proof. We measure to conquer.”</p>
+        <p className="page-quote">"Identity is built by proof. We measure to conquer."</p>
       </div>
 
       {/* Top: Summary Stats Cards */}
@@ -674,6 +676,136 @@ export default function AnalyticsPage({ habits, completionData }) {
               </p>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Cycle Progression Section */}
+      <div className="cycle-progression-section">
+        {/* Current Cycle */}
+        {currentCycle ? (
+          <div className="current-cycle-card">
+            <div className="current-cycle-header">
+              <h3 className="current-cycle-title">Current Cycle</h3>
+              <div className="current-cycle-day">
+                Day {(() => {
+                  const startDate = new Date(currentCycle.start_date);
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  startDate.setHours(0, 0, 0, 0);
+                  const elapsedDays = Math.ceil((today - startDate) / (1000 * 60 * 60 * 24));
+                  return Math.max(1, elapsedDays);
+                })()} of {currentCycle.duration}
+              </div>
+            </div>
+            
+            <div className="cycle-progress-bar">
+              <div 
+                className="cycle-progress-fill"
+                style={{
+                  width: `${(() => {
+                    const startDate = new Date(currentCycle.start_date);
+                    const endDate = new Date(currentCycle.end_date);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    startDate.setHours(0, 0, 0, 0);
+                    endDate.setHours(0, 0, 0, 0);
+                    const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+                    const elapsedDays = Math.ceil((today - startDate) / (1000 * 60 * 60 * 24));
+                    return Math.max(0, Math.min(100, (elapsedDays / totalDays) * 100));
+                  })()}%`
+                }}
+              />
+            </div>
+
+            <div className="cycle-stats-grid">
+              <div className="cycle-stat">
+                <span className="cycle-stat-label">Start Date</span>
+                <span className="cycle-stat-value">{new Date(currentCycle.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+              </div>
+              <div className="cycle-stat">
+                <span className="cycle-stat-label">End Date</span>
+                <span className="cycle-stat-value">{new Date(currentCycle.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+              </div>
+              <div className="cycle-stat">
+                <span className="cycle-stat-label">Total Habits</span>
+                <span className="cycle-stat-value">{habits.length}</span>
+              </div>
+              <div className="cycle-stat">
+                <span className="cycle-stat-label">Total Check-ins</span>
+                <span className="cycle-stat-value">{Object.values(completionData).filter(v => v).length}</span>
+              </div>
+              <div className="cycle-stat">
+                <span className="cycle-stat-label">Current Rank</span>
+                <span className="cycle-stat-value cycle-stat-value--rank">{currentCycle.current_rank || currentCycle.rank}</span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="no-cycle-state">
+            <h3 className="no-cycle-title">No Active Cycle</h3>
+            <p className="no-cycle-text">Start a cycle to track your focused consistency periods and measure your progression over time.</p>
+          </div>
+        )}
+
+        {/* Cycle History */}
+        <div className="cycle-history-section">
+          <h3 className="cycle-history-title">Cycle History</h3>
+          {completedCycles.length > 0 ? (
+            <>
+              <div className="cycle-history-list">
+                {(showAllCycles ? completedCycles : completedCycles.slice(0, 3)).map((cycle, index) => {
+                  const actualEndDate = cycle.ended_at ? new Date(cycle.ended_at) : (cycle.completed_at ? new Date(cycle.completed_at) : new Date(cycle.end_date));
+                  const startDate = new Date(cycle.start_date);
+                  const actualDays = Math.ceil((actualEndDate - startDate) / (1000 * 60 * 60 * 24));
+                  const totalHabits = cycle.total_habits || habits.length;
+                  const totalCheckIns = cycle.total_check_ins || 0;
+                  
+                  // Use persisted completion percentage and result if available, otherwise calculate
+                  const completionPercentage = cycle.completion_percentage !== undefined && cycle.completion_percentage !== null
+                    ? cycle.completion_percentage
+                    : (totalHabits > 0 && actualDays > 0 ? Math.round((totalCheckIns / (totalHabits * actualDays)) * 100) : 0);
+                  
+                  const completionResult = cycle.completion_result || (
+                    completionPercentage < 50 ? 'Reset & Rise' :
+                    completionPercentage < 65 ? 'Steady' :
+                    completionPercentage < 75 ? 'Strong' :
+                    completionPercentage < 90 ? 'Elite' : 'Unbreakable'
+                  );
+
+                  return (
+                    <div key={cycle.id} className="cycle-history-item">
+                      <div className="cycle-history-header">
+                        <span className="cycle-history-number">Cycle {completedCycles.length - index}</span>
+                        <span className="cycle-history-duration">{actualDays} Days</span>
+                      </div>
+                      <div className="cycle-history-dates">
+                        {startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} — {actualEndDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </div>
+                      <div className="cycle-history-stats">
+                        <span className="cycle-history-stat">{totalHabits} Habits</span>
+                        <span className="cycle-history-stat">{totalCheckIns} Check-ins</span>
+                        <span className="cycle-history-stat cycle-history-stat--rank">Final Rank: {cycle.final_rank || cycle.rank}</span>
+                        <span className="cycle-history-stat">Completion: {completionPercentage}% — {completionResult}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {completedCycles.length > 3 && (
+                <button 
+                  className="cycle-show-all-button"
+                  onClick={() => setShowAllCycles(!showAllCycles)}
+                >
+                  {showAllCycles ? 'Show Less' : 'Show All'}
+                </button>
+              )}
+            </>
+          ) : (
+            <div className="no-cycle-history">
+              <p>No completed cycles yet</p>
+              <p className="no-cycle-history-sub">Your completed cycles will appear here after you finish your first cycle.</p>
+            </div>
+          )}
         </div>
       </div>
 

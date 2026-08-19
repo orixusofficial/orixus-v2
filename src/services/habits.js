@@ -38,30 +38,40 @@ export async function createHabit(userId, label, duration = 30) {
 }
 
 export async function updateHabitDuration(userId, habitId, newDuration, habits) {
-  // Find the habit to get its start date
-  const habit = habits?.find(h => h.id === habitId);
-  if (!habit) {
+  // Fetch authoritative habit row (ensures we use DB created_at and proper ownership)
+  const { data: habitRow, error: fetchErr } = await supabase
+    .from('habits')
+    .select('id, created_at, user_id')
+    .eq('id', habitId)
+    .eq('user_id', userId)
+    .single();
+
+  if (fetchErr || !habitRow) {
     throw new Error('Habit not found');
   }
-  
-  // Calculate current day: number of calendar days since habit started + 1
-  // Use same time normalization as DisciplineMatrix (12:00)
-  const habitStart = new Date(habit.createdAt);
-  habitStart.setHours(12, 0, 0, 0);
+
+  // Normalize to local calendar dates (midnight) for inclusive elapsed-day count
+  const msPerDay = 1000 * 60 * 60 * 24;
+  const habitStart = new Date(habitRow.created_at);
+  habitStart.setHours(0, 0, 0, 0);
   const today = new Date();
-  today.setHours(12, 0, 0, 0);
-  
-  const diffTime = today - habitStart;
-  const currentDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-  
-  // Enforce: newDuration cannot be less than currentDay
-  if (newDuration < currentDay) {
-    throw new Error(`You're currently on Day ${currentDay}. Duration cannot be less than ${currentDay} days.`);
+  today.setHours(0, 0, 0, 0);
+
+  const elapsedDays = Math.floor((today.getTime() - habitStart.getTime()) / msPerDay) + 1;
+  const parsedDuration = Number(newDuration);
+
+  if (Number.isNaN(parsedDuration) || parsedDuration < 1) {
+    throw new Error('Invalid duration');
   }
-  
+
+  // Enforce dynamic rule: duration must be >= elapsedDays
+  if (parsedDuration < elapsedDays) {
+    throw new Error(`You're currently on Day ${elapsedDays}. Duration cannot be less than ${elapsedDays} days.`);
+  }
+
   const { error } = await supabase
     .from('habits')
-    .update({ duration: newDuration })
+    .update({ duration: parsedDuration })
     .eq('id', habitId)
     .eq('user_id', userId);
 

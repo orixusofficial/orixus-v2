@@ -190,6 +190,10 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
     refresh,
     updateProfileSettings,
     calculateStreak,
+    currentCycle,
+    completedCycles,
+    createCycle,
+    completeCycle,
   } = useUserData();
 
   const username = profile?.display_name || null;
@@ -271,7 +275,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
         );
       case 'analytics':
         if (loading) return <AnalyticsSkeleton />;
-        return <AnalyticsPage habits={habits} completionData={completionData} />;
+        return <AnalyticsPage habits={habits} completionData={completionData} currentCycle={currentCycle} completedCycles={completedCycles} />;
       case 'journal':
         if (loading) return <JournalSkeleton />;
         return <JournalPage entries={journalEntries} onAddEntry={addJournalEntry} defaultMood={profile?.default_discipline_state || 'focused'} />;

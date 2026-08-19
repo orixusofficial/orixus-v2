@@ -154,20 +154,25 @@ function computeStats(habits, fixedTimeline, completionData) {
 }
 
 /* ---- Redesigned Premium Custom Duration Modal (Two-Stage Glassmorphism) ---- */
-function CustomDurationModal({ isOpen, onClose, onConfirm, initialValue }) {
+function CustomDurationModal({ isOpen, onClose, onConfirm, initialValue, minimumDays }) {
   const [value, setValue] = useState(initialValue);
   const [step, setStep] = useState(1);
 
   if (!isOpen) return null;
 
   const handleNext = () => {
-    if (value > 0) {
+    const parsedValue = Number(value);
+    if (parsedValue >= minimumDays) {
       setStep(2);
     }
   };
 
   const handleFinalConfirm = () => {
-    onConfirm(Number(value));
+    const numericValue = Number(value);
+    if (!Number.isFinite(numericValue) || numericValue < minimumDays) {
+      return;
+    }
+    onConfirm(numericValue);
     setStep(1);
     onClose();
   };
@@ -178,7 +183,9 @@ function CustomDurationModal({ isOpen, onClose, onConfirm, initialValue }) {
   };
 
   const selectPreset = (presetDays) => {
-    setValue(presetDays);
+    if (presetDays >= minimumDays) {
+      setValue(presetDays);
+    }
   };
 
   return (
@@ -190,10 +197,26 @@ function CustomDurationModal({ isOpen, onClose, onConfirm, initialValue }) {
             <p className="matrix-modal__subtitle">How long are you willing to stay committed?</p>
 
             <div className="matrix-modal__presets">
-              <button className="matrix-modal__preset-btn" onClick={() => selectPreset(30)}>30 Days</button>
-              <button className="matrix-modal__preset-btn" onClick={() => selectPreset(60)}>60 Days</button>
-              <button className="matrix-modal__preset-btn" onClick={() => selectPreset(90)}>90 Days</button>
-              <button className="matrix-modal__preset-btn" onClick={() => selectPreset(365)}>365 Days</button>
+              <button 
+                className="matrix-modal__preset-btn" 
+                onClick={() => selectPreset(30)}
+                disabled={30 < minimumDays}
+              >30 Days</button>
+              <button 
+                className="matrix-modal__preset-btn" 
+                onClick={() => selectPreset(60)}
+                disabled={60 < minimumDays}
+              >60 Days</button>
+              <button 
+                className="matrix-modal__preset-btn" 
+                onClick={() => selectPreset(90)}
+                disabled={90 < minimumDays}
+              >90 Days</button>
+              <button 
+                className="matrix-modal__preset-btn" 
+                onClick={() => selectPreset(365)}
+                disabled={365 < minimumDays}
+              >365 Days</button>
             </div>
 
             <div className="matrix-modal__input-group">
@@ -202,8 +225,8 @@ function CustomDurationModal({ isOpen, onClose, onConfirm, initialValue }) {
                 className="matrix-modal__input"
                 value={value}
                 onChange={e => setValue(e.target.value)}
-                placeholder="Custom Timeline Days"
-                min="1"
+                placeholder={`Minimum ${minimumDays} days`}
+                min={minimumDays}
                 autoFocus
               />
             </div>
@@ -312,6 +335,20 @@ export default function DisciplineMatrix({
     }
     return result;
   }, [habits, activeDaysCount]);
+
+  // Calculate minimum allowed custom days based on elapsed cycle days
+  const minimumDays = useMemo(() => {
+    if (habits.length === 0) return 1;
+    const firstHabit = habits[0];
+    const habitStartDate = getHabitStartDate(firstHabit);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    habitStartDate.setHours(0, 0, 0, 0);
+    
+    const diffTime = today.getTime() - habitStartDate.getTime();
+    const elapsedDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    return Math.max(1, elapsedDays);
+  }, [habits]);
 
   const toggleCell = useCallback((habitId, date) => {
     const dk = dateKey(date);
@@ -491,6 +528,7 @@ export default function DisciplineMatrix({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         initialValue={customDays}
+        minimumDays={minimumDays}
         onConfirm={(val) => setCustomDays(val)}
       />
     </section>

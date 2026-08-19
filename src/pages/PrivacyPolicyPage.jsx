@@ -11,7 +11,7 @@ const backArrow = (
 
 export default function PrivacyPolicyPage() {
   useEffect(() => {
-    document.title = 'Privacy Policy | Orixus';
+    document.title = 'Privacy Policy — Orixus';
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute('content', 'Orixus Privacy Policy — how we collect, use, and protect your personal information.');

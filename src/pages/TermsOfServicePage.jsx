@@ -11,7 +11,7 @@ const backArrow = (
 
 export default function TermsOfServicePage() {
   useEffect(() => {
-    document.title = 'Orixus Terms of Service';
+    document.title = 'Terms of Service — Orixus';
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute('content', 'Terms governing your access to and use of Orixus, including account responsibilities, acceptable use, disclaimers, and contact information.');

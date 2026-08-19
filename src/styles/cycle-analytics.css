@@ -1,0 +1,281 @@
+/* ========================================
+   Orixus — Cycle Analytics (Analytics Page)
+   ======================================== */
+
+.cycle-progression-section {
+  margin-bottom: var(--space-2xl);
+}
+
+.cycle-intro {
+  margin-bottom: var(--space-lg);
+}
+
+.cycle-intro-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0 0 var(--space-xs) 0;
+}
+
+.cycle-intro-text {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Current Cycle Card */
+.current-cycle-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+}
+
+.current-cycle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.current-cycle-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.current-cycle-day {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.cycle-progress-bar {
+  width: 100%;
+  height: 4px;
+  background-color: var(--color-border);
+  border-radius: 2px;
+  margin-bottom: var(--space-lg);
+  overflow: hidden;
+}
+
+.cycle-progress-fill {
+  height: 100%;
+  background-color: var(--color-accent);
+  transition: width var(--transition-base);
+}
+
+.cycle-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.cycle-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.cycle-stat-label {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cycle-stat-value {
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.cycle-stat-value--rank {
+  color: var(--color-accent);
+}
+
+.cycle-explanation {
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.cycle-explanation strong {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.cycle-explanation p {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* No Cycle State */
+.no-cycle-state {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2xl);
+  text-align: center;
+  margin-bottom: var(--space-xl);
+}
+
+.no-cycle-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0 0 var(--space-sm) 0;
+}
+
+.no-cycle-text {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Cycle History Section */
+.cycle-history-section {
+  margin-bottom: var(--space-xl);
+}
+
+.cycle-history-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0 0 var(--space-md) 0;
+}
+
+.cycle-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.cycle-history-item {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+}
+
+.cycle-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xs);
+}
+
+.cycle-history-number {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.cycle-history-duration {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.cycle-history-dates {
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.cycle-history-stats {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.cycle-history-stat {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.cycle-history-stat--rank {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+/* No Cycle History */
+.no-cycle-history {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-xl);
+  text-align: center;
+}
+
+.no-cycle-history p {
+  margin: 0;
+}
+
+.no-cycle-history p:first-child {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.no-cycle-history-sub {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.cycle-show-all-button {
+  margin-top: var(--space-md);
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cycle-show-all-button:hover {
+  background: var(--color-surface);
+  border-color: var(--color-text-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cycle-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cycle-history-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xs);
+  }
+
+  .cycle-history-stats {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+}

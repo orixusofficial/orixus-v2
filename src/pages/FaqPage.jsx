@@ -370,7 +370,7 @@ export default function FaqPage() {
           </button>
 
           <header className="faq-page__header">
-            <h1 className="faq-page__title">Questions, answered.</h1>
+            <h1 className="faq-page__title">Frequently Asked Questions</h1>
             <p className="faq-page__subtitle">
               Everything you need to know about Orixus, from habits and consistency to progress, ranks, achievements, and journaling.
             </p>

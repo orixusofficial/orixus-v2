@@ -2698,7 +2698,7 @@
 }
 
 .settings-section-card {
-  background: rgba(12, 14, 17, 0.7);
+  background: #1C1C1E;
   backdrop-filter: blur(12px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);

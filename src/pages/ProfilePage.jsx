@@ -83,19 +83,25 @@ const ICONS = {
   ),
 };
 
+const ACHIEVEMENT_GROUPS = [
+  { id: 'STREAK', label: 'Consistency' },
+  { id: 'EXECUTION', label: 'Habits' },
+  { id: 'JOURNAL', label: 'Journaling' },
+  { id: 'SECRET', label: 'Cycles' },
+];
+
 export default function ProfilePage({ habits = [], completionData = {}, journalEntries = [], profile = null }) {
   const { user } = useAuth();
   const isEmailVerified = Boolean(user?.email_confirmed_at);
   const [loading, setLoading] = useState(true);
   const [signedAvatarUrl, setSignedAvatarUrl] = useState(null);
+  const [openAchievementGroup, setOpenAchievementGroup] = useState(null);
 
   useEffect(() => {
-    // Simulate loading state for smooth transition
     const timer = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(timer);
   }, []);
 
-  // Generate signed URL for avatar when profile changes
   useEffect(() => {
     if (profile?.avatar_url) {
       getAvatarSignedUrl(profile.avatar_url).then(setSignedAvatarUrl);
@@ -104,11 +110,9 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
     }
   }, [profile]);
 
-  // Calculate all metrics from real data
   const metrics = useMemo(() => {
     const achievementData = calculateAchievementData(habits, completionData, journalEntries, profile, user);
-    
-    // Calculate consistency - use first habit completion date, not account creation date
+
     let consistency = 0;
     const completionDates = new Set();
     Object.keys(completionData).forEach(key => {
@@ -117,9 +121,8 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
         completionDates.add(dateStr);
       }
     });
-    
+
     if (completionDates.size > 0) {
-      // Find the first habit completion date
       const sortedDates = Array.from(completionDates).sort();
       const firstCompletionDate = new Date(sortedDates[0]);
       firstCompletionDate.setHours(0, 0, 0, 0);
@@ -127,16 +130,13 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      // Calculate total days since first habit completion
       const daysSinceFirstCompletion = Math.ceil((today - firstCompletionDate) / (1000 * 60 * 60 * 24));
 
-      // Calculate consistency percentage
       if (daysSinceFirstCompletion > 0) {
         consistency = Math.min(100, Math.round((completionDates.size / daysSinceFirstCompletion) * 100));
       }
     }
 
-    // Use shared rank calculation
     const rankInfo = getRankInfo(achievementData.streak, achievementData.totalHabits);
 
     return {
@@ -147,11 +147,11 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
     };
   }, [completionData, journalEntries, profile, user, habits]);
 
-  // Calculate achievements
   const achievements = useMemo(() => {
     if (!metrics || !ACHIEVEMENTS_CONFIG || ACHIEVEMENTS_CONFIG.length === 0) {
       return [];
     }
+
     return ACHIEVEMENTS_CONFIG.map(achievement => {
       try {
         return {
@@ -168,7 +168,24 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
     });
   }, [metrics]);
 
-  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const achievementGroups = useMemo(() => {
+    return ACHIEVEMENT_GROUPS.map(group => {
+      const items = achievements.filter(achievement => achievement.category === group.id);
+      const completed = items.filter(achievement => achievement.unlocked).length;
+
+      return {
+        ...group,
+        items,
+        completed,
+        total: items.length,
+      };
+    }).filter(group => group.total > 0);
+  }, [achievements]);
+
+  const joinedDate = profile?.created_at
+    ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    : 'January 2026';
+  const nextRank = RANKS[metrics.rankInfo.level] ?? null;
 
   return (
     <div className="profile-page">
@@ -180,15 +197,15 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
           { '@type': 'ListItem', position: 2, name: 'Profile', item: 'https://orixus.vercel.app/profile' }
         ]
       }} />
-      {/* Profile Hero Card */}
-      <div className={`profile-hero-card ${loading ? 'profile-hero-card--loading' : ''}`}>
-        <div className="profile-hero-card__avatar">
+
+      <section className={`profile-hero-card ${loading ? 'profile-hero-card--loading' : ''}`}>
+        <div className="profile-hero-card__avatar-wrap">
           <div className="profile-avatar">
             {signedAvatarUrl ? (
               <img src={signedAvatarUrl} alt="Profile Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
             ) : (
               <span className="profile-avatar-letters">
-                {profile?.display_name ? profile.display_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'DO'}
+                {profile?.display_name ? profile.display_name.split(' ').map(name => name[0]).join('').toUpperCase().slice(0, 2) : 'DO'}
               </span>
             )}
           </div>
@@ -198,102 +215,131 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
             </span>
           )}
         </div>
+
         <div className="profile-hero-card__identity">
           <h3 className="profile-hero-card__name">{profile?.display_name || 'Dev Operator'}</h3>
-          <span className="profile-hero-card__joined">
-            Joined {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'January 2026'}
-          </span>
-          <span className="profile-hero-card__rank-pill">
-            {ICONS.shield}
-            <span>{metrics.rankInfo.name}</span>
-          </span>
+          <span className="profile-hero-card__joined">Joined {joinedDate}</span>
+          <strong className="profile-hero-card__rank">{metrics.rankInfo.name}</strong>
+          <span className="profile-hero-card__streak">{metrics.streak} day streak</span>
         </div>
+
         <div className="profile-hero-card__progress">
           <div className="profile-hero-card__progress-label">
-            {metrics.rankInfo.name} {metrics.rankInfo.nextRankName ? `→ ${metrics.rankInfo.nextRankName}` : ''}
+            <span>{metrics.rankInfo.name}</span>
+            {nextRank && <span>{nextRank.name}</span>}
           </div>
           <div className="profile-hero-card__progress-track">
             <div className="profile-hero-card__progress-bar" style={{ width: `${metrics.rankInfo.progressPercent}%` }} />
           </div>
           <span className="profile-hero-card__progress-value">{metrics.rankInfo.nextRankRequirement}</span>
         </div>
-      </div>
+      </section>
 
-      {/* Stat Cards */}
-      <div className="profile-stats-grid profile-stats-grid--four">
-        <div className={`dashboard-overview__card ${loading ? 'dashboard-overview__card--loading' : ''}`}>
-          <div className="dashboard-overview__card-icon">{ICONS.flame}</div>
-          <span className="dashboard-overview__card-value">{metrics.streak}</span>
-          <span className="dashboard-overview__card-label">Day Streak</span>
+      <section className="profile-stats-grid profile-stats-grid--four" aria-label="Current Statistics">
+        <div className={`profile-stat ${loading ? 'profile-stat--loading' : ''}`}>
+          <span className="profile-stat__value">{metrics.streak}</span>
+          <span className="profile-stat__label">Day Streak</span>
         </div>
-        <div className={`dashboard-overview__card ${loading ? 'dashboard-overview__card--loading' : ''}`}>
-          <div className="dashboard-overview__card-icon">{ICONS.check}</div>
-          <span className="dashboard-overview__card-value">{metrics.totalHabits}</span>
-          <span className="dashboard-overview__card-label">Habits Done</span>
+        <div className={`profile-stat ${loading ? 'profile-stat--loading' : ''}`}>
+          <span className="profile-stat__value">{metrics.totalHabits}</span>
+          <span className="profile-stat__label">Habits Done</span>
         </div>
-        <div className={`dashboard-overview__card ${loading ? 'dashboard-overview__card--loading' : ''}`}>
-          <div className="dashboard-overview__card-icon">{ICONS.target}</div>
-          <span className="dashboard-overview__card-value">{metrics.consistency}%</span>
-          <span className="dashboard-overview__card-label">Consistency</span>
+        <div className={`profile-stat ${loading ? 'profile-stat--loading' : ''}`}>
+          <span className="profile-stat__value">{metrics.consistency}%</span>
+          <span className="profile-stat__label">Consistency</span>
         </div>
-        <div className={`dashboard-overview__card ${loading ? 'dashboard-overview__card--loading' : ''}`}>
-          <div className="dashboard-overview__card-icon">{ICONS.activity}</div>
-          <span className="dashboard-overview__card-value">{metrics.checkIns}</span>
-          <span className="dashboard-overview__card-label">Check-ins</span>
+        <div className={`profile-stat ${loading ? 'profile-stat--loading' : ''}`}>
+          <span className="profile-stat__value">{metrics.checkIns}</span>
+          <span className="profile-stat__label">Check-ins</span>
         </div>
-      </div>
+      </section>
 
-      {/* Two Column Section */}
       <div className="profile-two-column">
-        {/* Rank Progression */}
-        <div className={`profile-section-card ${loading ? 'profile-section-card--loading' : ''}`}>
+        <section className={`profile-section-card ${loading ? 'profile-section-card--loading' : ''}`}>
           <h3 className="profile-section-card__title">RANK PROGRESSION</h3>
           <div className="profile-rank-list">
             {RANKS.map((rank, index) => (
               <div key={rank.name} className={`profile-rank-item ${index === metrics.rankInfo.level - 1 ? 'profile-rank-item--current' : index < metrics.rankInfo.level - 1 ? 'profile-rank-item--completed' : 'profile-rank-item--locked'}`}>
-                <div className="profile-rank-item__dot" />
-                <span className="profile-rank-item__name">{rank.name}</span>
-                <span className="profile-rank-item__requirement">
-                  {index === metrics.rankInfo.level - 1 ? 'Current rank' : `${rank.minStreak} day streak + ${rank.minHabits} habits`}
-                </span>
+                <div className="profile-rank-item__rail">
+                  <span className="profile-rank-item__dot" />
+                </div>
+                <div className="profile-rank-item__main">
+                  <span className="profile-rank-item__name">{rank.name}</span>
+                  <span className="profile-rank-item__requirement">{rank.minStreak} day streak + {rank.minHabits} habits</span>
+                </div>
+                {index === metrics.rankInfo.level - 1 && (
+                  <span className="profile-rank-item__status">Current</span>
+                )}
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* Achievements */}
-        <div className={`profile-section-card ${loading ? 'profile-section-card--loading' : ''}`}>
+        <section className={`profile-section-card ${loading ? 'profile-section-card--loading' : ''}`}>
           <h3 className="profile-section-card__title">ACHIEVEMENTS</h3>
-          <div className="profile-achievement-list">
-            {achievements.map((achievement) => (
-              <div key={achievement.id} className={`profile-achievement-item ${achievement.unlocked ? 'profile-achievement-item--unlocked' : 'profile-achievement-item--locked'}`}>
-                <div className="profile-achievement-item__icon">
-                  {achievement.secret && !achievement.unlocked ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
-                  ) : (
-                    ICONS[achievement.icon] || ICONS.diamond
+          <div className="profile-achievement-groups">
+            {achievementGroups.map(group => {
+              const isOpen = openAchievementGroup === group.id;
+
+              return (
+                <div key={group.id} className={`profile-achievement-group ${isOpen ? 'profile-achievement-group--open' : ''}`}>
+                  <button
+                    className="profile-achievement-group__trigger"
+                    type="button"
+                    onClick={() => setOpenAchievementGroup(isOpen ? null : group.id)}
+                    aria-expanded={isOpen}
+                  >
+                    <span className="profile-achievement-group__name">{group.label}</span>
+                    <span className="profile-achievement-group__count">{group.completed} / {group.total}</span>
+                    <span className="profile-achievement-group__chevron" aria-hidden="true">{isOpen ? '⌄' : '›'}</span>
+                  </button>
+
+                  {isOpen && (
+                    <div className="profile-achievement-list">
+                      {group.items.map(achievement => {
+                        const isSecretLocked = achievement.secret && !achievement.unlocked;
+                        const progress = achievement.progress && !achievement.unlocked
+                          ? achievement.progress(metrics)
+                          : null;
+
+                        return (
+                          <div key={achievement.id} className={`profile-achievement-item ${achievement.unlocked ? 'profile-achievement-item--unlocked' : 'profile-achievement-item--locked'}`}>
+                            <div className="profile-achievement-item__icon">
+                              {isSecretLocked ? (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                </svg>
+                              ) : (
+                                ICONS[achievement.icon] || ICONS.diamond
+                              )}
+                            </div>
+                            <div className="profile-achievement-item__content">
+                              <span className="profile-achievement-item__name">
+                                {isSecretLocked ? '???' : achievement.name}
+                              </span>
+                              <span className="profile-achievement-item__description">
+                                {isSecretLocked ? 'Complete the requirement to reveal' : achievement.description}
+                              </span>
+                              {progress && (
+                                <span className="profile-achievement-item__progress">
+                                  {progress.current} / {progress.target}
+                                </span>
+                              )}
+                            </div>
+                            <span className="profile-achievement-item__status">
+                              {achievement.unlocked ? 'Complete' : 'Locked'}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   )}
                 </div>
-                <div className="profile-achievement-item__content">
-                  <span className="profile-achievement-item__name">
-                    {achievement.secret && !achievement.unlocked ? '???' : achievement.name}
-                  </span>
-                  <span className="profile-achievement-item__description">
-                    {achievement.secret && !achievement.unlocked ? 'Complete the requirement to reveal' : achievement.description}
-                  </span>
-                  {achievement.progress && !achievement.unlocked && (
-                    <span className="profile-achievement-item__progress">
-                      {achievement.progress(metrics).current} / {achievement.progress(metrics).target}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );

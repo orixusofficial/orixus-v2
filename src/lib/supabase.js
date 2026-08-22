@@ -1,21 +1,25 @@
 import { createClient } from '@supabase/supabase-js';
 
-const url = import.meta.env.VITE_SUPABASE_URL;
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const url = import.meta.env.VITE_SUPABASE_URL?.trim();
+const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
 
-if (!url || !anonKey) {
+export const isSupabaseConfigured = Boolean(url && anonKey);
+
+if (!isSupabaseConfigured) {
   console.warn(
-    'Orixus: Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Copy .env.example to .env and add your project keys.',
+    'Orixus: Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to the project environment.',
   );
 }
 
-export const supabase = createClient(url ?? '', anonKey ?? '', {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    redirectTo: window.location.origin,
-  },
-});
-
-export const isSupabaseConfigured = Boolean(url && anonKey);
+// Never initialize Supabase with empty credentials: createClient throws before
+// the app can render, preventing the preview from showing its configuration state.
+export const supabase = isSupabaseConfigured
+  ? createClient(url, anonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        redirectTo: window.location.origin,
+      },
+    })
+  : null;

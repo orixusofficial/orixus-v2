@@ -108,7 +108,7 @@
   font-family: var(--font-heading);
   font-size: 10px;
   font-weight: 700;
-  color: var(--color-text-secondary);
+  color: #FFFFFF;
   border-radius: var(--radius-sm);
   transition: all var(--transition-base) var(--ease-premium);
   letter-spacing: 0.08em;

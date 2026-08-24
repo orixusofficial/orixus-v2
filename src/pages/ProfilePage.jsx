@@ -90,6 +90,158 @@ const ACHIEVEMENT_GROUPS = [
   { id: 'SECRET', label: 'Cycles' },
 ];
 
+function RankAscentGraph({ ranks = [], rankInfo }) {
+  const currentLevel = rankInfo?.level ?? 1;
+  const [activeRank, setActiveRank] = useState(null);
+
+  // Desktop coordinate mapping (5 ranks along smooth curve)
+  // X: 8%, 28%, 50%, 72%, 92%
+  // Y: 85%, 68%, 48%, 28%, 10% (Sovereign sits at highest point)
+  const desktopPoints = [
+    { x: 8, y: 85 },
+    { x: 28, y: 68 },
+    { x: 50, y: 48 },
+    { x: 72, y: 28 },
+    { x: 92, y: 10 },
+  ];
+
+  // Mobile coordinate mapping (Bottom to Top ascent curve)
+  // X: 15%, 32%, 52%, 70%, 85%
+  // Y: 88%, 70%, 50%, 30%, 12%
+  const mobilePoints = [
+    { x: 15, y: 88 },
+    { x: 32, y: 70 },
+    { x: 52, y: 50 },
+    { x: 70, y: 30 },
+    { x: 85, y: 12 },
+  ];
+
+  // Generate SVG path curves
+  const createPathD = (pts) => {
+    return pts.reduce((acc, pt, idx) => {
+      if (idx === 0) return `M ${pt.x} ${pt.y}`;
+      const prev = pts[idx - 1];
+      const cx1 = prev.x + (pt.x - prev.x) * 0.5;
+      const cy1 = prev.y;
+      const cx2 = prev.x + (pt.x - prev.x) * 0.5;
+      const cy2 = pt.y;
+      return `${acc} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${pt.x} ${pt.y}`;
+    }, '');
+  };
+
+  const desktopPathD = createPathD(desktopPoints);
+  const mobilePathD = createPathD(mobilePoints);
+
+  const completedPointsDesktop = desktopPoints.slice(0, currentLevel);
+  const completedPathDesktopD = completedPointsDesktop.length > 1 ? createPathD(completedPointsDesktop) : '';
+
+  const completedPointsMobile = mobilePoints.slice(0, currentLevel);
+  const completedPathMobileD = completedPointsMobile.length > 1 ? createPathD(completedPointsMobile) : '';
+
+  // Selected or current rank information for mobile tap display / active selection
+  const activeRankData = activeRank || ranks[currentLevel - 1] || ranks[0];
+
+  return (
+    <div className="ascent-graph-container">
+      {/* ── Desktop Ascent Graph (bottom-left → top-right curve) ── */}
+      <div className="ascent-graph-desktop" aria-label="Ascending rank progression map">
+        <svg className="ascent-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+          {/* Muted full background curve */}
+          <path d={desktopPathD} className="ascent-path-bg" />
+          {/* Active completed curve */}
+          {completedPathDesktopD && <path d={completedPathDesktopD} className="ascent-path-completed" />}
+        </svg>
+
+        {ranks.map((rank, index) => {
+          const isCurrent = index === currentLevel - 1;
+          const isCompleted = index < currentLevel - 1;
+          const pt = desktopPoints[index];
+          const isSovereign = index === ranks.length - 1;
+
+          return (
+            <div
+              key={rank.name}
+              className={`ascent-node-wrap ${isCurrent ? 'ascent-node-wrap--current' : isCompleted ? 'ascent-node-wrap--completed' : 'ascent-node-wrap--future'} ${isSovereign ? 'ascent-node-wrap--sovereign' : ''}`}
+              style={{ left: `${pt.x}%`, top: `${pt.y}%` }}
+            >
+              <div className="ascent-node-interactive">
+                {/* Node marker */}
+                <div className="ascent-node-marker">
+                  {isCurrent && <span className="ascent-node-ring" />}
+                </div>
+
+                {/* Always visible rank label */}
+                <div className="ascent-node-label-box">
+                  <span className="ascent-node-title">{rank.name}</span>
+                  {isCurrent && <span className="ascent-node-status-tag">CURRENT</span>}
+                </div>
+
+                {/* Hover Tooltip / Popover */}
+                <div className="ascent-tooltip">
+                  <span className="ascent-tooltip__name">{rank.name}</span>
+                  <div className="ascent-tooltip__reqs">
+                    <span>{rank.minStreak} DAY STREAK</span>
+                    <span>{rank.minHabits} HABITS</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── Mobile Ascent Graph (Bottom → Top ascending curve) ── */}
+      <div className="ascent-graph-mobile" aria-label="Ascending rank progression mobile map">
+        <svg className="ascent-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <path d={mobilePathD} className="ascent-path-bg" />
+          {completedPathMobileD && <path d={completedPathMobileD} className="ascent-path-completed" />}
+        </svg>
+
+        {ranks.map((rank, index) => {
+          const isCurrent = index === currentLevel - 1;
+          const isCompleted = index < currentLevel - 1;
+          const isSelected = activeRankData.name === rank.name;
+          const pt = mobilePoints[index];
+          const isSovereign = index === ranks.length - 1;
+
+          return (
+            <button
+              key={rank.name}
+              type="button"
+              className={`ascent-mobile-node ${isCurrent ? 'ascent-mobile-node--current' : isCompleted ? 'ascent-mobile-node--completed' : 'ascent-mobile-node--future'} ${isSelected ? 'ascent-mobile-node--selected' : ''} ${isSovereign ? 'ascent-mobile-node--sovereign' : ''}`}
+              style={{ left: `${pt.x}%`, top: `${pt.y}%` }}
+              onClick={() => setActiveRank(rank)}
+              aria-label={`Select rank ${rank.name}`}
+            >
+              <div className="ascent-node-marker">
+                {isCurrent && <span className="ascent-node-ring" />}
+              </div>
+              <span className="ascent-mobile-node-name">{rank.name}</span>
+            </button>
+          );
+        })}
+
+        {/* Compact Mobile Requirement Panel on Tap */}
+        {activeRankData && (
+          <div className="ascent-mobile-info">
+            <div className="ascent-mobile-info__header">
+              <span className="ascent-mobile-info__title">{activeRankData.name}</span>
+              {activeRankData.name === (ranks[currentLevel - 1]?.name) && (
+                <span className="ascent-mobile-info__badge">CURRENT RANK</span>
+              )}
+            </div>
+            <div className="ascent-mobile-info__stats">
+              <span>{activeRankData.minStreak} DAY STREAK</span>
+              <span>•</span>
+              <span>{activeRankData.minHabits} HABITS</span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function ProfilePage({ habits = [], completionData = {}, journalEntries = [], profile = null }) {
   const { user } = useAuth();
   const isEmailVerified = Boolean(user?.email_confirmed_at);
@@ -255,31 +407,28 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
       </section>
 
       <div className="profile-two-column">
-        <section className={`profile-section-card ${loading ? 'profile-section-card--loading' : ''}`}>
-          <h3 className="profile-section-card__title">RANK PROGRESSION</h3>
-          <div className="profile-rank-list">
-            {RANKS.map((rank, index) => (
-              <div key={rank.name} className={`profile-rank-item ${index === metrics.rankInfo.level - 1 ? 'profile-rank-item--current' : index < metrics.rankInfo.level - 1 ? 'profile-rank-item--completed' : 'profile-rank-item--locked'}`}>
-                <div className="profile-rank-item__rail">
-                  <span className="profile-rank-item__dot" />
-                </div>
-                <div className="profile-rank-item__main">
-                  <span className="profile-rank-item__name">{rank.name}</span>
-                  <span className="profile-rank-item__requirement">{rank.minStreak} day streak + {rank.minHabits} habits</span>
-                </div>
-                {index === metrics.rankInfo.level - 1 && (
-                  <span className="profile-rank-item__status">Current</span>
-                )}
-              </div>
-            ))}
+        <section className={`profile-section-card profile-section-card--rank ${loading ? 'profile-section-card--loading' : ''}`}>
+          <div className="profile-rank-header">
+            <h3 className="profile-section-card__title">RANK PROGRESSION</h3>
+            <span className="profile-rank-header__sub">YOUR ASCENSION</span>
           </div>
+
+          {/* ── Ascending Graph (Desktop & Mobile Unified Concept) ── */}
+          <RankAscentGraph ranks={RANKS} rankInfo={metrics.rankInfo} />
         </section>
 
-        <section className={`profile-section-card ${loading ? 'profile-section-card--loading' : ''}`}>
-          <h3 className="profile-section-card__title">ACHIEVEMENTS</h3>
+        <section className={`profile-section-card profile-section-card--achievements ${loading ? 'profile-section-card--loading' : ''}`}>
+          <div className="profile-achievements-header">
+            <h3 className="profile-section-card__title">ACHIEVEMENTS</h3>
+            <span className="profile-achievements-header__count">
+              {achievements.filter(a => a.unlocked).length} / {achievements.length}
+            </span>
+          </div>
+
           <div className="profile-achievement-groups">
             {achievementGroups.map(group => {
               const isOpen = openAchievementGroup === group.id;
+              const percent = group.total > 0 ? Math.round((group.completed / group.total) * 100) : 0;
 
               return (
                 <div key={group.id} className={`profile-achievement-group ${isOpen ? 'profile-achievement-group--open' : ''}`}>
@@ -289,10 +438,24 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
                     onClick={() => setOpenAchievementGroup(isOpen ? null : group.id)}
                     aria-expanded={isOpen}
                   >
-                    <span className="profile-achievement-group__name">{group.label}</span>
-                    <span className="profile-achievement-group__count">{group.completed} / {group.total}</span>
-                    <span className="profile-achievement-group__chevron" aria-hidden="true">{isOpen ? '⌄' : '›'}</span>
+                    <div className="profile-achievement-group__left">
+                      <span className="profile-achievement-group__indicator" />
+                      <span className="profile-achievement-group__name">{group.label}</span>
+                    </div>
+
+                    <div className="profile-achievement-group__right">
+                      <span className="profile-achievement-group__count">{group.completed} / {group.total}</span>
+                      <span className="profile-achievement-group__chevron" aria-hidden="true">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      </span>
+                    </div>
                   </button>
+
+                  <div className="profile-achievement-group__progress-track">
+                    <div className="profile-achievement-group__progress-bar" style={{ width: `${percent}%` }} />
+                  </div>
 
                   {isOpen && (
                     <div className="profile-achievement-list">
@@ -304,32 +467,27 @@ export default function ProfilePage({ habits = [], completionData = {}, journalE
 
                         return (
                           <div key={achievement.id} className={`profile-achievement-item ${achievement.unlocked ? 'profile-achievement-item--unlocked' : 'profile-achievement-item--locked'}`}>
-                            <div className="profile-achievement-item__icon">
-                              {isSecretLocked ? (
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                                </svg>
-                              ) : (
-                                ICONS[achievement.icon] || ICONS.diamond
-                              )}
+                            <div className="profile-achievement-item__marker">
+                              <span className="profile-achievement-item__dot" />
                             </div>
+
                             <div className="profile-achievement-item__content">
-                              <span className="profile-achievement-item__name">
+                              <div className="profile-achievement-item__name">
                                 {isSecretLocked ? '???' : achievement.name}
-                              </span>
-                              <span className="profile-achievement-item__description">
-                                {isSecretLocked ? 'Complete the requirement to reveal' : achievement.description}
-                              </span>
+                              </div>
+                              <div className="profile-achievement-item__description">
+                                {isSecretLocked ? 'Complete requirement to reveal secret' : achievement.description}
+                              </div>
                               {progress && (
-                                <span className="profile-achievement-item__progress">
+                                <div className="profile-achievement-item__progress">
                                   {progress.current} / {progress.target}
-                                </span>
+                                </div>
                               )}
                             </div>
-                            <span className="profile-achievement-item__status">
-                              {achievement.unlocked ? 'Complete' : 'Locked'}
-                            </span>
+
+                            <div className="profile-achievement-item__status">
+                              {achievement.unlocked ? '✓' : '—'}
+                            </div>
                           </div>
                         );
                       })}

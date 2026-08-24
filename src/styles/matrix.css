@@ -30,34 +30,44 @@
 
 @media (max-width: 768px) {
   .matrix__header {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-areas:
-      "title title"
-      "add custom";
-    gap: var(--space-sm) var(--space-md);
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-sm);
   }
 
   .matrix__header-left {
-    display: contents;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
   }
 
   .matrix__title {
-    grid-area: title;
-  }
-
-  .matrix__add-btn {
-    grid-area: add;
-    justify-self: start;
+    font-size: var(--text-base);
   }
 
   .matrix__range {
-    grid-area: custom;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs);
+  }
+
+  .matrix__range-btn {
+    padding: 8px 10px;
+    font-size: 9px;
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 430px) {
+  .matrix__range {
     gap: 2px;
-    justify-self: end;
+  }
+
+  .matrix__range-btn {
+    padding: 6px 8px;
+    font-size: 8px;
   }
 }
 
@@ -128,6 +138,30 @@
   box-shadow: 0 4px 12px rgba(197, 160, 89, 0.3);
 }
 
+.matrix__range-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.matrix__range-btn:disabled:hover {
+  background: transparent;
+  color: #FFFFFF;
+}
+
+/* Blocked Duration Feedback Message */
+.matrix__blocked-message {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  padding: var(--space-xs) 0;
+  line-height: 1.4;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* ========================================
    Stats Section — Premium 3-Card Grid
    ======================================== */
@@ -142,6 +176,25 @@
   .matrix__stats-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: var(--space-sm);
+  }
+
+  .matrix__stat-card {
+    min-height: 80px;
+  }
+}
+
+@media (max-width: 430px) {
+  .matrix__stats-grid {
+    gap: var(--space-xs);
+  }
+
+  .matrix__stat-card {
+    padding: var(--space-sm);
+    min-height: 70px;
+  }
+
+  .matrix__stat-card-value {
+    font-size: var(--text-2xl);
   }
 }
 
@@ -222,6 +275,13 @@
   box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.03);
   display: flex;
   flex-direction: column;
+  min-height: 0;
+}
+
+@media (max-width: 768px) {
+  .matrix__grid-wrapper {
+    padding: var(--space-md);
+  }
 }
 
 /* Scroll Container for Matrix */
@@ -592,5 +652,103 @@
   }
   .matrix__label {
     font-size: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .matrix__cell {
+    --cell-size: 20px;
+  }
+  .matrix__day-label {
+    width: 20px;
+    min-width: 20px;
+    font-size: 8px;
+  }
+  .matrix__label-group {
+    width: 80px;
+    min-width: 80px;
+    padding-left: 0;
+  }
+  .matrix__day-labels-spacer {
+    width: 80px;
+    min-width: 80px;
+  }
+  .matrix__row {
+    height: 28px;
+    gap: var(--space-sm);
+  }
+  .matrix__cells {
+    gap: 4px;
+  }
+  .matrix__day-labels-cells {
+    gap: 4px;
+  }
+  .matrix__label {
+    font-size: 9px;
+  }
+  .matrix__remove-btn {
+    width: 14px;
+    height: 14px;
+    font-size: 9px;
+  }
+  .matrix__scroll-container {
+    padding-bottom: var(--space-sm);
+  }
+}
+
+@media (max-width: 430px) {
+  .matrix__cell {
+    --cell-size: 18px;
+  }
+  .matrix__day-label {
+    width: 18px;
+    min-width: 18px;
+    font-size: 7px;
+  }
+  .matrix__label-group {
+    width: 70px;
+    min-width: 70px;
+  }
+  .matrix__day-labels-spacer {
+    width: 70px;
+    min-width: 70px;
+  }
+  .matrix__row {
+    height: 26px;
+    gap: 4px;
+  }
+  .matrix__cells {
+    gap: 3px;
+  }
+  .matrix__day-labels-cells {
+    gap: 3px;
+  }
+  .matrix__label {
+    font-size: 8px;
+  }
+  .matrix__legend {
+    gap: var(--space-md);
+  }
+  .matrix__legend-label {
+    font-size: 9px;
+  }
+  .matrix__legend-cell {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+@media (max-width: 375px) {
+  .matrix__label-group {
+    width: 60px;
+    min-width: 60px;
+  }
+  .matrix__day-labels-spacer {
+    width: 60px;
+    min-width: 60px;
+  }
+  .matrix__label {
+    font-size: 7px;
+    letter-spacing: 0.05em;
   }
 }

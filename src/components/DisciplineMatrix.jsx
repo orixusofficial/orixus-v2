@@ -301,6 +301,7 @@ export default function DisciplineMatrix({
   userId,
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [blockedMessage, setBlockedMessage] = useState(null);
   const scrollContainerRef = useRef(null);
 
   // Set initial scroll position to 0 so day 1 is always visible first
@@ -309,6 +310,14 @@ export default function DisciplineMatrix({
       scrollContainerRef.current.scrollLeft = 0;
     }
   }, []);
+
+  // Auto-hide blocked message after 3.5 seconds
+  useEffect(() => {
+    if (blockedMessage) {
+      const timer = setTimeout(() => setBlockedMessage(null), 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [blockedMessage]);
 
   const activeDaysCount = useMemo(() => {
     const found = STATIC_RANGES.find((r) => r.key === range);
@@ -371,6 +380,15 @@ export default function DisciplineMatrix({
     });
   }, [completionData, onToggleCompletion, setCompletionData]);
 
+  const handlePresetRange = useCallback((presetDays, presetKey, presetLabel) => {
+    if (presetDays < minimumDays) {
+      setBlockedMessage(`${presetLabel} unavailable · You're already on Day ${minimumDays}. Choose ${minimumDays} days or longer.`);
+      return;
+    }
+    setBlockedMessage(null);
+    setRange(presetKey);
+  }, [minimumDays, setRange]);
+
   const stats = useMemo(
     () => computeStats(habits, fixedTimeline, completionData),
     [habits, fixedTimeline, completionData]
@@ -396,7 +414,8 @@ export default function DisciplineMatrix({
             <button
               key={r.key}
               className={`matrix__range-btn${range === r.key ? ' matrix__range-btn--active' : ''}`}
-              onClick={() => setRange(r.key)}
+              onClick={() => handlePresetRange(r.days, r.key, r.label)}
+              disabled={r.days < minimumDays}
             >
               {r.label}
             </button>
@@ -406,11 +425,18 @@ export default function DisciplineMatrix({
             onClick={() => {
               setRange('custom');
               setIsModalOpen(true);
+              setBlockedMessage(null);
             }}
           >
             Custom
           </button>
         </div>
+
+        {blockedMessage && (
+          <div className="matrix__blocked-message">
+            {blockedMessage}
+          </div>
+        )}
       </div>
 
       {/* Modern SaaS 3-Card Metrics Grid */}

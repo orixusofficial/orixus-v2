@@ -16,6 +16,7 @@ export default function HabitsPage({
   habitDisplayMode,
   refreshHabits,
   onUpdateHabitDuration,
+  onUpdateCycleDuration,
   userId,
 }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -69,6 +70,7 @@ export default function HabitsPage({
         setRange={setRange}
         habitDisplayMode={habitDisplayMode}
         onUpdateHabitDuration={onUpdateHabitDuration}
+        onUpdateCycleDuration={onUpdateCycleDuration}
         userId={userId}
       />
     </div>

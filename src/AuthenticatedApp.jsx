@@ -12,6 +12,7 @@ import JournalPage from './pages/JournalPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import LogoutPage from './pages/LogoutPage';
+import UltimateFocusPage from './pages/UltimateFocusPage';
 import HabitsSkeleton from './components/skeleton/HabitsSkeleton';
 import JournalSkeleton from './components/skeleton/JournalSkeleton';
 import ProfileSkeleton from './components/skeleton/ProfileSkeleton';
@@ -194,6 +195,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
     completedCycles,
     createCycle,
     completeCycle,
+    updateCycleDuration,
   } = useUserData();
 
   const username = profile?.display_name || null;
@@ -270,6 +272,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
             habitDisplayMode={profile?.habit_display_mode || 'date'}
             refreshHabits={refresh}
             onUpdateHabitDuration={updateHabitDuration}
+            onUpdateCycleDuration={updateCycleDuration}
             userId={user?.id}
           />
         );
@@ -285,6 +288,8 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
       case 'settings':
         if (loading) return <SettingsSkeleton />;
         return <SettingsPage onLoggedOut={onLoggedOut} profile={profile} updateProfileSettings={updateProfileSettings} refresh={refresh} />;
+      case 'ultimate-focus':
+        return <UltimateFocusPage userId={user?.id} currentCycle={currentCycle} />;
       case 'logout':
         return <LogoutPage onNavigate={handleNavigate} onLoggedOut={onLoggedOut} />;
       default:
@@ -303,6 +308,7 @@ export default function AuthenticatedApp({ activeItem, onNavigate, onLoggedOut }
             habitDisplayMode={profile?.habit_display_mode || 'date'}
             refreshHabits={refresh}
             onUpdateHabitDuration={updateHabitDuration}
+            onUpdateCycleDuration={updateCycleDuration}
             userId={user?.id}
           />
         );

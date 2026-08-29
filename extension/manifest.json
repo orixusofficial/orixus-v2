@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Orixus Ultimate Focus",
+  "version": "1.0.0",
+  "description": "Un-compromised, independent browser enforcement layer for Orixus Ultimate Focus.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Orixus Ultimate Focus"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://orixus.vercel.app/*",
+        "http://localhost/*",
+        "http://127.0.0.1/*"
+      ],
+      "js": ["content-script.js"]
+    }
+  ],
+  "permissions": [
+    "declarativeNetRequest",
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["blocked.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

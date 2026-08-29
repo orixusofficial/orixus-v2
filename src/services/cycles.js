@@ -104,7 +104,40 @@ export async function updateCycleRank(cycleId, userId, rank) {
     .eq('user_id', userId)
     .select()
     .single();
-  
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updateCycleDuration(cycleId, userId, newDuration) {
+  // First fetch the cycle to get start_date
+  const { data: cycle, error: fetchError } = await supabase
+    .from('cycles')
+    .select('start_date')
+    .eq('id', cycleId)
+    .eq('user_id', userId)
+    .single();
+
+  if (fetchError) throw fetchError;
+
+  // Calculate new end_date based on start_date + new duration
+  const startDate = new Date(cycle.start_date);
+  startDate.setHours(0, 0, 0, 0);
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + newDuration);
+
+  // Update both duration and end_date
+  const { data, error } = await supabase
+    .from('cycles')
+    .update({
+      duration: newDuration,
+      end_date: endDate.toISOString().split('T')[0]
+    })
+    .eq('id', cycleId)
+    .eq('user_id', userId)
+    .select()
+    .single();
+
   if (error) throw error;
   return data;
 }

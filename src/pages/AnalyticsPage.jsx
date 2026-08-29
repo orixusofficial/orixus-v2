@@ -697,9 +697,9 @@ export default function AnalyticsPage({ habits, completionData, currentCycle, co
                 })()} of {currentCycle.duration}
               </div>
             </div>
-            
+
             <div className="cycle-progress-bar">
-              <div 
+              <div
                 className="cycle-progress-fill"
                 style={{
                   width: `${(() => {

@@ -525,6 +525,36 @@ export function useUserData() {
     [user, currentCycle],
   );
 
+  const updateCycleDuration = useCallback(
+    async (newDuration) => {
+      if (!user || !currentCycle) return;
+
+      const parsedDuration = Number(newDuration);
+      if (Number.isNaN(parsedDuration) || parsedDuration < 1) return;
+
+      if (user.isMock) {
+        const startDate = new Date(currentCycle.start_date);
+        startDate.setHours(0, 0, 0, 0);
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + parsedDuration);
+
+        const updatedCycle = {
+          ...currentCycle,
+          duration: parsedDuration,
+          end_date: endDate.toISOString().split('T')[0]
+        };
+        setCurrentCycle(updatedCycle);
+        localStorage.setItem('orixus_current_cycle', JSON.stringify(updatedCycle));
+        return updatedCycle;
+      }
+
+      const updatedCycle = await cyclesService.updateCycleDuration(currentCycle.id, user.id, parsedDuration);
+      setCurrentCycle(updatedCycle);
+      return updatedCycle;
+    },
+    [user, currentCycle],
+  );
+
   return {
     habits,
     completionData,
@@ -549,6 +579,7 @@ export function useUserData() {
     createCycle,
     completeCycle,
     updateCycleRank,
+    updateCycleDuration,
   };
 }
 

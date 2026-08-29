@@ -298,6 +298,7 @@ export default function DisciplineMatrix({
   range,
   setRange,
   habitDisplayMode = 'date',
+  onUpdateCycleDuration,
   userId,
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -387,7 +388,8 @@ export default function DisciplineMatrix({
     }
     setBlockedMessage(null);
     setRange(presetKey);
-  }, [minimumDays, setRange]);
+    onUpdateCycleDuration?.(presetDays);
+  }, [minimumDays, setRange, onUpdateCycleDuration]);
 
   const stats = useMemo(
     () => computeStats(habits, fixedTimeline, completionData),
@@ -555,7 +557,10 @@ export default function DisciplineMatrix({
         onClose={() => setIsModalOpen(false)}
         initialValue={customDays}
         minimumDays={minimumDays}
-        onConfirm={(val) => setCustomDays(val)}
+        onConfirm={(val) => {
+          setCustomDays(val);
+          onUpdateCycleDuration?.(val);
+        }}
       />
     </section>
   );

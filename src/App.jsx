@@ -41,6 +41,7 @@ function AppRouter() {
     if (pathname === '/journal') return 'journal';
     if (pathname === '/profile') return 'profile';
     if (pathname === '/settings') return 'settings';
+    if (pathname === '/ultimate-focus') return 'ultimate-focus';
     return 'habits'; // default
   };
 
@@ -60,6 +61,7 @@ function AppRouter() {
       journal: '/journal',
       profile: '/profile',
       settings: '/settings',
+      'ultimate-focus': '/ultimate-focus',
       logout: '/logout'
     };
     if (pathMap[item]) {
@@ -76,7 +78,7 @@ function AppRouter() {
   // Check if on static page route
   const isStaticPage = location.pathname === '/about' || location.pathname === '/contact' || location.pathname === '/privacy' || location.pathname === '/terms' || location.pathname === '/faq' || location.pathname === '/guides' || location.pathname.startsWith('/guides/');
   const isHomeRoute = location.pathname === '/';
-  const isKnownRoute = isHomeRoute || isAdminRoute || isAuthPage || isStaticPage || location.pathname.startsWith('/habits') || location.pathname.startsWith('/analytics') || location.pathname.startsWith('/journal') || location.pathname.startsWith('/profile') || location.pathname.startsWith('/settings') || location.pathname === '/logout';
+  const isKnownRoute = isHomeRoute || isAdminRoute || isAuthPage || isStaticPage || location.pathname.startsWith('/habits') || location.pathname.startsWith('/analytics') || location.pathname.startsWith('/journal') || location.pathname.startsWith('/profile') || location.pathname.startsWith('/settings') || location.pathname.startsWith('/ultimate-focus') || location.pathname === '/logout';
 
   // Ensure a single canonical exists and points to the production domain for static public pages.
   useEffect(() => {

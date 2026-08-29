@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orixus Ultimate Focus</title>
+  <style>
+    :root {
+      --bg: #0b0c0e;
+      --card: #1C1C1E;
+      --border: #2C2C2E;
+      --text: #FFFFFF;
+      --muted: #8E8E93;
+      --accent: #C9A84C;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      width: 320px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 16px;
+    }
+    .popup-card {
+      background-color: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+    .brand {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--text);
+    }
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background-color: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .badge--active {
+      background-color: rgba(201, 168, 76, 0.15);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .timer-box {
+      text-align: center;
+      padding: 16px;
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+    .timer-val {
+      font-family: monospace;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .timer-lbl {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .test-targets {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.4;
+      background-color: var(--bg);
+      padding: 8px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .action-btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      text-align: center;
+      background-color: var(--accent);
+      color: #000000;
+      border: none;
+      font-weight: 700;
+      font-size: 0.8rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .secondary-btn {
+      display: block;
+      width: 100%;
+      padding: 8px;
+      text-align: center;
+      background-color: transparent;
+      color: #ef4444;
+      border: 1px solid #ef4444;
+      font-weight: 600;
+      font-size: 0.75rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="popup-card">
+    <div class="header">
+      <span class="brand">ORIXUS FOCUS</span>
+      <span id="statusBadge" class="badge">INACTIVE</span>
+    </div>
+
+    <div class="timer-box">
+      <div id="timerDigits" class="timer-val">00:00:00</div>
+      <div class="timer-lbl">Time Remaining</div>
+    </div>
+
+    <div class="test-targets">
+      <strong>Blocked Test Domains:</strong><br />
+      • example.com • example.org • example.net
+    </div>
+
+    <div class="btn-group">
+      <button id="activateBtn" class="action-btn">Activate Focus (15m)</button>
+      <button id="endBtn" class="secondary-btn" style="display: none;">End Focus Session</button>
+      <a href="https://orixus.vercel.app/ultimate-focus" target="_blank" class="action-btn" style="background-color: var(--bg); color: var(--text); border: 1px solid var(--border);">
+        Control Center
+      </a>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

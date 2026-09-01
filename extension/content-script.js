@@ -55,4 +55,29 @@ window.addEventListener('message', (event) => {
       () => void chrome.runtime.lastError
     );
   }
+
+  // Lightweight availability check used by the Orixus website to detect the
+  // extension (primary path is FOCUS_PING via externally_connectable; this
+  // bridge covers unpacked/dev installs where the extension ID is unknown and
+  // ported dev servers like http://localhost:5173).
+  if (msg.type === 'ORIXUS_FOCUS_PING') {
+    chrome.runtime.sendMessage({ type: 'GET_STATUS' }, (response) => {
+      if (chrome.runtime.lastError || !response) {
+        window.postMessage({ type: 'ORIXUS_FOCUS_PONG', available: false }, window.location.origin);
+        return;
+      }
+      const session = response.activeSession;
+      const active = !!(session && session.status === 'active' &&
+        new Date(session.expires_at).getTime() > Date.now());
+      // Only expose the minimum state needed by the website UI.
+      window.postMessage(
+        {
+          type: 'ORIXUS_FOCUS_PONG',
+          available: true,
+          session: active ? { status: 'active', expires_at: session.expires_at } : null,
+        },
+        window.location.origin
+      );
+    });
+  }
 });

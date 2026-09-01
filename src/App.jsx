@@ -21,6 +21,7 @@ import GuideRoutinesPage from './pages/GuideRoutinesPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AdminUnauthorized from './admin/AdminUnauthorized';
 import { ADMIN_USER_ID } from './admin/config';
+import { isTauriRuntime } from './lib/desktop';
 import './styles/dashboard.css';
 
 const AuthenticatedApp = lazy(() => import('./AuthenticatedApp'));
@@ -79,6 +80,20 @@ function AppRouter() {
   const isStaticPage = location.pathname === '/about' || location.pathname === '/contact' || location.pathname === '/privacy' || location.pathname === '/terms' || location.pathname === '/faq' || location.pathname === '/guides' || location.pathname.startsWith('/guides/');
   const isHomeRoute = location.pathname === '/';
   const isKnownRoute = isHomeRoute || isAdminRoute || isAuthPage || isStaticPage || location.pathname.startsWith('/habits') || location.pathname.startsWith('/analytics') || location.pathname.startsWith('/journal') || location.pathname.startsWith('/profile') || location.pathname.startsWith('/settings') || location.pathname.startsWith('/ultimate-focus') || location.pathname === '/logout';
+
+  // Desktop (Tauri) runtime — the packaged app never shows the public landing page.
+  const isDesktop = isTauriRuntime();
+
+  // Desktop entry flow: logged-out users land on Login/Sign Up,
+  // logged-in users open directly into the authenticated app.
+  useEffect(() => {
+    if (!isDesktop || loading || isRecovery) return;
+    if (!session && !isAuthPage) {
+      navigate('/login', { replace: true });
+    } else if (session && isHomeRoute) {
+      navigate('/habits', { replace: true });
+    }
+  }, [isDesktop, loading, isRecovery, session, isAuthPage, isHomeRoute, navigate]);
 
   // Ensure a single canonical exists and points to the production domain for static public pages.
   useEffect(() => {
@@ -173,6 +188,17 @@ function AppRouter() {
         </Suspense>
       </>
     );
+  }
+
+  // 2.5 Desktop (Tauri) — never render the public landing page.
+  // While the redirects above take effect, keep showing the loading shell.
+  if (isDesktop && !isRecovery) {
+    if (!session && !isAuthPage) {
+      return <AuthLoading />;
+    }
+    if (session && isHomeRoute) {
+      return <AuthLoading />;
+    }
   }
 
   // 3. Auth pages — show login/signup

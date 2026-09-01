@@ -51,6 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
   activateBtn.addEventListener('click', () => {
     const startedAt = new Date();
     const expiresAt = new Date(startedAt.getTime() + 15 * 60 * 1000);
+    // Same enforcement path as website-initiated commits:
+    // SYNC_SESSION → applyBlockingRules → DNR blocking.
     const mockSession = {
       id: `session-${Date.now()}`,
       status: 'active',
@@ -60,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const mockPolicy = {
       categories: ['Adult', 'Gambling', 'Harmful'],
-      blocked_domains: ['example.com', 'example.org', 'example.net']
+      blocked_domains: []
     };
 
     chrome.runtime.sendMessage(

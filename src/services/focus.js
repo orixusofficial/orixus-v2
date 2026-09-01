@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { sendFocusActivate, sendFocusEnd } from './focusExtension';
 
 export const DEFAULT_CATEGORIES = [
   'Adult',
@@ -112,18 +113,13 @@ export async function createFocusSession(userId, durationMinutes, categories = D
 
   const sessionWithPolicy = { ...session, focus_policies: policy };
 
-  // Broadcast sync event to local browser extension if installed
-  if (typeof window !== 'undefined') {
-    window.postMessage(
-      {
-        type: 'ORIXUS_FOCUS_SESSION_SYNC',
-        payload: { session: sessionWithPolicy, policy },
-      },
-      window.location.origin
-    );
-  }
+  // Send FOCUS_ACTIVATE to the installed extension (after the Supabase
+  // session already exists — no duplicate session creation here).
+  const delivery = await sendFocusActivate(sessionWithPolicy);
 
-  return sessionWithPolicy;
+  // UI-only flag: lets the page warn when browser protection could NOT be
+  // activated because the extension is missing/unavailable.
+  return { ...sessionWithPolicy, _extensionDelivered: delivery.delivered };
 }
 
 export async function endFocusSession(sessionId, userId) {
@@ -147,16 +143,9 @@ export async function endFocusSession(sessionId, userId) {
 
   const sessionWithPolicy = { ...session, focus_policies: policy };
 
-  // Broadcast sync event to extension
-  if (typeof window !== 'undefined') {
-    window.postMessage(
-      {
-        type: 'ORIXUS_FOCUS_SESSION_END',
-        payload: { sessionId },
-      },
-      window.location.origin
-    );
-  }
+  // Send FOCUS_END to the extension. If it cannot be reached, the extension
+  // still expires on its own via its existing expiration alarm.
+  await sendFocusEnd(sessionId);
 
   return sessionWithPolicy;
 }

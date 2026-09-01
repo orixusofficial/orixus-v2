@@ -5,7 +5,17 @@
   "description": "Un-compromised, independent browser enforcement layer for Orixus Ultimate Focus.",
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Orixus Ultimate Focus"
+    "default_title": "Orixus Ultimate Focus",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   },
   "background": {
     "service_worker": "background.js"
@@ -25,6 +35,11 @@
     "storage",
     "alarms"
   ],
+  "externally_connectable": {
+    "matches": [
+      "https://orixus.vercel.app/*"
+    ]
+  },
   "host_permissions": [
     "<all_urls>"
   ],

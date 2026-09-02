@@ -1,5 +1,7 @@
 import { Download, Lock, Monitor, ShieldCheck } from 'lucide-react';
 import JsonLd from '../components/JsonLd';
+import NativeFocusPanel from '../components/NativeFocusPanel';
+import { isTauriRuntime } from '../lib/desktop';
 import '../styles/ultimate-focus.css';
 
 /* ------------------------------------------------------------------
@@ -43,6 +45,9 @@ const CAPABILITIES = [
 
 export default function UltimateFocusPage() {
   const isAppReleased = Boolean(ORIXUS_APP_DOWNLOAD_URL);
+  // Native engine panel renders only inside the Tauri desktop runtime.
+  // The browser version of this page is completely unchanged.
+  const isDesktop = isTauriRuntime();
 
   return (
     <div className="uf-page">
@@ -92,6 +97,8 @@ export default function UltimateFocusPage() {
           <span className="uf-availability">{APP_AVAILABILITY_TEXT}</span>
         </div>
       </header>
+
+      {isDesktop ? <NativeFocusPanel /> : null}
 
       <section className="uf-panel" aria-label="Ultimate Focus capabilities">
         {CAPABILITIES.map(({ id, icon: Icon, title, text }) => (

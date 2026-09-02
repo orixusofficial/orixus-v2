@@ -23,3 +23,15 @@ serde = { version = "1.0", features = ["derive"] }
 log = "0.4"
 tauri = { version = "2.11.3", features = [] }
 tauri-plugin-log = "2"
+
+[target.'cfg(windows)'.dependencies]
+# Windows-native ShellExecuteExW launcher for the privileged DNS helper.
+# windows-sys 0.59 is already in the dependency tree (via Tauri), so this
+# adds no new crate compilation.
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_System_Registry",
+    "Win32_System_Threading",
+] }

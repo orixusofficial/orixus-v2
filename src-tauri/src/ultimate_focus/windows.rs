@@ -14,10 +14,23 @@ use super::dns_resolver::{self, DnsResolverHandle};
 static RESOLVER_HANDLE: Mutex<Option<DnsResolverHandle>> = Mutex::new(None);
 static BLOCKING_ACTIVE: Mutex<bool> = Mutex::new(false);
 static DATA_DIR: Mutex<Option<PathBuf>> = Mutex::new(None);
+static HELPER_SCRIPT: Mutex<Option<PathBuf>> = Mutex::new(None);
 
 pub fn set_data_dir(dir: PathBuf) {
     if let Ok(mut lock) = DATA_DIR.lock() {
         *lock = Some(dir);
+    }
+}
+
+/// Register the packaged location of the DNS helper script, resolved at
+/// startup through Tauri's resource resolver (`BaseDirectory::Resource`).
+/// In a production install this is the only reliable location: the process
+/// working directory is arbitrary (e.g. `C:\Windows\System32` when launched
+/// from the Start Menu), so cwd-relative fallbacks cannot find the script
+/// bundled by `bundle.resources`.
+pub fn set_helper_script_path(path: PathBuf) {
+    if let Ok(mut lock) = HELPER_SCRIPT.lock() {
+        *lock = Some(path);
     }
 }
 
@@ -32,6 +45,25 @@ fn get_snapshot_path() -> Result<PathBuf, BlockerError> {
 }
 
 fn get_helper_script_path() -> Result<PathBuf, BlockerError> {
+    // 1. Packaged resource location (registered at startup via Tauri's
+    //    resource resolver). This is the production path: the helper is
+    //    bundled next to the executable's resource directory regardless of
+    //    the process working directory.
+    if let Ok(lock) = HELPER_SCRIPT.lock() {
+        if let Some(path) = lock.as_ref() {
+            if path.exists() {
+                return Ok(path.clone());
+            }
+            log::warn!(
+                "ultimate focus: registered helper resource missing on disk: {}",
+                path.display()
+            );
+        }
+    }
+
+    // 2. Fallback for `tauri dev`, preserving the historical cwd-relative
+    //    resolution unchanged (dev runs from the repository, not an
+    //    install directory).
     let mut path = std::env::current_dir().unwrap_or_default();
     path.push("src-tauri");
     path.push("scripts");

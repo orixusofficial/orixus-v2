@@ -38,6 +38,20 @@ pub fn init(app: &AppHandle) -> Result<(), String> {
 
     windows::set_data_dir(data_dir.clone());
 
+    // Resolve the packaged DNS helper script through Tauri's resource
+    // resolver (`BaseDirectory::Resource`). In a production install the
+    // process working directory is arbitrary, so the helper must be located
+    // via the bundled resource location, not the cwd.
+    match app.path().resolve(
+        "scripts/orixus-dns-helper.ps1",
+        tauri::path::BaseDirectory::Resource,
+    ) {
+        Ok(path) => windows::set_helper_script_path(path),
+        Err(err) => log::warn!(
+            "ultimate focus: could not resolve helper script resource: {err}"
+        ),
+    }
+
     // Perform emergency startup recovery if an orphaned snapshot exists
     windows::perform_startup_recovery();
 

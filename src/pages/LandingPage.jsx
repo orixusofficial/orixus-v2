@@ -6,6 +6,11 @@ import '../styles/landing.css';
 import ScrollReveal from '../components/ScrollReveal';
 import FaqAccordion from '../components/FaqAccordion';
 import InstallModal from '../components/InstallModal';
+
+const WINDOWS_DOWNLOAD_URL =
+  import.meta.env.VITE_WINDOWS_DOWNLOAD_URL ||
+  'https://github.com/orixusofficial/orixus-v2/releases/download/v0.1.0/orixus_0.1.0_x64-setup.exe';
+
 const GUIDE_CATEGORIES = [
   { id: 'discipline', label: 'Discipline' },
   { id: 'consistency', label: 'Consistency' },
@@ -41,6 +46,7 @@ const FEATURED_GUIDES = [
 const NAV_LINKS = [
   { label: 'Why Orixus', target: 'why-orixus' },
   { label: 'How It Works', target: 'how-it-works' },
+  { label: 'Desktop', target: 'desktop-download' },
   { label: 'FAQ', target: 'faq' },
 ];
 
@@ -662,9 +668,10 @@ export default function LandingPage({ onOpenAuth }) {
             </div>
 
             <nav className="lp-mob-menu__nav" aria-label="Mobile navigation">
-              <a href="#why-orixus"   className="lp-mob-menu__link" onClick={(e) => handleSectionClick(e, 'why-orixus')}>Why Orixus</a>
-              <a href="#how-it-works" className="lp-mob-menu__link" onClick={(e) => handleSectionClick(e, 'how-it-works')}>How It Works</a>
-              <a href="#faq"          className="lp-mob-menu__link" onClick={(e) => handleSectionClick(e, 'faq')}>FAQ</a>
+              <a href="#why-orixus"        className="lp-mob-menu__link" onClick={(e) => handleSectionClick(e, 'why-orixus')}>Why Orixus</a>
+              <a href="#how-it-works"      className="lp-mob-menu__link" onClick={(e) => handleSectionClick(e, 'how-it-works')}>How It Works</a>
+              <a href="#desktop-download"  className="lp-mob-menu__link" onClick={(e) => handleSectionClick(e, 'desktop-download')}>Desktop</a>
+              <a href="#faq"               className="lp-mob-menu__link" onClick={(e) => handleSectionClick(e, 'faq')}>FAQ</a>
               <div className="lp-mob-menu__divider" />
               <button className="lp-mob-menu__link lp-mob-menu__link--secondary" onClick={handleLogIn}>Login</button>
               <button className="lp-mob-menu__link lp-mob-menu__link--primary" onClick={handleSignUp}>Start Free</button>
@@ -781,6 +788,43 @@ export default function LandingPage({ onOpenAuth }) {
             {PRODUCT_AREAS.map((area) => (
               <ProductArea area={area} key={area.id} />
             ))}
+          </div>
+        </section>
+
+        <section className="landing-section landing-desktop-download" id="desktop-download">
+          <SectionHeader
+            eyebrow="Desktop Experience"
+            title="Get Orixus for Windows"
+          >
+            Build your system on desktop with the full Orixus experience.
+          </SectionHeader>
+
+          <div className="landing-desktop-card">
+            <div className="landing-desktop-card__content">
+              <h3>Orixus for Windows</h3>
+              <p>Build your system on desktop with the full Orixus experience.</p>
+            </div>
+            <div className="landing-desktop-card__action">
+              {WINDOWS_DOWNLOAD_URL ? (
+                <a
+                  className="landing-btn-primary landing-download-btn"
+                  href={WINDOWS_DOWNLOAD_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <FaDownload size={14} style={{ marginRight: '8px' }} />
+                  <span>Download for Windows</span>
+                </a>
+              ) : (
+                <span
+                  className="landing-btn-primary landing-download-btn landing-download-btn--disabled"
+                  title="Set VITE_WINDOWS_DOWNLOAD_URL to enable the Windows download"
+                >
+                  <FaDownload size={14} style={{ marginRight: '8px' }} />
+                  <span>Windows download unavailable</span>
+                </span>
+              )}
+            </div>
           </div>
         </section>
 

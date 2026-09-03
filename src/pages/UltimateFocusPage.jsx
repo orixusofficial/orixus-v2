@@ -13,14 +13,17 @@ import '../styles/ultimate-focus.css';
  * present browser-extension installation UI.
  *
  * ── App download configuration ───────────────────────────────────
- * Set ORIXUS_APP_DOWNLOAD_URL to the official, public download page
- * once the desktop app is released. While it is null, the CTA
- * honestly communicates "coming soon" and does not link anywhere
- * (no GitHub, no unfinished installers, no placeholder URLs).
+ * Same mechanism as the landing page (src/pages/LandingPage.jsx):
+ * VITE_WINDOWS_DOWNLOAD_URL overrides, falling back to the published
+ * v0.1.0 Windows installer asset on GitHub Releases.
  * ----------------------------------------------------------------- */
-const ORIXUS_APP_DOWNLOAD_URL = null;
+const ORIXUS_APP_DOWNLOAD_URL =
+  import.meta.env.VITE_WINDOWS_DOWNLOAD_URL ||
+  'https://github.com/orixusofficial/orixus-v2/releases/download/v0.1.0/orixus_0.1.0_x64-setup.exe';
 
-const APP_AVAILABILITY_TEXT = 'Desktop available soon · Mobile coming soon';
+const APP_AVAILABILITY_TEXT = ORIXUS_APP_DOWNLOAD_URL
+  ? 'Available for Windows'
+  : 'Desktop available soon · Mobile coming soon';
 
 const CAPABILITIES = [
   {
@@ -79,9 +82,14 @@ export default function UltimateFocusPage() {
 
         <div className="uf-cta-row">
           {isAppReleased ? (
-            <a className="uf-cta" href={ORIXUS_APP_DOWNLOAD_URL}>
+            <a
+              className="uf-cta"
+              href={ORIXUS_APP_DOWNLOAD_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Download size={15} strokeWidth={2.25} aria-hidden="true" />
-              <span>Download Orixus App</span>
+              <span>Download for Windows</span>
             </a>
           ) : (
             <span

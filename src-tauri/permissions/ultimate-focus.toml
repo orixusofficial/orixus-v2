@@ -1,0 +1,9 @@
+[[permission]]
+identifier = "allow-ultimate-focus"
+description = "Allows the frontend to control and read the native Ultimate Focus engine."
+
+commands.allow = [
+    "get_ultimate_focus_status",
+    "enable_ultimate_focus",
+    "disable_ultimate_focus"
+]
